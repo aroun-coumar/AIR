@@ -1,0 +1,63 @@
+{
+  "$schema": "ar.skill_set/1.0",
+  "meta": { "source": "agentic_robotics.integrations.piper", "revision": 1 },
+  "skills": [
+    {
+      "skill_id": "enable_arm", "version": "0.1.0",
+      "description": "Enable all six joint drivers (EnableArm 0x471). Requires the CAN interface to be up; activating it is an operator step.",
+      "required_capabilities": ["manipulation"],
+      "preconditions": [{ "signal": "can.up", "op": "eq", "value": true, "description": "CAN interface is up at the expected bitrate" }],
+      "postconditions": [{ "signal": "arm.enabled", "op": "eq", "value": true, "description": "all joint drivers enabled" }],
+      "side_effects": ["energizes_motors"], "interruption": "none",
+      "execution": { "deadline_s": 10.0, "max_input_age_s": 0.5 }
+    },
+    {
+      "skill_id": "move_joints", "version": "0.1.0",
+      "description": "MOVE J to six joint angles (radians) through JointCtrl. Targets are clamped to the SDK's documented joint limits; a clamped target fails verification.",
+      "inputs": [
+        { "name": "j1", "type": "number", "unit": "rad", "minimum": -3.2, "maximum": 3.2 },
+        { "name": "j2", "type": "number", "unit": "rad", "minimum": -3.2, "maximum": 3.2 },
+        { "name": "j3", "type": "number", "unit": "rad", "minimum": -3.2, "maximum": 3.2 },
+        { "name": "j4", "type": "number", "unit": "rad", "minimum": -3.2, "maximum": 3.2 },
+        { "name": "j5", "type": "number", "unit": "rad", "minimum": -3.2, "maximum": 3.2 },
+        { "name": "j6", "type": "number", "unit": "rad", "minimum": -3.2, "maximum": 3.2 }
+      ],
+      "required_capabilities": ["manipulation"],
+      "preconditions": [
+        { "signal": "can.up", "op": "eq", "value": true, "description": "CAN interface is up" },
+        { "signal": "arm.enabled", "op": "eq", "value": true, "description": "joint drivers enabled" },
+        { "signal": "arm.status", "op": "eq", "value": "normal", "description": "no emergency stop or fault" }
+      ],
+      "postconditions": [
+        { "signal": "arm.joints", "field": "j1", "op": "approx", "value": "$args.j1", "tolerance": 0.01 },
+        { "signal": "arm.joints", "field": "j2", "op": "approx", "value": "$args.j2", "tolerance": 0.01 },
+        { "signal": "arm.joints", "field": "j3", "op": "approx", "value": "$args.j3", "tolerance": 0.01 },
+        { "signal": "arm.joints", "field": "j4", "op": "approx", "value": "$args.j4", "tolerance": 0.01 },
+        { "signal": "arm.joints", "field": "j5", "op": "approx", "value": "$args.j5", "tolerance": 0.01 },
+        { "signal": "arm.joints", "field": "j6", "op": "approx", "value": "$args.j6", "tolerance": 0.01 }
+      ],
+      "side_effects": ["moves_arm"], "interruption": "cancel",
+      "execution": { "deadline_s": 15.0, "max_input_age_s": 0.5, "fallback": "stop" },
+      "expected_evidence": ["arm.joints"]
+    },
+    {
+      "skill_id": "set_gripper", "version": "0.1.0",
+      "description": "Set the gripper opening (metres) through GripperCtrl.",
+      "inputs": [{ "name": "opening_m", "type": "number", "unit": "m", "minimum": 0, "maximum": 0.1 }],
+      "required_capabilities": ["manipulation"],
+      "preconditions": [{ "signal": "can.up", "op": "eq", "value": true, "description": "CAN interface is up" }],
+      "postconditions": [{ "signal": "gripper.opening", "op": "approx", "value": "$args.opening_m", "tolerance": 0.002 }],
+      "side_effects": ["moves_gripper"], "interruption": "cancel",
+      "execution": { "deadline_s": 10.0, "max_input_age_s": 0.5 }
+    },
+    {
+      "skill_id": "reset_estop", "version": "0.1.0",
+      "description": "Resume after a quick stop (EmergencyStop 0x02). A person should have checked the workspace.",
+      "required_capabilities": [],
+      "preconditions": [{ "signal": "can.up", "op": "eq", "value": true, "description": "CAN interface is up" }],
+      "postconditions": [{ "signal": "arm.status", "op": "eq", "value": "normal", "description": "arm status normal" }],
+      "side_effects": ["clears_stop"], "interruption": "none",
+      "execution": { "deadline_s": 5.0, "max_input_age_s": 0.5 }
+    }
+  ]
+}

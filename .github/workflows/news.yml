@@ -1,0 +1,31 @@
+name: news
+
+# Advisory check: a pull request that changes the package should add a news fragment under
+# changelog.d/ (towncrier). It does not change or gate the existing ci workflow.
+on:
+  pull_request:
+    paths:
+      - "src/**"
+
+permissions:
+  contents: read
+
+jobs:
+  fragment:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+        with:
+          persist-credentials: false
+          fetch-depth: 0
+      - name: News fragment present
+        shell: bash
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          git fetch --no-tags origin "$BASE_REF"
+          if git diff --name-only "origin/$BASE_REF"...HEAD | grep -E '^changelog\.d/.+\.(breaking|feature|fix|deprecation|doc|misc)\.md$'; then
+            echo "news fragment found"
+          else
+            echo "::warning::no news fragment in changelog.d/ (see changelog.d/README.md)"
+          fi

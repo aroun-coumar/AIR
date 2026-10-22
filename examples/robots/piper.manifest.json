@@ -1,0 +1,273 @@
+{
+  "$schema": "ar.component_manifest/1.1",
+  "meta": {
+    "source": "examples",
+    "revision": 1
+  },
+  "robot_id": "piper-1",
+  "name": "AgileX Piper arm (example)",
+  "hardware_revision": "example-A",
+  "robot_class": "robot.industrial.articulated_6axis",
+  "description": "AgileX Piper 6-DoF arm over CAN through piper_sdk (C_PiperInterface_V2). The CAN interface must be activated by an operator (can_activate.sh); AIR checks it as a precondition and never activates it. Values are examples.",
+  "adapter": {
+    "kind": "agilex_piper",
+    "profile": "piper_sdk-v2",
+    "config": {
+      "can_name": "can0",
+      "expected_bitrate": 1000000
+    }
+  },
+  "nominal_capabilities": [
+    "manipulation"
+  ],
+  "frames": [
+    "base_link"
+  ],
+  "components": [
+    {
+      "component_id": "usb-can",
+      "kind": "USB-CAN adapter",
+      "revision": "r1",
+      "type_id": "comms.can.usb_adapter",
+      "properties": {
+        "channels": 1,
+        "can_fd_capable": false,
+        "driver_api": "socketcan"
+      },
+      "interfaces": [
+        {
+          "name": "can0",
+          "kind": "can.classic"
+        }
+      ]
+    },
+    {
+      "component_id": "gripper",
+      "kind": "Parallel gripper",
+      "revision": "r1",
+      "type_id": "end_effector.gripper.parallel.electric",
+      "properties": {
+        "gripping_force": {
+          "value": 40,
+          "unit": "N"
+        },
+        "stroke_per_jaw": {
+          "value": 35,
+          "unit": "mm"
+        },
+        "payload": {
+          "value": 1.5,
+          "unit": "kg"
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        }
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.classic"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-1",
+      "kind": "Arm joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 5,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 10,
+          "unit": "N*m"
+        },
+        "gear_ratio": 10
+      },
+      "relations": [
+        {
+          "kind": "communicates_via",
+          "target": "usb-can"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.classic"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-2",
+      "kind": "Arm joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 5,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 10,
+          "unit": "N*m"
+        },
+        "gear_ratio": 10
+      },
+      "relations": [
+        {
+          "kind": "communicates_via",
+          "target": "usb-can"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.classic"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-3",
+      "kind": "Arm joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 5,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 10,
+          "unit": "N*m"
+        },
+        "gear_ratio": 10
+      },
+      "relations": [
+        {
+          "kind": "communicates_via",
+          "target": "usb-can"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.classic"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-4",
+      "kind": "Arm joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 5,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 10,
+          "unit": "N*m"
+        },
+        "gear_ratio": 10
+      },
+      "relations": [
+        {
+          "kind": "communicates_via",
+          "target": "usb-can"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.classic"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-5",
+      "kind": "Arm joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 5,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 10,
+          "unit": "N*m"
+        },
+        "gear_ratio": 10
+      },
+      "relations": [
+        {
+          "kind": "communicates_via",
+          "target": "usb-can"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.classic"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-6",
+      "kind": "Arm joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 5,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 10,
+          "unit": "N*m"
+        },
+        "gear_ratio": 10
+      },
+      "relations": [
+        {
+          "kind": "communicates_via",
+          "target": "usb-can"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.classic"
+        }
+      ]
+    }
+  ]
+}

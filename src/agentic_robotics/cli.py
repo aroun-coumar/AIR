@@ -135,7 +135,9 @@ def build_parser() -> argparse.ArgumentParser:
     rs.add_parser("list")
     r.set_defaults(fn=_registry)
 
+    from .doctor import add_commands as add_doctor_commands
     from .hardware.cli import add_commands as add_hardware_commands
+    from .mcp.cli import add_commands as add_mcp_commands
     from .provenance.cli import add_commands
     from .triage.cli import add_commands as add_triage_commands
     from .work.cli import add_commands as add_work_commands
@@ -143,6 +145,8 @@ def build_parser() -> argparse.ArgumentParser:
     add_work_commands(sub)
     add_triage_commands(sub)
     add_hardware_commands(sub)
+    add_mcp_commands(sub)
+    add_doctor_commands(sub)
     return p
 
 

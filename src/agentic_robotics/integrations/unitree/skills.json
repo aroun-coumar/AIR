@@ -1,0 +1,97 @@
+{
+  "$schema": "ar.skill_set/1.0",
+  "meta": { "source": "agentic_robotics.integrations.unitree", "revision": 1 },
+  "skills": [
+    {
+      "skill_id": "stand_up", "version": "0.1.0",
+      "description": "Sport service StandUp (api 1004). Verified from SportModeState body_height; the 0.25 m threshold is a Go2-class assumption, adjust per model.",
+      "required_capabilities": ["locomotion"],
+      "postconditions": [{ "signal": "sport.body_height", "op": "ge", "value": 0.25, "description": "body raised" }],
+      "side_effects": ["moves_joints"], "interruption": "none",
+      "execution": { "deadline_s": 10.0, "max_input_age_s": 0.5 }, "experimental": true
+    },
+    {
+      "skill_id": "stand_down", "version": "0.1.0",
+      "description": "Sport service StandDown (api 1005): lie down.",
+      "required_capabilities": ["locomotion"],
+      "postconditions": [{ "signal": "sport.body_height", "op": "le", "value": 0.15, "description": "body lowered" }],
+      "side_effects": ["moves_joints"], "interruption": "none",
+      "execution": { "deadline_s": 10.0, "max_input_age_s": 0.5 }, "experimental": true
+    },
+    {
+      "skill_id": "balance_stand", "version": "0.1.0",
+      "description": "Sport service BalanceStand (api 1002).",
+      "required_capabilities": ["locomotion"],
+      "postconditions": [{ "signal": "sport.body_height", "op": "ge", "value": 0.25, "description": "standing" }],
+      "side_effects": ["moves_joints"], "interruption": "none",
+      "execution": { "deadline_s": 10.0, "max_input_age_s": 0.5 }, "experimental": true
+    },
+    {
+      "skill_id": "recovery_stand", "version": "0.1.0",
+      "description": "Sport service RecoveryStand (api 1006): stand up from a fall.",
+      "required_capabilities": ["locomotion"],
+      "postconditions": [{ "signal": "sport.body_height", "op": "ge", "value": 0.25, "description": "standing" }],
+      "side_effects": ["moves_joints"], "interruption": "none",
+      "execution": { "deadline_s": 15.0, "max_input_age_s": 0.5 }, "experimental": true
+    },
+    {
+      "skill_id": "damp", "version": "0.1.0",
+      "description": "Sport service Damp (api 1001): motors go to damping. No observable postcondition is modelled, so the outcome stays REPORTED_COMPLETE.",
+      "required_capabilities": ["locomotion"],
+      "side_effects": ["moves_joints"], "interruption": "none",
+      "execution": { "deadline_s": 5.0, "max_input_age_s": 0.5 }
+    },
+    {
+      "skill_id": "stop_move", "version": "0.1.0",
+      "description": "Sport service StopMove (api 1003).",
+      "required_capabilities": ["locomotion"],
+      "interruption": "none",
+      "execution": { "deadline_s": 5.0, "max_input_age_s": 0.5 }
+    },
+    {
+      "skill_id": "walk_to", "version": "0.1.0",
+      "description": "Walk to a point in the sport odometry frame. Move (api 1008) is fire-and-forget, so it is refreshed every 0.1 s from a closed loop on SportModeState.position.",
+      "inputs": [
+        { "name": "x", "type": "number", "unit": "m", "minimum": -20, "maximum": 20 },
+        { "name": "y", "type": "number", "unit": "m", "minimum": -20, "maximum": 20 }
+      ],
+      "required_capabilities": ["locomotion"],
+      "preconditions": [{ "signal": "sport.body_height", "op": "ge", "value": 0.25, "description": "robot is standing" }],
+      "postconditions": [
+        { "signal": "sport.pose", "field": "x", "op": "approx", "value": "$args.x", "tolerance": 0.15 },
+        { "signal": "sport.pose", "field": "y", "op": "approx", "value": "$args.y", "tolerance": 0.15 }
+      ],
+      "side_effects": ["moves_base"], "interruption": "cancel",
+      "execution": { "deadline_s": 60.0, "period_s": 0.1, "max_input_age_s": 0.5, "fallback": "stop" },
+      "expected_evidence": ["sport.pose"], "experimental": true
+    },
+    {
+      "skill_id": "release_sport_mode", "version": "0.1.0",
+      "description": "motion_switcher ReleaseMode (api 1003): hand the motors from the sport service to low-level control. The robot loses its own balance controller.",
+      "postconditions": [{ "signal": "low.sport_released", "op": "eq", "value": true, "description": "sport service released" }],
+      "side_effects": ["changes_control_mode"], "interruption": "none",
+      "execution": { "deadline_s": 10.0, "max_input_age_s": 1.0 }
+    },
+    {
+      "skill_id": "set_joint_position", "version": "0.1.0",
+      "description": "Ramp one leg joint to a position through rt/lowcmd while rt/lowstate stays fresh. Requires the sport service released, low-level control enabled and an operator-configured joint limit; the target is clamped and requested vs applied is reported.",
+      "inputs": [
+        { "name": "joint", "type": "string", "description": "FR_0 ... RL_2" },
+        { "name": "q", "type": "number", "unit": "rad", "minimum": -3.2, "maximum": 3.2 },
+        { "name": "kp", "type": "number", "required": false, "minimum": 0, "maximum": 100 },
+        { "name": "kd", "type": "number", "required": false, "minimum": 0, "maximum": 10 },
+        { "name": "duration_s", "type": "number", "unit": "s", "required": false, "minimum": 0.01, "maximum": 10 }
+      ],
+      "required_capabilities": ["low_level"],
+      "preconditions": [
+        { "signal": "low.joint.{joint}.q", "op": "present", "description": "fresh rt/lowstate for the joint" }
+      ],
+      "postconditions": [
+        { "signal": "low.joint.{joint}.q", "op": "approx", "value": "$args.q", "tolerance": 0.05 }
+      ],
+      "side_effects": ["moves_joints"], "interruption": "cancel",
+      "execution": { "deadline_s": 15.0, "max_input_age_s": 0.05, "fallback": "stop" },
+      "experimental": true
+    }
+  ]
+}
