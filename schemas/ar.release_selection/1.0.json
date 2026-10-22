@@ -1,0 +1,159 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.release_selection/1.0.json",
+  "title": "ar.release_selection/1.0",
+  "type": "object",
+  "description": "Release candidates: the Pareto set re-validated on held-out seeds.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.release_selection/1\\.\\d+|https?://.+/ar\\.release_selection/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "search_id": {
+      "type": "string"
+    },
+    "held_out_seeds": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      }
+    },
+    "considered": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "revalidated": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CandidateSummary"
+      },
+      "default": []
+    },
+    "rejected": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "selected": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "rationale": {
+      "type": "string",
+      "default": ""
+    },
+    "activity_id": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "search_id",
+    "held_out_seeds",
+    "considered"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "CandidateSummary": {
+      "type": "object",
+      "properties": {
+        "candidate": {
+          "type": "string"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "failed",
+            "pruned",
+            "abandoned"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "default": ""
+        },
+        "trials": {
+          "type": "integer",
+          "default": 0
+        },
+        "complete": {
+          "type": "integer",
+          "default": 0
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "feasible": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "candidate",
+        "config",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

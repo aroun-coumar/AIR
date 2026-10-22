@@ -25,6 +25,8 @@ dependencies = []
 [project.optional-dependencies]
 # Claude models via the official Anthropic SDK. Local/open models need no extra.
 anthropic = ["anthropic>=2.1"]
+# Optuna as a sampler for engineering.search (AIR stays the system of record).
+optuna = ["optuna>=3.6"]
 dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6", "mypy>=1.11", "jsonschema>=4.23",
        "anthropic>=2.1"]
 

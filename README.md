@@ -376,6 +376,11 @@ use only public protocols, and nothing in the core imports an integration. See
 | Domain briefing (D01–D19) for agents and people | `air hardware brief D02 D14` |
 | Pin a datasheet to a component | `air hardware attach robot.manifest.json wheel-left sheet.pdf` |
 | Export as W3C WoT Thing Model or JSON-LD | `air hardware export sensor.imu.mems_6axis` |
+| Run a seeded experiment and record it | `air experiment run --config kp=4 --seed 7 --episodes 3 --record` |
+| Measure reproducibility (exact / within tolerance / differs) | `air experiment probe --backend pointmass` |
+| Record and re-check per-platform golden runs | `air experiment golden record --name settle` · `air experiment golden check` |
+| Constrained search with held-out release selection | `air experiment search --param kp=0.5:8 --objective energy --constraint overshoot<=0.2 --held-out 11,12 --record` |
+| Sim-to-real validity of a benchmark; invalidate a result | `air experiment validity --benchmark … --sim a=0.8 --real a=0.7 …` · `air experiment invalidate <id> --by … --reason …` |
 
 ## Status and roadmap
 
@@ -408,6 +413,7 @@ src/agentic_robotics/
 ├── agents/        context selection · task agent · providers/ (OpenAI-compatible, Anthropic, router)
 ├── work/          sandboxes · work contracts · guarded tools · work agent · proposals
 ├── provenance/    tracing · ledger · project · traceability · explain · context pack · sources
+├── engineering/   experiment backends · seeds · reproducibility probe · golden runs · search · validity
 ├── hardware/      device catalog: 100 robot classes · 648 device types · 122 protocols · manifest checks
 ├── integrations/  fake carrier and arm (reference adapters)
 └── testing/       pytest evidence plugin

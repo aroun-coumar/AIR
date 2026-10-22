@@ -1,0 +1,265 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.backend_info/1.0.json",
+  "title": "ar.backend_info/1.0",
+  "type": "object",
+  "description": "The backend actually used for an experiment, as resolved at load.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.backend_info/1\\.\\d+|https?://.+/ar\\.backend_info/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "backend": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string",
+      "default": ""
+    },
+    "build_ids": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "platform": {
+      "type": "string",
+      "default": ""
+    },
+    "requested_device": {
+      "type": "string",
+      "default": "cpu"
+    },
+    "actual_device": {
+      "type": "string",
+      "default": "cpu"
+    },
+    "capabilities": {
+      "$ref": "#/$defs/BackendCapabilities"
+    },
+    "time_policy": {
+      "anyOf": [
+        {
+          "$ref": "#/$defs/TimePolicy"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "resolved_physics_dt": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "resolved_output_interval": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "features": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "out_of_process": {
+      "type": "boolean",
+      "default": false
+    },
+    "non_reproducible": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "backend"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "BackendCapabilities": {
+      "type": "object",
+      "description": "Declared capabilities. Every flag defaults to false (RoboVerse ``BaseSimHandler``).",
+      "properties": {
+        "fidelity": {
+          "type": "object",
+          "additionalProperties": {
+            "enum": [
+              "unknown",
+              "none",
+              "kinematic",
+              "simplified",
+              "physical",
+              "hardware_in_loop"
+            ]
+          }
+        },
+        "determinism": {
+          "enum": [
+            "unknown",
+            "statistical",
+            "bitwise_same_host",
+            "bitwise"
+          ],
+          "default": "unknown"
+        },
+        "restore_level": {
+          "enum": [
+            "none",
+            "physics",
+            "full_physics",
+            "integration"
+          ],
+          "default": "none"
+        },
+        "restore_lossy": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "unsupported": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "seeded_rngs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "supports_snapshot": {
+          "type": "boolean",
+          "default": false
+        },
+        "supports_lockstep": {
+          "type": "boolean",
+          "default": false
+        },
+        "supports_variable_step": {
+          "type": "boolean",
+          "default": false
+        },
+        "supports_rng_state": {
+          "type": "boolean",
+          "default": false
+        },
+        "vectorized": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "TimePolicy": {
+      "type": "object",
+      "description": "Simulation timing (ManiSkill ``sim_freq % control_freq == 0``; Isaac Lab ``decimation``). ``control_dt`` must be an integer multiple of ``physics_dt``; this is enforced when the policy is built or parsed. A free-running (``lockstep=False``) or variable-step run is valid but marked non-reproducible.",
+      "properties": {
+        "physics_dt": {
+          "type": "number"
+        },
+        "control_dt": {
+          "type": "number"
+        },
+        "episode_length_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "lockstep": {
+          "type": "boolean",
+          "default": true
+        },
+        "variable_step": {
+          "type": "boolean",
+          "default": false
+        },
+        "clock_domain": {
+          "type": "string",
+          "default": "sim"
+        }
+      },
+      "required": [
+        "physics_dt",
+        "control_dt"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

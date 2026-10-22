@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.golden_run/1.0.json",
+  "title": "ar.golden_run/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.golden_run/1\\.\\d+|https?://.+/ar\\.golden_run/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "name": {
+      "type": "string"
+    },
+    "platform": {
+      "type": "string"
+    },
+    "backend": {
+      "type": "string"
+    },
+    "backend_version": {
+      "type": "string"
+    },
+    "runner_version": {
+      "type": "string"
+    },
+    "time_policy": {
+      "$ref": "#/$defs/TimePolicy"
+    },
+    "seed": {
+      "type": "integer"
+    },
+    "steps": {
+      "type": "integer"
+    },
+    "fingerprint": {
+      "type": "string"
+    },
+    "scenario": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "config": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "metrics": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "recorded_at": {
+      "type": "number",
+      "default": 0.0
+    }
+  },
+  "required": [
+    "name",
+    "platform",
+    "backend",
+    "backend_version",
+    "runner_version",
+    "time_policy",
+    "seed",
+    "steps",
+    "fingerprint"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "TimePolicy": {
+      "type": "object",
+      "description": "Simulation timing (ManiSkill ``sim_freq % control_freq == 0``; Isaac Lab ``decimation``). ``control_dt`` must be an integer multiple of ``physics_dt``; this is enforced when the policy is built or parsed. A free-running (``lockstep=False``) or variable-step run is valid but marked non-reproducible.",
+      "properties": {
+        "physics_dt": {
+          "type": "number"
+        },
+        "control_dt": {
+          "type": "number"
+        },
+        "episode_length_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "lockstep": {
+          "type": "boolean",
+          "default": true
+        },
+        "variable_step": {
+          "type": "boolean",
+          "default": false
+        },
+        "clock_domain": {
+          "type": "string",
+          "default": "sim"
+        }
+      },
+      "required": [
+        "physics_dt",
+        "control_dt"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
