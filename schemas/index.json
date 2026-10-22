@@ -16,8 +16,8 @@
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.component_manifest/1.1.json"
   },
   "ar.coordination_message": {
-    "current": "1.0",
-    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.coordination_message/1.0.json"
+    "current": "1.1",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.coordination_message/1.1.json"
   },
   "ar.delegation": {
     "current": "1.0",
@@ -72,8 +72,8 @@
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.requirement_set/1.0.json"
   },
   "ar.resource_reservation": {
-    "current": "1.1",
-    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.resource_reservation/1.1.json"
+    "current": "1.2",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.resource_reservation/1.2.json"
   },
   "ar.sandbox_policy": {
     "current": "1.0",
@@ -96,8 +96,8 @@
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.task_plan/1.1.json"
   },
   "ar.team_plan": {
-    "current": "1.0",
-    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.team_plan/1.0.json"
+    "current": "1.1",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.team_plan/1.1.json"
   },
   "ar.triage_item": {
     "current": "1.0",

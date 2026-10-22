@@ -376,6 +376,7 @@ use only public protocols, and nothing in the core imports an integration. See
 | Domain briefing (D01–D19) for agents and people | `air hardware brief D02 D14` |
 | Pin a datasheet to a component | `air hardware attach robot.manifest.json wheel-left sheet.pdf` |
 | Export as W3C WoT Thing Model or JSON-LD | `air hardware export sensor.imu.mems_6axis` |
+| Watch a robot lose its link mid-prefix, or a mission be cancelled | `air scenario handoff --variant disconnect` · `air scenario handoff --variant cancel` |
 
 ## Status and roadmap
 

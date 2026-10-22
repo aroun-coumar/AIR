@@ -147,3 +147,32 @@ evidence spine ties everything together.
 `provenance` depend on `contracts`/`core`; `runtime` and `agents` use `provenance.tracing`.
 `hardware` depends on `contracts` and `core`. `integrations` depend only on public
 protocols (`plugins`, `contracts`). Nothing in the core imports an integration.
+
+## Team coordination: cancellation, released prefix, liveness, scoped loans
+
+```
+coordinator --COMMIT(order_id, update_id, steps[released], stitch_after, horizon)--> robot
+            <--ACK | NACK(outdated/conflicting/stitch_mismatch/order_cancelled)-------
+            <--STARTED / RESULT / NOT_EXECUTED (per step) ---------------------------
+            --CANCEL(mode=cancel|kill)--> <--CANCEL_RESPONSE(per command accept/reject)
+            --INSTANT(pause|resume|state_request|cancel)--> <--INSTANT_RESPONSE
+            <--HEARTBEAT; transport liveliness: ONLINE / OFFLINE / CONNECTION_BROKEN
+```
+
+- **Cancel:** in-flight tasks go to CANCELLING. They become CANCELLED or KILLED only
+  when the robot confirms the stop, or confirms the step never started. An unconfirmed
+  stop is UNRESOLVED and keeps its holds. A cancel is never success.
+- **Released prefix vs horizon:** `TeamPlan.release_window` releases several steps at
+  once. A robot that loses its link finishes only those steps. The horizon is never
+  executed without contact, and `resume` reconciles by observation.
+- **Liveness:** a broken connection keeps the robot's holds, marks its in-flight tasks
+  UNRESOLVED and gives it no new work. No team-wide reset.
+- **Ordering:** messages carry a per-channel `seq` (gaps are ledgered) and a hybrid
+  logical clock timestamp.
+- **Resources:** `acquire` returns a `Lease`, a scoped loan taken all-or-nothing. Only
+  its token can release it. `claim` gives claim-then-allocate sequences. Modules cover
+  doors, lifts, areas and acknowledged mode switches.
+- **Trust:** `TrustLevel` (ignored, noticed, respected, utilized) grades how far each
+  robot is integrated.
+- See [ADR 0018](decisions/0018-coordination-liveness-resources.md) and
+  `air scenario handoff --variant disconnect|cancel`.

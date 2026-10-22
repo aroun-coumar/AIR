@@ -3,6 +3,12 @@
 :class:`LocalTransport` delivers in-process but behaves like a network: messages are
 asynchronous, and delay, loss, duplication and disconnection can be injected per
 endpoint and per message kind. Coordination code must be correct under all of them.
+
+It also provides *liveliness* (the zenoh / rmw_zenoh pattern): an endpoint declares a
+liveliness token and subscribers learn when tokens appear and disappear. A graceful
+``undeclare_liveliness`` is an OFFLINE fact; a ``disconnect`` drops the token without a
+goodbye, which subscribers see as CONNECTION_BROKEN (the MQTT last-will pattern VDA 5050
+uses). Presence is derived from these facts, never configured.
 """
 
 from __future__ import annotations
@@ -10,20 +16,35 @@ from __future__ import annotations
 import asyncio
 from collections.abc import Awaitable, Callable
 from dataclasses import dataclass, field
-from typing import Protocol
+from typing import Protocol, runtime_checkable
 
 from ..core.errors import FrameworkError
 from .protocol import CoordinationMessage, MessageKind
 
-__requirements__ = ("REQ06", "REQ09")
+__requirements__ = ("REQ06", "REQ09", "G14")
 
 Handler = Callable[[CoordinationMessage], Awaitable[None]]
+#: ``callback(endpoint, alive, graceful)``
+LivelinessCallback = Callable[[str, bool, bool], None]
 
 
 class Transport(Protocol):
     def register(self, endpoint: str, handler: Handler) -> None: ...
 
     async def send(self, message: CoordinationMessage) -> None: ...
+
+
+@runtime_checkable
+class LivelinessTransport(Protocol):
+    """Optional transport capability: liveliness tokens and their subscribers."""
+
+    def declare_liveliness(self, endpoint: str) -> None: ...
+
+    def undeclare_liveliness(self, endpoint: str) -> None: ...
+
+    def subscribe_liveliness(self, subscriber: str, callback: LivelinessCallback) -> None: ...
+
+    def alive(self, endpoint: str) -> bool: ...
 
 
 @dataclass
@@ -52,6 +73,8 @@ class LocalTransport:
         self.stats = TransportStats()
         self.log: list[CoordinationMessage] = []
         self._tasks: set[asyncio.Task[None]] = set()
+        self._tokens: set[str] = set()
+        self._subscribers: dict[str, list[LivelinessCallback]] = {}
 
     def register(self, endpoint: str, handler: Handler) -> None:
         self._handlers[endpoint] = handler
@@ -61,11 +84,54 @@ class LocalTransport:
         return self.faults.setdefault(endpoint, LinkFaults())
 
     def disconnect(self, endpoint: str) -> None:
+        """Cut ``endpoint`` off without a goodbye (its liveliness token is lost)."""
+        was = self.alive(endpoint)
         self.link(endpoint).disconnected = True
+        if was:
+            self._partition(endpoint, alive=False)
 
     def reconnect(self, endpoint: str) -> None:
+        was = self.alive(endpoint)
         self.link(endpoint).disconnected = False
+        if not was and endpoint in self._tokens:
+            self._partition(endpoint, alive=True)
 
+    # -- liveliness ------------------------------------------------------------------------
+    def declare_liveliness(self, endpoint: str) -> None:
+        self._tokens.add(endpoint)
+        if self.alive(endpoint):
+            self._notify_others(endpoint, alive=True, graceful=True)
+
+    def undeclare_liveliness(self, endpoint: str) -> None:
+        if endpoint not in self._tokens:
+            return
+        was = self.alive(endpoint)
+        self._tokens.discard(endpoint)
+        if was:
+            self._notify_others(endpoint, alive=False, graceful=True)
+
+    def subscribe_liveliness(self, subscriber: str, callback: LivelinessCallback) -> None:
+        self._subscribers.setdefault(subscriber, []).append(callback)
+
+    def alive(self, endpoint: str) -> bool:
+        return endpoint in self._tokens and not self.link(endpoint).disconnected
+
+    def _notify_others(self, endpoint: str, *, alive: bool, graceful: bool) -> None:
+        for subscriber, callbacks in list(self._subscribers.items()):
+            if subscriber == endpoint or self.link(subscriber).disconnected:
+                continue
+            for cb in list(callbacks):
+                cb(endpoint, alive, graceful)
+
+    def _partition(self, endpoint: str, *, alive: bool) -> None:
+        """``endpoint`` joined or left the reachable side: both sides learn of it."""
+        self._notify_others(endpoint, alive=alive, graceful=False)
+        for cb in list(self._subscribers.get(endpoint, [])):
+            for other in sorted(self._tokens - {endpoint}):
+                if not self.link(other).disconnected:
+                    cb(other, alive, False)
+
+    # -- messages ---------------------------------------------------------------------------
     async def send(self, message: CoordinationMessage) -> None:
         self.stats.sent += 1
         self.log.append(message)
@@ -95,7 +161,8 @@ class LocalTransport:
         if delay:
             await asyncio.sleep(delay)
         # A link that went down while the message was in flight loses it.
-        if self.faults.get(recipient, LinkFaults()).disconnected:
+        if self.faults.get(recipient, LinkFaults()).disconnected or \
+                self.faults.get(message.sender, LinkFaults()).disconnected:
             self.stats.dropped += 1
             return
         self.stats.delivered += 1
