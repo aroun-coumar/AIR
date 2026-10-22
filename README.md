@@ -447,7 +447,6 @@ src/agentic_robotics/
 ├── health/        expected items · STALE · rollup · monitors · PSI · capability gate · readiness · diagnosis
 ├── incidents/     detection · novelty · hypotheses · bounded tests through admission · recovery or handoff
 ├── maintenance/   prognostics: time-of-event distributions, censoring, gating on p5
-├── integrations/  fake carrier and arm (reference adapters)
 ├── integrations/  fake carrier and arm · bridges: microduck · unitree · piper · ros2 · vda5050 · openpi · lerobot · dora
 ├── mcp/          MCP server: AIR skills as proposals over stdio
 └── testing/       pytest evidence plugin

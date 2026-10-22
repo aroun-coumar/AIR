@@ -65,7 +65,6 @@ All five must pass before committing. Versioning and deprecation rules:
   capability gate, readiness gate, diagnosis table
 - `incidents/`: incident pipeline (novelty, hypotheses, bounded tests through admission)
 - `maintenance/`: prognostic estimates (clean-room; capability gated on p5)
-- `integrations/`: reference adapters (fake devices) behind the public adapter protocol
 - `integrations/`: reference adapters (fake devices) and optional ecosystem bridges
   (microduck, unitree, piper, ros2, vda5050, openpi, lerobot, dora) behind the public
   adapter protocol, each with an injected transport and a fake peer
