@@ -4,7 +4,7 @@ Status: Accepted
 Date: 2026-10-22
 
 ## Context
-The open-source survey ([oss-adoption-plan](../research/oss-adoption-plan.md)) found five
+The open-source survey (kept in `docs/research/`, not published) found five
 defects in AIR (D1–D5). It also recommended locking several formats before they spread:
 trace ids, ledger hashing, schemas and deprecation.
 

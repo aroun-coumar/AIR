@@ -11,3 +11,6 @@ build/
 *.jsonl.lock
 traces/
 *.trace.jsonl
+
+# Research notes and the source catalog stay local (owner decision)
+docs/research/

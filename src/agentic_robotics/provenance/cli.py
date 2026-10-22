@@ -279,6 +279,154 @@ def cmd_context(args: argparse.Namespace) -> int:
     return 0
 
 
+# -- sources -----------------------------------------------------------------------------
+def _sources_path(args: argparse.Namespace) -> Path:
+    if args.catalog:
+        return Path(args.catalog)
+    return Path(args.project) / "docs" / "research" / "catalog.json"
+
+
+def _load_sources(args: argparse.Namespace) -> Any:
+    from .sources import SourceCatalog
+
+    path = _sources_path(args)
+    if not path.exists():
+        raise SystemExit(f"no source catalog at {path} (see `air sources merge --help`)")
+    return SourceCatalog.load(path)
+
+
+def _sources_changed(args: argparse.Namespace, catalog: Any, action: str,
+                     detail: dict[str, Any]) -> None:
+    from .sources import stats
+
+    path = _sources_path(args)
+    path.parent.mkdir(parents=True, exist_ok=True)
+    catalog.save(path)
+    if not (Path(args.project) / ".air").is_dir():
+        return
+    _project(args).ledger.append(
+        "sources.updated", catalog.name,
+        {"action": action, "path": path.as_posix(), "digest": file_digest(path),
+         "total": stats(catalog)["total"], **detail})
+
+
+def cmd_sources_list(args: argparse.Namespace) -> int:
+    from .sources import AdoptMode, Priority
+
+    rows = _load_sources(args).select(
+        area=args.area, priority=Priority(args.priority) if args.priority else None,
+        module=args.module, requirement=args.req,
+        adopt_mode=AdoptMode(args.mode) if args.mode else None, text=args.text)
+    if args.json:
+        print(json.dumps([dataclasses.asdict(r) for r in rows], indent=2, default=str))
+        return 0
+    for s in rows:
+        ok = {True: "agpl-ok", False: "agpl-NO", None: "agpl-?"}[s.agpl_compatible]
+        print(f"{s.priority.value} {s.area:<30} {s.full_name:<44} {s.license or '?':<14} "
+              f"{ok:<8} {s.adopt_mode.value}")
+        if args.verbose and s.learn:
+            print(f"     learn: {s.learn}")
+    print(f"{len(rows)} source(s)", file=sys.stderr)
+    return 0
+
+
+def cmd_sources_stats(args: argparse.Namespace) -> int:
+    from .sources import stats
+
+    print(json.dumps(stats(_load_sources(args)), indent=2))
+    return 0
+
+
+def cmd_sources_check(args: argparse.Namespace) -> int:
+    from .sources import problems
+
+    catalog = _load_sources(args)
+    known: list[str] = []
+    if (Path(args.project) / ".air").is_dir():
+        reqs = _project(args).requirements
+        known = [r.req_id for r in reqs.requirements] if reqs else []
+    found = problems(catalog, known, stale_after_days=args.stale_days)
+    for prob in found:
+        print(f"problem: {prob}", file=sys.stderr)
+    print(f"{len(catalog.sources)} sources, {len(found)} problem(s)", file=sys.stderr)
+    return 1 if found and args.strict else 0
+
+
+def cmd_sources_merge(args: argparse.Namespace) -> int:
+    """Merge JSONL research output (one SourceRecord per line) into the catalog."""
+    from ..core.errors import SchemaError
+    from .sources import SourceCatalog, merge
+
+    path = _sources_path(args)
+    existing = list(SourceCatalog.load(path).sources) if path.exists() else []
+    incoming, rejected = [], 0
+    for file in args.files:
+        for n, line in enumerate(Path(file).read_text("utf-8").splitlines(), 1):
+            if not line.strip():
+                continue
+            try:
+                data = json.loads(line)
+                for text_field in ("summary", "topic", "learn", "notes"):
+                    if data.get(text_field, "") is None:  # researchers write null for none
+                        data[text_field] = ""
+                rec = SourceCatalog.from_dict({"$schema": "ar.source_catalog/1.0",
+                                               "sources": [data]}).sources[0]
+            except (json.JSONDecodeError, SchemaError) as exc:
+                rejected += 1
+                print(f"rejected {file}:{n}: {exc}", file=sys.stderr)
+                continue
+            incoming.append(rec)
+    merged = merge(existing + incoming)
+    catalog = SourceCatalog(name=args.name, updated=args.updated or _today(),
+                            sources=tuple(merged))
+    _sources_changed(args, catalog, "merge",
+                     {"inputs": [Path(f).name for f in args.files],
+                      "incoming": len(incoming), "rejected": rejected})
+    print(f"{len(existing)} existing + {len(incoming)} incoming -> {len(merged)} sources "
+          f"({rejected} rejected)")
+    return 1 if rejected and args.strict else 0
+
+
+def cmd_sources_refresh(args: argparse.Namespace) -> int:
+    from .sources import refresh
+
+    catalog = _load_sources(args)
+    out, failed, done = [], [], 0
+    for s in catalog.sources:
+        if (args.only and s.full_name not in args.only) or \
+                (args.limit is not None and done >= args.limit):
+            out.append(s)
+            continue
+        try:
+            out.append(refresh(s))
+            done += 1
+        except Exception as exc:  # keep the old record and report it
+            failed.append(f"{s.full_name}: {exc}")
+            out.append(s)
+    catalog = catalog.evolve(sources=tuple(out), updated=_today())
+    _sources_changed(args, catalog, "refresh", {"refreshed": done, "failed": len(failed)})
+    for f in failed:
+        print(f"failed {f}", file=sys.stderr)
+    print(f"refreshed {done}, failed {len(failed)}")
+    return 0
+
+
+def cmd_sources_render(args: argparse.Namespace) -> int:
+    from .sources import render_markdown
+
+    text = render_markdown(_load_sources(args))
+    out = Path(args.out) if args.out else _sources_path(args).with_suffix(".md")
+    out.write_text(text + "\n", encoding="utf-8", newline="\n")
+    print(f"wrote {out}")
+    return 0
+
+
+def _today() -> str:
+    import datetime
+
+    return datetime.date.today().isoformat()
+
+
 def add_commands(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> None:
     def proj(p: argparse.ArgumentParser) -> argparse.ArgumentParser:
         p.add_argument("--project", default=".", help="project directory (default: .)")
@@ -391,3 +539,43 @@ def add_commands(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> No
     c.add_argument("--package")
     c.add_argument("--evidence")
     c.set_defaults(fn=cmd_context)
+
+    src = sub.add_parser("sources", help="catalog of open-source projects studied and "
+                                         "what AIR takes from each")
+    ss = src.add_subparsers(dest="action", required=True)
+
+    def cat(p: argparse.ArgumentParser) -> argparse.ArgumentParser:
+        proj(p).add_argument("--catalog", help="default: docs/research/catalog.json")
+        return p
+
+    sl = cat(ss.add_parser("list", help="filter the catalog"))
+    sl.add_argument("--area")
+    sl.add_argument("--priority", choices=["P0", "P1", "P2"])
+    sl.add_argument("--module", help="AIR module, e.g. sandbox")
+    sl.add_argument("--req", help="requirement id, e.g. REQ06")
+    sl.add_argument("--mode", choices=["adopt_pattern", "optional_integration",
+                                       "reference", "avoid"])
+    sl.add_argument("--text", help="substring in name, topic, summary or learning")
+    sl.add_argument("--json", action="store_true")
+    sl.add_argument("-v", "--verbose", action="store_true", help="show learnings")
+    sl.set_defaults(fn=cmd_sources_list)
+    cat(ss.add_parser("stats", help="counts by area, host, priority, license, module")
+        ).set_defaults(fn=cmd_sources_stats)
+    sc = cat(ss.add_parser("check", help="license, requirement and staleness consistency"))
+    sc.add_argument("--stale-days", type=int, default=730)
+    sc.add_argument("--strict", action="store_true", help="exit 1 on problems")
+    sc.set_defaults(fn=cmd_sources_check)
+    sm = cat(ss.add_parser("merge", help="merge JSONL research output into the catalog"))
+    sm.add_argument("files", nargs="+")
+    sm.add_argument("--name", default="AIR sources")
+    sm.add_argument("--updated", help="catalog date (default today)")
+    sm.add_argument("--strict", action="store_true")
+    sm.set_defaults(fn=cmd_sources_merge)
+    sr = cat(ss.add_parser("refresh", help="re-read license, stars and activity from GitHub "
+                                           "and Gitee (GITHUB_TOKEN optional)"))
+    sr.add_argument("--only", action="append", help="owner/name (repeatable)")
+    sr.add_argument("--limit", type=int)
+    sr.set_defaults(fn=cmd_sources_refresh)
+    sw = cat(ss.add_parser("render", help="write the Markdown catalog"))
+    sw.add_argument("--out")
+    sw.set_defaults(fn=cmd_sources_render)

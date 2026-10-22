@@ -1,6 +1,6 @@
 # Context pack: agentic-robotics
 
-Generated 2026-10-22 08:28 UTC at commit `1479e5b` by `air context`. Do not edit by hand; regenerate it.
+Generated 2026-10-22 10:05 UTC at commit `8a0629e` by `air context`. Do not edit by hand; regenerate it.
 
 ## Project
 
@@ -105,6 +105,7 @@ Open (not yet claimed verified):
 - `src/agentic_robotics/provenance/ledger.py`: Tamper-evident, append-only evidence ledger (baseline REQ10 and section 4). [REQ10, REQ02, REQ15, REQ16]
 - `src/agentic_robotics/provenance/model.py`: Provenance data model, following W3C PROV: activities *use* and *generate* entities [REQ02, REQ10, REQ16]
 - `src/agentic_robotics/provenance/project.py`: Project provenance: one place where every research, development, simulation, [REQ02, REQ10, REQ15, REQ16, REQ18]
+- `src/agentic_robotics/provenance/sources.py`: Source catalog: open-source projects a project studies, and what it takes from each. [REQ16, REQ18, AIR01]
 - `src/agentic_robotics/provenance/traceability.py`: Requirements traceability: requirement -> implementing code -> test evidence -> [REQ02, REQ18, F01]
 - `src/agentic_robotics/provenance/tracing.py`: Causal trace context, compatible with W3C Trace Context and OpenTelemetry. [REQ02, REQ15]
 - `src/agentic_robotics/quickstart.py`: Fake-device quickstart: one robot, an agent, a plan, and verified execution. [REQ18]
@@ -151,6 +152,7 @@ Open (not yet claimed verified):
 - `sandbox_policy/1.0` (SandboxPolicy): network, allowed_commands, env_allowlist, max_wall_s, max_memory_mb, max_cpus, max_output_bytes, require_enforced
 - `skill_set/1.0` (SkillSet): skills
 - `skill_spec/1.0` (SkillSpec): skill_id, version, description, inputs, required_capabilities, preconditions, postconditions, exclusive_resources, side_effects, interruption, execution, expected_evidence, on_uncertain_outcome, experimental
+- `source_catalog/1.0` (SourceCatalog): name, updated, sources
 - `task_plan/1.1` (TaskPlan): plan_id, goal, steps, produced_by, rationale, trace_id
 - `team_plan/1.0` (TeamPlan): plan_id, mission, assignments, unassigned, trace_id
 - `work_proposal/1.0` (Proposal): proposal_id, task_id, kind, title, summary, artifacts, evidence, requirements, produced_by, status
@@ -169,6 +171,8 @@ Open (not yet claimed verified):
 
 ## Recent recorded activities
 
+- 2026-10-22 development: ar.source_catalog/1.0 contract and air sources CLI (succeeded) [REQ16, REQ18]
+- 2026-10-22 research: open-source source catalog: 343 projects in 8 areas (succeeded) [REQ16, REQ18, AIR01]
 - 2026-10-22 evaluation: automated test run (succeeded) [AIR01, AIR02, AIR03, F01, F02, F05, F06, F07, G01, G05, G06, G07, G08, G10, G12, G13, G14, G15, REQ01, REQ02, REQ03, REQ04, REQ05, REQ06, REQ07, REQ08, REQ09, REQ10, REQ12, REQ13, REQ14, REQ15, REQ16, REQ17, REQ18]
 - 2026-10-22 development: Model layer (OpenAI-compatible, Claude SDK, robot-hosted, router), sandboxes, work agents, proposals, air work/models CLI (succeeded) [AIR01, AIR02, AIR03, REQ02, REQ04, REQ05, REQ17]
 - 2026-10-22 decision: Agentic engineering work in sandboxes with provider-agnostic models (ADR 0008) (succeeded) [AIR01, AIR02, AIR03]
@@ -182,16 +186,17 @@ Open (not yet claimed verified):
 - 2026-10-22 evaluation: automated test run (succeeded) [F01, F02, F05, F06, G01, G05, G06, G07, G08, G10, G12, G13, G15, REQ01, REQ02, REQ03, REQ05, REQ06, REQ07, REQ08, REQ09, REQ10, REQ12, REQ13, REQ14, REQ15, REQ16, REQ17, REQ18]
 - 2026-10-22 development: Evidence spine: tracing, ledger, provenance, traceability, debug CLI, context feeder (succeeded) [REQ02, REQ10, REQ14, REQ15, REQ16, REQ18]
 - 2026-10-22 decision: Provenance spine (ADR 0005) (succeeded) [REQ02, REQ10, REQ15, REQ16]
-- 2026-10-22 decision: AGPL-3.0 license aligned with repository (ADR 0004) (succeeded) [REQ18]
-- 2026-10-22 decision: Verified vs unresolved outcomes (ADR 0003) (succeeded) [REQ07, REQ14]
 
 ## Ledger
 
-- entries: 263, integrity: OK
-- head: `9e0910f236f97404`
+- entries: 280, integrity: OK
+- head: `90a2df0c3b500391`
 
 ## Recent commits
 
+- `8a0629e` Add source catalog: 343 studied open-source projects and backlog mapping (2026-10-22)
+- `ec964d2` Add agentic engineering work: sandboxes, provider-agnostic models, proposals (2026-10-22)
+- `a5bbbfb` Wave 1: fail-closed leases, verifiable registry, ledger v2, W3C ids, schemas (2026-10-22)
 - `1479e5b` Add open-source landscape survey and adoption plan (2026-10-22)
 - `8a6be8f` Add stage 3: two-robot coordination and handoff scenario (2026-10-22)
 - `0678a14` Add evidence spine: provenance, traceability, debugging, context feeder (2026-10-22)

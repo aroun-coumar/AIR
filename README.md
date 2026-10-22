@@ -105,6 +105,7 @@ runtime.trace.add_sink(project.runtime_sink())     # runtime evidence -> same le
 | Debugging | `air trace show`, `air trace explain <command-id>` (why rejected or unresolved, and what to do next); `Runtime(debug=True)` snapshots what admission saw |
 | Requirements | `__requirements__` in code + `@pytest.mark.req(...)` in tests + `pytest --air-evidence` → `air requirements matrix --check` fails when a claimed status lacks evidence |
 | Context feeder | `air context --out docs/CONTEXT.md` regenerates a briefing (modules, contracts, requirement status, decisions, recent activity, ledger state); see also `CLAUDE.md` and `docs/` |
+| Research sources | `air sources list --priority P0 --module sandbox -v`: a catalog of studied open-source projects with licenses, AGPL compatibility, activity and what AIR takes from each; `air sources check` and `refresh` keep it honest. The catalog lives in `docs/research/catalog.json` locally and is not published |
 
 This repository uses all of this on itself. Its `.air/` ledger records its own
 decisions, development and test runs.
