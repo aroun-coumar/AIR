@@ -57,6 +57,11 @@ DEFAULT_RUNTIME_KINDS = frozenset({
     "authority_revoked_during_execution", "reservation_held", "reservation_released",
     "reservation_superseded", "reservation_expired", "plan_started", "plan_finished",
     "agent_decision", "admission_snapshot", "duplicate_ignored",
+    # Commitment semantics (ADR 0012); keepalive and progress stay in the trace only.
+    "killed", "skipped", "approximate", "awaiting_approval", "approval_requested",
+    "approval_decided", "keepalive_lapsed", "kill_requested", "halt_reported", "recovered",
+    "retry_decided", "judgment_recorded", "judgment_disputes_verdict",
+    "adapter_claim_ignored", "command_limited", "hold_release_refused",
 })
 
 

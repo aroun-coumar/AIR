@@ -339,6 +339,11 @@ class Runtime:
     def busy(self, robot_id: str) -> bool:
         return self._inflight.get(robot_id, 0) > 0
 
+    def active_commands(self, robot_id: str) -> list[CommandHandle]:
+        """Commands for a robot that have not reached a terminal state."""
+        return [h for h in self._handles.values()
+                if h.command.robot_id == robot_id and not h.done]
+
     def submit(self, command: Command) -> CommandHandle:
         """Submit a command. Each command gets its own span; a ``command.trace_id``
         received from another participant joins that trace."""

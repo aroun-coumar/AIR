@@ -24,7 +24,7 @@ from dataclasses import dataclass, field
 from typing import Any
 
 from ..contracts.capability import ProfileStatus
-from ..contracts.execution import Command, CommandState
+from ..contracts.execution import CancelCode, Command, CommandState
 from ..contracts.skill import Interruption
 from ..core.errors import AuthorityError, UnsupportedOperation
 from ..core.ids import new_id
@@ -400,14 +400,42 @@ class Participant:
                 skill.interruption is Interruption.NONE:
             return {"accepted": False, "reason": "not_interruptible", "mode": mode.value}
 
-        async def run() -> None:
-            with contextlib.suppress(UnsupportedOperation):
-                await self.runtime.cancel(command_id, reason=f"{mode.value}:{reason}")
+        if mode is CancelMode.KILL:
+            # A kill waits for the adapter's halt, so it runs in the background; its
+            # outcome (KILLED, or UNRESOLVED if the halt does not return) is reported
+            # through the normal result path.
+            async def run() -> None:
+                with contextlib.suppress(UnsupportedOperation):
+                    await self.runtime.kill(command_id, reason=f"kill:{reason}")
 
-        task = asyncio.get_running_loop().create_task(run())
-        self._background.add(task)
-        task.add_done_callback(self._background.discard)
-        return {"accepted": True, "reason": "stop_requested", "mode": mode.value}
+            task = asyncio.get_running_loop().create_task(run())
+            self._background.add(task)
+            task.add_done_callback(self._background.discard)
+            return {"accepted": True, "reason": "stop_requested", "mode": mode.value}
+        response = await self.runtime.request_cancel(command_id,
+                                                     reason=f"cancel:{reason}")
+        accepted = response.code is CancelCode.ACCEPTED
+        out: dict[str, Any] = {"accepted": accepted, "mode": mode.value,
+                               "reason": "stop_requested" if accepted else response.code.value}
+        if response.stop_confirmed is not None:
+            out["stopped_confirmed"] = response.stop_confirmed
+        return out
+
+    def _active_commands(self) -> list[str]:
+        return [h.command_id for h in self.runtime.active_commands(self.robot.robot_id)]
+
+    async def _pause_running(self) -> bool:
+        paused = False
+        for command_id in self._active_commands():
+            with contextlib.suppress(UnsupportedOperation):
+                status = await self.runtime.pause(command_id)
+                paused = paused or status.state is CommandState.PAUSED
+        return paused
+
+    async def _resume_running(self) -> None:
+        for command_id in self._active_commands():
+            with contextlib.suppress(UnsupportedOperation):
+                await self.runtime.resume_execution(command_id)
 
     async def _on_instant(self, msg: CoordinationMessage) -> None:
         action = InstantAction(str(msg.payload["action"]))
@@ -416,10 +444,13 @@ class Participant:
             self.paused = True
             self._resumed.clear()
             active = self.runtime.busy(self.robot.robot_id)
-            # A running command is not paused mid-motion; nothing new starts.
-            out.update(paused=True, current_continues=active)
+            paused_running = await self._pause_running()
+            # Nothing new starts. A running command pauses only if its skill declares
+            # pause support; otherwise it continues and that is reported.
+            out.update(paused=True, current_continues=active and not paused_running)
         elif action is InstantAction.RESUME:
             self.paused = False
+            await self._resume_running()
             self._resumed.set()
             out.update(paused=False)
         elif action is InstantAction.CANCEL:

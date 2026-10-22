@@ -523,3 +523,17 @@ async def test_trust_levels_gate_work_and_reports(make_team: MakeTeam) -> None:
     assert [e.data["new"] for e in coord.ledger.query(kind="coordination.trust_changed")] == \
         ["respected", "noticed", "respected", "utilized", "ignored"]
     assert CancelMode("kill") is CancelMode.KILL
+
+
+def test_skipped_is_satisfied_but_not_verified() -> None:
+    """A step whose precondition did not apply (runtime SKIPPED) lets dependants start
+    and a mission verify, but is never recorded as verified (ADR 0012, ADR 0018)."""
+    assert TaskState.SKIPPED.terminal and TaskState.SKIPPED.satisfied
+    assert TaskState.VERIFIED.satisfied and not TaskState.FAILED.satisfied
+    assert not TaskState.SKIPPED.stopped
+    check_task_transition(TaskState.COMPLETED, TaskState.SKIPPED)
+    check_task_transition(TaskState.UNRESOLVED, TaskState.SKIPPED)
+    with pytest.raises(InvalidTransition):
+        check_task_transition(TaskState.SKIPPED, TaskState.VERIFIED)
+    with pytest.raises(InvalidTransition):
+        check_task_transition(TaskState.EXECUTING, TaskState.SKIPPED)

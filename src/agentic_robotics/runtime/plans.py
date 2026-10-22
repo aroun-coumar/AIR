@@ -17,6 +17,7 @@ from ..contracts.skill import TaskPlan, TaskSpec
 from ..core.errors import OutcomeNotVerified, ResourceConflict
 from ..core.ids import new_id
 from ..provenance import tracing
+from .resources import Lease
 from .runtime import Runtime
 
 __requirements__ = ("REQ09", "REQ06", "REQ07", "REQ14")
@@ -37,6 +38,9 @@ class PlanResult:
     steps: dict[str, ExecutionResult] = field(default_factory=dict)
     stopped_at: str | None = None
     held_reservations: list[ResourceReservation] = field(default_factory=list)
+    #: Leases kept because the outcome is unknown or the stop is unconfirmed. Only these
+    #: leases can release what they hold (their tokens are never logged).
+    held_leases: list[Lease] = field(default_factory=list)
 
     @property
     def verified(self) -> bool:
@@ -83,16 +87,14 @@ class PlanExecutor:
         rt.trace.record("plan_started", plan.plan_id, goal=plan.goal,
                         steps=[s.task_id for s in plan.steps], produced_by=plan.produced_by)
         for step in plan.steps:
-            reservations: list[ResourceReservation] = []
             try:
-                reservations = self._reserve(step, principal, lease_s)
-            except ResourceConflict as exc:
+                lease = self._reserve(step, principal, lease_s)
+            except ResourceConflict as exc:   # all-or-nothing: nothing was taken
                 rt.trace.record("plan_step_blocked", plan.plan_id, task_id=step.task_id,
                                 error=exc.to_dict())
-                for r in reservations:
-                    rt.resources.release(r.reservation_id)
                 result.state, result.stopped_at = PlanState.FAILED, step.task_id
                 break
+            reservations = lease.reservations
 
             command = self._command(plan, step, principal, delegation_id, reservations)
             handle = rt.submit(command)
@@ -101,16 +103,17 @@ class PlanExecutor:
 
             if step_result.state is CommandState.UNRESOLVED:
                 result.held_reservations.extend(reservations)
+                result.held_leases.append(lease)
                 result.state, result.stopped_at = PlanState.UNRESOLVED, step.task_id
                 break
             if step_result.state in (CommandState.CANCELLED, CommandState.KILLED) and \
                     step_result.observed_effects.get("stopped_confirmed") is False:
                 # A stop that is not physically confirmed may leave the robot in the zone.
                 result.held_reservations.extend(reservations)
+                result.held_leases.append(lease)
                 result.state, result.stopped_at = PlanState.CANCELLED, step.task_id
                 break
-            for r in reservations:
-                released = rt.resources.release(r.reservation_id)
+            for released in lease.release():
                 rt.trace.record("reservation_released", plan.plan_id,
                                 resource=released.resource, task_id=step.task_id,
                                 physical_occupancy=released.physical_occupancy.value)
@@ -129,18 +132,11 @@ class PlanExecutor:
                         stopped_at=result.stopped_at)
         return result
 
-    def _reserve(self, step: TaskSpec, principal: str,
-                 lease_s: float | None) -> list[ResourceReservation]:
+    def _reserve(self, step: TaskSpec, principal: str, lease_s: float | None) -> Lease:
+        """Every resource the step needs, or none (a scoped, token-bound lease)."""
         skill = self.runtime.skills.get(step.skill_id)
-        out: list[ResourceReservation] = []
-        try:
-            for resource in skill.resources_for(step.args):
-                out.append(self.runtime.resources.reserve(resource, principal, lease_s))
-        except ResourceConflict:
-            for r in out:
-                self.runtime.resources.release(r.reservation_id)
-            raise
-        return out
+        return self.runtime.resources.acquire(skill.resources_for(step.args), principal,
+                                              lease_s=lease_s)
 
     def _command(self, plan: TaskPlan, step: TaskSpec, principal: str, delegation_id: str,
                  reservations: list[ResourceReservation]) -> Command:

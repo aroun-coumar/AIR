@@ -664,3 +664,12 @@ async def test_adapter_clipping_is_reported_and_not_verified(make_env: MakeEnv) 
     assert result.state is S.FAILED and result.reason == "postcondition_failed"
     assert result.limited_by == ("adapter:max_x",)
     assert result.observed_effects["adapter_applied"]["x"] == 0.5
+
+
+def test_new_terminal_and_significant_kinds_reach_debugging_and_the_ledger() -> None:
+    from agentic_robotics.provenance.project import DEFAULT_RUNTIME_KINDS
+    from agentic_robotics.runtime import runtime as rt
+
+    significant = rt.COMMITMENT_TRACE_KINDS - {"paused", "resumed", "hold_acquired",
+                                               "hold_released", "keepalive_refused"}
+    assert significant <= DEFAULT_RUNTIME_KINDS

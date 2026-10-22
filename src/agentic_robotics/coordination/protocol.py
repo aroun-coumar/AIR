@@ -131,6 +131,7 @@ class TaskState(StrEnum):
     CANCELLING = "cancelling"    # cancel requested; the robot has not confirmed a stop
     COMPLETED = "completed"      # assignee reported a result
     VERIFIED = "verified"
+    SKIPPED = "skipped"          # precondition not applicable: satisfied, not verified
     CANCELLED = "cancelled"      # stopped, or confirmed never started
     KILLED = "killed"            # killed with the stop confirmed (not a graceful cancel)
     FAILED = "failed"
@@ -138,8 +139,13 @@ class TaskState(StrEnum):
 
     @property
     def terminal(self) -> bool:
-        return self in (TaskState.VERIFIED, TaskState.CANCELLED, TaskState.KILLED,
-                        TaskState.FAILED)
+        return self in (TaskState.VERIFIED, TaskState.SKIPPED, TaskState.CANCELLED,
+                        TaskState.KILLED, TaskState.FAILED)
+
+    @property
+    def satisfied(self) -> bool:
+        """Dependants may start: verified, or skipped because it did not apply."""
+        return self in (TaskState.VERIFIED, TaskState.SKIPPED)
 
     @property
     def stopped(self) -> bool:
@@ -163,9 +169,10 @@ TASK_TRANSITIONS: dict[TaskState, frozenset[TaskState]] = {
     # (COMPLETED), be confirmed (CANCELLED/KILLED) or leave the stop unknown (UNRESOLVED).
     _T.CANCELLING: frozenset({_T.EXECUTING, _T.COMPLETED, _T.UNRESOLVED, _T.FAILED,
                               *_STOP}),
-    _T.COMPLETED: frozenset({_T.VERIFIED, _T.FAILED, _T.UNRESOLVED, *_STOP}),
-    _T.UNRESOLVED: frozenset({_T.VERIFIED, _T.FAILED, *_STOP}),
+    _T.COMPLETED: frozenset({_T.VERIFIED, _T.SKIPPED, _T.FAILED, _T.UNRESOLVED, *_STOP}),
+    _T.UNRESOLVED: frozenset({_T.VERIFIED, _T.SKIPPED, _T.FAILED, *_STOP}),
     _T.VERIFIED: frozenset(),
+    _T.SKIPPED: frozenset(),
     _T.CANCELLED: frozenset(),
     _T.KILLED: frozenset(),
     _T.FAILED: frozenset(),

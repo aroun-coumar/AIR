@@ -121,7 +121,7 @@ def explain(events: list[Event], subject: str) -> list[str]:
     out.extend("  " + line for line in timeline(events, subject=subject))
 
     terminal = {"rejected", "verified", "failed", "cancelled", "unresolved",
-                "reported_complete"}
+                "reported_complete", "killed", "skipped", "approximate"}
     final = next((e for e in reversed(mine) if e.kind in terminal), None)
     out.append("")
     if final is None:

@@ -559,7 +559,7 @@ class TeamCoordinator:
                         elif any(d.state.stopped for d in deps):
                             self._move(conv, rec, T.CANCELLED, "dependency failed")
                             rec.reason = "dependency_not_verified"
-                        elif all(d.state is T.VERIFIED for d in deps):
+                        elif all(d.state.satisfied for d in deps):
                             running_ids.add(rec.task_id)
                             running[rec.task_id] = asyncio.get_running_loop().create_task(
                                 self._run_task(plan, rec, records))
@@ -574,7 +574,7 @@ class TeamCoordinator:
                 states = {r.state for r in records.values()}
                 if T.UNRESOLVED in states:
                     state = MissionState.UNRESOLVED
-                elif states == {T.VERIFIED}:
+                elif states and states <= {T.VERIFIED, T.SKIPPED}:
                     state = MissionState.VERIFIED
                 elif conv in self._cancel and states & {T.CANCELLED, T.KILLED}:
                     state = MissionState.CANCELLED
@@ -775,7 +775,7 @@ class TeamCoordinator:
                     task_id in self._running.get(conv, set()) or \
                     nxt.assignee != rec.assignee:
                 break
-            if not all(d in prefix or records[d].state is T.VERIFIED
+            if not all(d in prefix or records[d].state.satisfied
                        for d in nxt.task.depends_on):
                 break
             try:
@@ -896,11 +896,12 @@ class TeamCoordinator:
         rec.result = result
         self._observe_occupancy(msg.payload.get("occupancy", {}), msg.sender)
         s = result.state
-        if s is CommandState.CANCELLED and rec.state in (*_IN_FLIGHT, T.CANCELLING,
-                                                         T.UNRESOLVED):
+        if s in (CommandState.CANCELLED, CommandState.KILLED) and \
+                rec.state in (*_IN_FLIGHT, T.CANCELLING, T.UNRESOLVED):
             effects = result.observed_effects
-            confirmed = effects.get("stopped_confirmed") is True or \
-                effects.get("started") is False
+            # The runtime ends a command KILLED only when the adapter's halt returned.
+            confirmed = s is CommandState.KILLED or \
+                effects.get("stopped_confirmed") is True or effects.get("started") is False
             if confirmed:
                 if rec.state in _IN_FLIGHT:   # stopped by the robot side, not by us
                     self._move(conv, rec, T.COMPLETED, "reported cancelled")
@@ -919,6 +920,12 @@ class TeamCoordinator:
                                {"command_id": result.command_id, "assignee": rec.assignee,
                                 "verification": [(c.description, c.satisfied)
                                                  for c in result.verification]})
+        elif s is CommandState.SKIPPED:
+            self._move(conv, rec, T.SKIPPED, result.reason or "precondition not applicable")
+            rec.reason = result.reason
+            self.ledger.append("coordination.skipped", f"{conv}/{rec.task_id}",
+                               {"command_id": result.command_id, "assignee": rec.assignee,
+                                "reason": result.reason})
         elif s is CommandState.UNRESOLVED:
             if rec.state is not T.UNRESOLVED:
                 self._move(conv, rec, T.UNRESOLVED, result.reason or "unresolved")
