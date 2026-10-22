@@ -323,3 +323,24 @@ coordinator --COMMIT(order_id, update_id, steps[released], stitch_after, horizon
   robot is integrated.
 - See [ADR 0018](decisions/0018-coordination-liveness-resources.md) and
   `air scenario handoff --variant disconnect|cancel`.
+## Ecosystem bridges and the MCP server (optional)
+```text
+ agent / MCP client / dora dataflow           (propose)
+          |  tools/call, command input
+ Runtime.submit -> admission -> adapter.execute -> observations -> VERIFIED | UNRESOLVED
+                                   |
+        injected transport ------- + ---------------------------------------------
+        microduck: JSON-RPC/NDJSON to robotd   unitree: DDS channel layer (sport RPC,
+        piper: CAN layer (piper_sdk)           rt/lowstate, rt/lowcmd)
+        ros2: action layer (rclpy)             vda5050: MQTT publisher + on_message
+        openpi / lerobot: policy transports (timeouts, staleness bounds)
+- Every bridge implements `RobotAdapter` behind an **injected transport** and ships a fake
+  peer that speaks the wire protocol read from the upstream source; third-party SDKs are
+  extras imported lazily, and bridges are registered explicitly (`<bridge>.register()`).
+- Peer facts become observations stamped in the runtime clock when AIR received them;
+  completion is verified from them (odometry, joint feedback, the ROS 2 action *result*,
+  VDA 5050 `state`), never from a publish, a goal acceptance or a reply code.
+- A lost link, an RPC timeout or a stale state stream after start is UNRESOLVED.
+- The MCP server (`air mcp`) turns tool calls into proposals through `Runtime.submit`
+  under a delegation; an approver (a human) can always deny, and no decision is a denial.
+- See [ADR 0019](decisions/0019-ecosystem-bridges.md).

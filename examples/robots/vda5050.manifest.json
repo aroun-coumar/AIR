@@ -1,0 +1,87 @@
+{
+  "$schema": "ar.component_manifest/1.1",
+  "meta": {
+    "source": "examples",
+    "revision": 1
+  },
+  "robot_id": "agv-1",
+  "name": "VDA 5050 mobile robot (example)",
+  "hardware_revision": "example-A",
+  "robot_class": "robot.mobile.amr",
+  "description": "A mobile robot driven through its own VDA 5050 interface over MQTT. AIR acts as fleet control for the commitments it makes; the robot owns its navigation and safety. Values are examples.",
+  "adapter": {
+    "kind": "vda5050",
+    "profile": "vda5050-v3",
+    "config": {
+      "interface_name": "vda5050",
+      "version": "3.0.0",
+      "manufacturer": "ExampleCo",
+      "serial_number": "AGV0001",
+      "map_id": "floor1"
+    }
+  },
+  "nominal_capabilities": [
+    "mobility"
+  ],
+  "frames": [
+    "map"
+  ],
+  "components": [
+    {
+      "component_id": "controller",
+      "kind": "Vehicle controller",
+      "revision": "r1",
+      "type_id": "compute.sbc",
+      "properties": {
+        "cpu_cores": 4,
+        "ram": {
+          "value": 4,
+          "unit": "GB"
+        },
+        "tdp": {
+          "value": 10,
+          "unit": "W"
+        }
+      },
+      "interfaces": [
+        {
+          "name": "wifi",
+          "kind": "net.wifi"
+        },
+        {
+          "name": "mqtt",
+          "kind": "app.mqtt"
+        },
+        {
+          "name": "vda",
+          "kind": "fleet.vda5050"
+        }
+      ]
+    },
+    {
+      "component_id": "scanner",
+      "kind": "Safety laser scanner",
+      "revision": "r1",
+      "type_id": "sensor.lidar.scanning_2d",
+      "parent": "controller",
+      "properties": {
+        "max_range": {
+          "value": 20,
+          "unit": "m"
+        },
+        "angular_resolution": {
+          "value": 0.25,
+          "unit": "deg"
+        },
+        "field_of_view": {
+          "value": 270,
+          "unit": "deg"
+        },
+        "scan_rate": {
+          "value": 25,
+          "unit": "Hz"
+        }
+      }
+    }
+  ]
+}

@@ -83,8 +83,10 @@ def test_v1_entries_still_verify_and_chain_into_v2(tmp_path: Path) -> None:
 
 def test_concurrent_writer_processes_extend_one_chain(tmp_path: Path) -> None:
     path = tmp_path / "shared.jsonl"
+    # The property under test is chain integrity, not lock latency: a long lock timeout
+    # keeps a heavily loaded machine from failing a writer that is merely waiting.
     script = ("import sys; from agentic_robotics.provenance import Ledger\n"
-              "l = Ledger(sys.argv[1])\n"
+              "l = Ledger(sys.argv[1], lock_timeout_s=60.0)\n"
               "for i in range(25):\n    l.append('k', sys.argv[2] + '-' + str(i))\n")
     procs = [subprocess.Popen([sys.executable, "-c", script, str(path), f"w{n}"])
              for n in range(4)]

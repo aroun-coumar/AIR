@@ -30,6 +30,13 @@ optuna = ["optuna>=3.6"]
 # Ed25519 signing of release metadata, ledger checkpoints and DSSE attestations.
 # Verification and HMAC signing work without it.
 signing = ["cryptography>=42"]
+# Ecosystem bridges (ADR 0019); each is imported lazily by its integration only.
+# Unitree's unitree_sdk2py is not on PyPI and rclpy comes from a ROS 2 distribution.
+piper = ["piper_sdk>=0.6"]
+vda5050 = ["paho-mqtt>=2.0"]
+openpi = ["websockets>=13"]
+dora = ["dora-rs>=1.0"]
+lerobot = ["lerobot>=0.6"]
 dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6", "mypy>=1.11", "jsonschema>=4.23",
        "anthropic>=2.1"]
 

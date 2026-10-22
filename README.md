@@ -406,6 +406,8 @@ use only public protocols, and nothing in the core imports an integration. See
 | Open, investigate, hand off and close incidents | `air incident open --robot … --signal …` · `air incident list` · `air incident close <id> --by … --resolution …` |
 | Time-to-event with uncertainty, gated on p5 | `air prognose estimate --series soh.csv --threshold 80 --robot … --component … --signal … --mission 8h` |
 | Watch a robot lose its link mid-prefix, or a mission be cancelled | `air scenario handoff --variant disconnect` · `air scenario handoff --variant cancel` |
+| Check the environment and optional tools (never raises) | `air doctor` |
+| Serve AIR skills to MCP clients as proposals | `air mcp serve --skills skills.json --manifest robot.json --allow navigate_to` |
 
 ## Status and roadmap
 
@@ -445,6 +447,8 @@ src/agentic_robotics/
 ├── incidents/     detection · novelty · hypotheses · bounded tests through admission · recovery or handoff
 ├── maintenance/   prognostics: time-of-event distributions, censoring, gating on p5
 ├── integrations/  fake carrier and arm (reference adapters)
+├── integrations/  fake carrier and arm · bridges: microduck · unitree · piper · ros2 · vda5050 · openpi · lerobot · dora
+├── mcp/          MCP server: AIR skills as proposals over stdio
 └── testing/       pytest evidence plugin
 schemas/           published JSON Schemas for every contract
 examples/          robots · skills · missions · policies · models · work tasks

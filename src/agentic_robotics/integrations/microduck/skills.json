@@ -1,0 +1,100 @@
+{
+  "$schema": "ar.skill_set/1.0",
+  "meta": { "source": "agentic_robotics.integrations.microduck", "revision": 1 },
+  "skills": [
+    {
+      "skill_id": "walk_to",
+      "version": "0.1.0",
+      "description": "Walk to a point in the odometry frame (the IMU's gravity-aligned frame at boot). Closed loop on contact odometry; the velocity intent is refreshed every 0.1 s under robotd's 500 ms deadman. Wide tolerance: odometry drift on hardware is unmeasured.",
+      "inputs": [
+        { "name": "x", "type": "number", "unit": "m", "minimum": -10, "maximum": 10 },
+        { "name": "y", "type": "number", "unit": "m", "minimum": -10, "maximum": 10 }
+      ],
+      "required_capabilities": ["locomotion"],
+      "preconditions": [
+        { "signal": "safety.fallen", "op": "eq", "value": false, "description": "robot is upright" },
+        { "signal": "safety.picked_up", "op": "eq", "value": false, "description": "nobody is holding the robot" },
+        { "signal": "policy.driving", "op": "eq", "value": true, "description": "walking policy is enabled" }
+      ],
+      "postconditions": [
+        { "signal": "base.odom", "field": "x", "op": "approx", "value": "$args.x", "tolerance": 0.15 },
+        { "signal": "base.odom", "field": "y", "op": "approx", "value": "$args.y", "tolerance": 0.15 }
+      ],
+      "side_effects": ["moves_base"],
+      "interruption": "cancel",
+      "execution": { "deadline_s": 60.0, "deadline_kind": "firm", "period_s": 0.1, "max_input_age_s": 0.25, "fallback": "stop" },
+      "expected_evidence": ["base.odom", "motion.limited_by"],
+      "experimental": true
+    },
+    {
+      "skill_id": "turn_to",
+      "version": "0.1.0",
+      "description": "Turn in place to a heading in the odometry frame (radians, positive turns left).",
+      "inputs": [{ "name": "yaw", "type": "number", "unit": "rad", "minimum": -3.1416, "maximum": 3.1416 }],
+      "required_capabilities": ["locomotion"],
+      "preconditions": [
+        { "signal": "safety.fallen", "op": "eq", "value": false, "description": "robot is upright" },
+        { "signal": "policy.driving", "op": "eq", "value": true, "description": "walking policy is enabled" }
+      ],
+      "postconditions": [
+        { "signal": "base.odom", "field": "yaw", "op": "approx", "value": "$args.yaw", "tolerance": 0.15 }
+      ],
+      "side_effects": ["moves_base"],
+      "interruption": "cancel",
+      "execution": { "deadline_s": 30.0, "period_s": 0.1, "max_input_age_s": 0.25, "fallback": "stop" },
+      "expected_evidence": ["base.odom"],
+      "experimental": true
+    },
+    {
+      "skill_id": "stand_up",
+      "version": "0.1.0",
+      "description": "Power the joints, ramp to the home pose (robot.init) and enable the walking policy (robot.enable). robotd may refuse, for example on a fallen robot.",
+      "required_capabilities": [],
+      "preconditions": [
+        { "signal": "safety.fallen", "op": "eq", "value": false, "description": "robot is upright" }
+      ],
+      "postconditions": [
+        { "signal": "policy.driving", "op": "eq", "value": true, "description": "a walking or standing policy drives the robot" }
+      ],
+      "side_effects": ["moves_joints"],
+      "interruption": "none",
+      "execution": { "deadline_s": 20.0, "max_input_age_s": 1.0 }
+    },
+    {
+      "skill_id": "disable_policy",
+      "version": "0.1.0",
+      "description": "Turn policy execution off; robotd returns the robot to its home pose.",
+      "postconditions": [
+        { "signal": "policy.driving", "op": "eq", "value": false, "description": "no policy drives the robot" }
+      ],
+      "side_effects": ["moves_joints"],
+      "interruption": "none",
+      "execution": { "deadline_s": 10.0, "max_input_age_s": 1.0 }
+    },
+    {
+      "skill_id": "stop",
+      "version": "0.1.0",
+      "description": "Zero the velocity intent (robot.stop). Not 'go limp'.",
+      "postconditions": [
+        { "signal": "motion.applied", "field": "vx", "op": "approx", "value": 0.0, "tolerance": 0.001 },
+        { "signal": "motion.applied", "field": "vyaw", "op": "approx", "value": 0.0, "tolerance": 0.001 }
+      ],
+      "interruption": "none",
+      "execution": { "deadline_s": 3.0, "max_input_age_s": 1.0 }
+    },
+    {
+      "skill_id": "do_skill",
+      "version": "0.1.0",
+      "description": "Run one of the robot's configured one-shot skills (robot.do) by name. robotd publishes no completion event, so the outcome stays REPORTED_COMPLETE (unverifiable), never VERIFIED.",
+      "inputs": [{ "name": "skill", "type": "string" }],
+      "required_capabilities": ["locomotion"],
+      "preconditions": [
+        { "signal": "safety.fallen", "op": "eq", "value": false, "description": "robot is upright" }
+      ],
+      "side_effects": ["moves_joints"],
+      "interruption": "none",
+      "execution": { "deadline_s": 10.0, "max_input_age_s": 1.0 },
+      "experimental": true
+    }
+  ]
+}

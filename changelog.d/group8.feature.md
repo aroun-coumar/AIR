@@ -1,0 +1,1 @@
+Ecosystem bridges, all optional: Microduck (robotd JSON-RPC), Unitree (DDS channel model), AgileX Piper (CAN), ROS 2 actions with MoveIt plan-only preflight, a VDA 5050 v2/v3 bridge, openpi and LeRobot policy clients, a dora operator mapping, and an MCP server whose tools are proposals (``air mcp``).

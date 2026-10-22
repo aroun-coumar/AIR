@@ -1,0 +1,42 @@
+{
+  "$schema": "ar.skill_set/1.0",
+  "meta": { "source": "agentic_robotics.integrations.vda5050", "revision": 1 },
+  "skills": [
+    {
+      "skill_id": "drive_to_node", "version": "0.1.0",
+      "description": "Send a VDA 5050 order whose released base is [current node] -> [node_id at x, y]. Verified from the vehicle's state: lastNodeId is the target and it is not driving.",
+      "inputs": [
+        { "name": "node_id", "type": "string" },
+        { "name": "x", "type": "number", "unit": "m" },
+        { "name": "y", "type": "number", "unit": "m" }
+      ],
+      "required_capabilities": ["mobility"],
+      "preconditions": [
+        { "signal": "agv.paused", "op": "eq", "value": false, "description": "vehicle not paused" }
+      ],
+      "postconditions": [
+        { "signal": "agv.last_node", "op": "eq", "value": "$args.node_id", "description": "reached the target node" },
+        { "signal": "agv.driving", "op": "eq", "value": false, "description": "vehicle stopped" }
+      ],
+      "side_effects": ["moves_base"], "interruption": "cancel",
+      "execution": { "deadline_s": 600.0, "max_input_age_s": 3.0, "fallback": "stop" },
+      "expected_evidence": ["agv.last_node", "agv.position"]
+    },
+    {
+      "skill_id": "pause", "version": "0.1.0",
+      "description": "Instant action startPause.",
+      "required_capabilities": ["mobility"],
+      "postconditions": [{ "signal": "agv.paused", "op": "eq", "value": true, "description": "vehicle reports paused" }],
+      "interruption": "none",
+      "execution": { "deadline_s": 10.0, "max_input_age_s": 3.0 }
+    },
+    {
+      "skill_id": "resume", "version": "0.1.0",
+      "description": "Instant action stopPause.",
+      "required_capabilities": ["mobility"],
+      "postconditions": [{ "signal": "agv.paused", "op": "eq", "value": false, "description": "vehicle reports not paused" }],
+      "interruption": "none",
+      "execution": { "deadline_s": 10.0, "max_input_age_s": 3.0 }
+    }
+  ]
+}
