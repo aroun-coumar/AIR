@@ -5,15 +5,19 @@ from .admission import (
     DISPATCH_CHECKS,
     AdmissionCheck,
     AdmissionContext,
+    apply_motion_limits,
 )
 from .authority import AuthorityService
+from .holds import Hold, HoldRegistry
+from .journal import CommandJournal, JournalCorrupt, JournalEntry, JournalLocked
 from .plans import PlanExecutor, PlanHandle, PlanResult, PlanState
 from .resources import ResourceManager
-from .runtime import CommandHandle, Runtime
+from .runtime import COMMITMENT_TRACE_KINDS, CommandHandle, CommandStatus, Runtime
 from .state import TRANSITIONS, check_transition
 from .trace import Trace, TraceEvent
 
 __all__ = [
+    "COMMITMENT_TRACE_KINDS",
     "DEFAULT_CHECKS",
     "DISPATCH_CHECKS",
     "TRANSITIONS",
@@ -21,6 +25,13 @@ __all__ = [
     "AdmissionContext",
     "AuthorityService",
     "CommandHandle",
+    "CommandJournal",
+    "CommandStatus",
+    "Hold",
+    "HoldRegistry",
+    "JournalCorrupt",
+    "JournalEntry",
+    "JournalLocked",
     "PlanExecutor",
     "PlanHandle",
     "PlanResult",
@@ -29,5 +40,6 @@ __all__ = [
     "Runtime",
     "Trace",
     "TraceEvent",
+    "apply_motion_limits",
     "check_transition",
 ]

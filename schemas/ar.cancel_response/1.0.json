@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.cancel_response/1.0.json",
+  "title": "ar.cancel_response/1.0",
+  "type": "object",
+  "description": "The cancel request's own answer. It says whether the cancel was accepted and whether the stop is physically confirmed; it never says the command succeeded.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.cancel_response/1\\.\\d+|https?://.+/ar\\.cancel_response/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "command_id": {
+      "type": "string"
+    },
+    "code": {
+      "enum": [
+        "accepted",
+        "rejected",
+        "unknown_command",
+        "already_terminal"
+      ]
+    },
+    "state": {
+      "anyOf": [
+        {
+          "enum": [
+            "submitted",
+            "rejected",
+            "awaiting_approval",
+            "accepted",
+            "executing",
+            "paused",
+            "reported_complete",
+            "verified",
+            "approximate",
+            "skipped",
+            "failed",
+            "cancelling",
+            "cancelled",
+            "killed",
+            "unresolved"
+          ]
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "started": {
+      "type": "boolean",
+      "default": false
+    },
+    "stop_confirmed": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "message": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "command_id",
+    "code"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -108,6 +108,17 @@
         "description": {
           "type": "string",
           "default": ""
+        },
+        "accept_within": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
         }
       },
       "required": [

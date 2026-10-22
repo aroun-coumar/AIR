@@ -10,6 +10,15 @@ so failure semantics can be exercised without hardware::
     adapter.inject("freeze_sensors")          # observations stop updating
     adapter.inject("camera_offline")
     adapter.inject("unconfirmed_stop")        # interrupt cannot confirm stopping
+    adapter.inject("ignore_halt")             # a forced stop is never honoured (hung device)
+    adapter.inject("path_blocked")            # navigation fails, retriable (nothing moved)
+    adapter.inject("clip_x", 0.5)             # the device clips x and reports what it applied
+    adapter.inject("claim_verified")          # the report (wrongly) claims a verdict
+    adapter.inject("model_pose")              # base.pose comes from a model, not a sensor
+
+Optional skills (enable with ``config.extra_skills``): ``drive_velocity``, a continuous
+skill with an intent deadman, and ``blink_lights``, a non-blocking skill that only
+occupies the ``lights`` subsystem.
 """
 
 from __future__ import annotations
@@ -21,15 +30,16 @@ from importlib import resources
 from typing import Any
 
 from ..contracts.capability import CapabilityProfile, CapabilityReport, ProfileStatus
+from ..contracts.execution import ExitMode, FailureKind
 from ..contracts.manifest import ComponentManifest
-from ..contracts.observation import Observation
+from ..contracts.observation import Observation, Origin
 from ..contracts.skill import SkillSet
 from ..core.errors import UnsupportedOperation
 from ..core.ids import new_id
 from ..plugins import AdapterReport, ExecutionContext, InterruptReport, RobotAdapter
 from .world import FakeWorld
 
-__requirements__ = ("REQ03", "REQ13")
+__requirements__ = ("REQ03", "REQ13", "REQ14")
 
 
 def fake_skill_set() -> SkillSet:
@@ -80,8 +90,15 @@ class FakeRobotAdapter(RobotAdapter):
         self._skills = frozenset(self.config.get("skills", [
             "navigate_to", "dock_at", "undock", "load_part", "unload_part",
             *(["capture_image", "calibrate_camera"] if self.has_camera else [])]))
-        self._active: str | None = None
+        self._skills |= frozenset(self.config.get("extra_skills", []))
+        self.vx = 0.0
+        self.vy = 0.0
+        self.lights_on = False
+        self.exit_mode = ""
+        self.halted: list[tuple[str, str]] = []
+        self._active: set[str] = set()
         self._interrupt: set[str] = set()
+        self._paused: set[str] = set()
         self._cap_revision = 0
         self._cap_key: tuple[Any, ...] | None = None
         self._frozen: dict[str, Observation] | None = None
@@ -126,66 +143,124 @@ class FakeRobotAdapter(RobotAdapter):
         if cmd.skill_id not in self._skills:
             raise UnsupportedOperation("fake adapter does not support skill",
                                        skill_id=cmd.skill_id)
-        self._active = cmd.command_id
+        self._active.add(cmd.command_id)
         self.executed.append(cmd.command_id)
         try:
-            if cmd.skill_id == "navigate_to":
-                return await self._drive(ctx, float(cmd.args["x"]), float(cmd.args["y"]))
-            if cmd.skill_id == "dock_at":
-                station = str(cmd.args["station"])
-                if station not in self.stations:
-                    return AdapterReport(False, f"unknown station {station!r}",
-                                         failure_reason="unknown_station")
-                s = self.stations[station]
-                report = await self._drive(ctx, float(s["x"]), float(s["y"]),
-                                           finish=lambda: self._dock(station))
-                if report.completed:
-                    report = AdapterReport(True, "docked", {**report.effects,
-                                                            "docked_at": station})
-                return report
-            if cmd.skill_id == "undock":
-                await asyncio.sleep(self.tick)
-                self._undock()
-                return AdapterReport(True, "undocked", self._pose_effects())
-            if cmd.skill_id in ("load_part", "unload_part"):
-                station, part = str(cmd.args["station"]), str(cmd.args["part"])
-                await asyncio.sleep(self.tick * 3)
-                if self.docked_at != station:
-                    return AdapterReport(False, "not docked at station",
-                                         failure_reason="not_docked")
-                try:
-                    if cmd.skill_id == "load_part":
-                        self.world.move_part(part, station, self.robot_id)
-                        self.payload = part
-                    else:
-                        self.world.move_part(part, self.robot_id, station)
-                        self.payload = ""
-                except Exception as exc:
-                    return AdapterReport(False, str(exc), failure_reason="part_transfer")
-                return AdapterReport(True, f"{cmd.skill_id} {part}", {"payload": self.payload})
-            if cmd.skill_id == "capture_image":
-                await asyncio.sleep(self.tick * 5)
-                if self.faults.get("camera_offline"):
-                    return AdapterReport(False, "camera offline", failure_reason="camera_offline")
-                self.last_image = {"image_id": new_id("img"), "command_id": cmd.command_id}
-                return AdapterReport(True, "image captured", {"image": self.last_image})
-            if cmd.skill_id == "calibrate_camera":
-                for _ in range(20):
-                    await asyncio.sleep(self.tick)
-                self.calibration = {"valid": True, "rms_px": 0.21}
-                return AdapterReport(True, "calibrated", {"calibration": self.calibration})
-            raise UnsupportedOperation("skill not implemented", skill_id=cmd.skill_id)
+            report = await self._execute(ctx)
+            if self.faults.get("claim_verified"):
+                report = AdapterReport(report.completed, report.message,
+                                       {**report.effects, "verified": True, "state": "verified"},
+                                       report.failure_reason, report.failure, report.retriable,
+                                       report.applied, report.limited_by)
+            return report
         finally:
-            self._active = None
+            self._active.discard(cmd.command_id)
             self._interrupt.discard(cmd.command_id)
+            self._paused.discard(cmd.command_id)
+
+    async def _execute(self, ctx: ExecutionContext) -> AdapterReport:
+        cmd = ctx.command
+        if cmd.skill_id == "navigate_to":
+            if self.faults.get("path_blocked"):
+                await asyncio.sleep(self.tick)
+                return AdapterReport(False, "path blocked; base did not move",
+                                     self._pose_effects(), failure_reason="path_blocked",
+                                     failure=FailureKind.GOAL, retriable=True)
+            tx, ty = float(cmd.args["x"]), float(cmd.args["y"])
+            clip = self.faults.get("clip_x")
+            if clip is not None and abs(tx) > float(clip):
+                tx = math.copysign(float(clip), tx)
+                report = await self._drive(ctx, tx, ty)
+                return AdapterReport(report.completed, report.message, report.effects,
+                                     report.failure_reason,
+                                     applied={**cmd.args, "x": tx},
+                                     limited_by=("adapter:max_x",))
+            return await self._drive(ctx, tx, ty)
+        if cmd.skill_id == "drive_velocity":
+            return await self._drive_velocity(ctx)
+        if cmd.skill_id == "blink_lights":
+            for _ in range(int(cmd.args.get("times", 3))):
+                self.lights_on = not self.lights_on
+                await asyncio.sleep(self.tick)
+            self.lights_on = False
+            return AdapterReport(True, "blinked", {"lights_on": self.lights_on})
+        if cmd.skill_id == "dock_at":
+            station = str(cmd.args["station"])
+            if station not in self.stations:
+                return AdapterReport(False, f"unknown station {station!r}",
+                                     failure_reason="unknown_station")
+            s = self.stations[station]
+            report = await self._drive(ctx, float(s["x"]), float(s["y"]),
+                                       finish=lambda: self._dock(station))
+            if report.completed:
+                report = AdapterReport(True, "docked", {**report.effects,
+                                                        "docked_at": station})
+            return report
+        if cmd.skill_id == "undock":
+            await asyncio.sleep(self.tick)
+            self._undock()
+            return AdapterReport(True, "undocked", self._pose_effects())
+        if cmd.skill_id in ("load_part", "unload_part"):
+            station, part = str(cmd.args["station"]), str(cmd.args["part"])
+            await asyncio.sleep(self.tick * 3)
+            if self.docked_at != station:
+                return AdapterReport(False, "not docked at station",
+                                     failure_reason="not_docked")
+            try:
+                if cmd.skill_id == "load_part":
+                    self.world.move_part(part, station, self.robot_id)
+                    self.payload = part
+                else:
+                    self.world.move_part(part, self.robot_id, station)
+                    self.payload = ""
+            except Exception as exc:
+                return AdapterReport(False, str(exc), failure_reason="part_transfer")
+            return AdapterReport(True, f"{cmd.skill_id} {part}", {"payload": self.payload})
+        if cmd.skill_id == "capture_image":
+            await asyncio.sleep(self.tick * 5)
+            if self.faults.get("camera_offline"):
+                return AdapterReport(False, "camera offline", failure_reason="camera_offline")
+            self.last_image = {"image_id": new_id("img"), "command_id": cmd.command_id}
+            return AdapterReport(True, "image captured", {"image": self.last_image})
+        if cmd.skill_id == "calibrate_camera":
+            for _ in range(20):
+                await asyncio.sleep(self.tick)
+            self.calibration = {"valid": True, "rms_px": 0.21}
+            return AdapterReport(True, "calibrated", {"calibration": self.calibration})
+        raise UnsupportedOperation("skill not implemented", skill_id=cmd.skill_id)
 
     async def interrupt(self, command_id: str) -> InterruptReport:
-        if self._active != command_id:
+        if command_id not in self._active:
             return InterruptReport(False, False, "command is not active")
         self._interrupt.add(command_id)
         confirmed = not self.faults.get("unconfirmed_stop")
         return InterruptReport(True, confirmed,
                                "stop requested" if confirmed else "stop could not be confirmed")
+
+    async def halt(self, command_id: str, exit_mode: ExitMode) -> InterruptReport:
+        if command_id not in self._active:
+            return InterruptReport(False, False, "command is not active")
+        if self.faults.get("ignore_halt"):
+            return InterruptReport(False, False, "device did not acknowledge the stop")
+        self._interrupt.add(command_id)
+        self.vx = self.vy = 0.0
+        self.exit_mode = exit_mode.value
+        return InterruptReport(True, True, f"stopped; {exit_mode.value}")
+
+    async def pause(self, command_id: str) -> InterruptReport:
+        if command_id not in self._active:
+            return InterruptReport(False, False, "command is not active")
+        self._paused.add(command_id)
+        return InterruptReport(True, True, "paused")
+
+    async def resume(self, command_id: str) -> InterruptReport:
+        if command_id not in self._paused:
+            return InterruptReport(False, False, "command is not paused")
+        self._paused.discard(command_id)
+        return InterruptReport(True, True, "resumed")
+
+    async def on_halted(self, command_id: str, reason: str) -> None:
+        self.halted.append((command_id, reason))
 
     # -- simulation ----------------------------------------------------------------
     def hosted_models(self) -> list[dict[str, Any]]:
@@ -218,6 +293,9 @@ class FakeRobotAdapter(RobotAdapter):
             if cmd.command_id in self._interrupt:
                 return AdapterReport(False, "interrupted", self._pose_effects(),
                                      failure_reason="interrupted")
+            if cmd.command_id in self._paused:
+                await asyncio.sleep(self.tick)
+                continue
             dx, dy = tx - self.x, ty - self.y
             dist = math.hypot(dx, dy)
             if dist < 1e-9:
@@ -240,6 +318,27 @@ class FakeRobotAdapter(RobotAdapter):
         if self.faults.get("lose_link_after_motion"):
             raise ConnectionError("link to robot lost before result was received")
         return AdapterReport(True, "arrived", self._pose_effects())
+
+    async def _drive_velocity(self, ctx: ExecutionContext) -> AdapterReport:
+        """Continuous: drive at (vx, vy) until stopped. Only a stop ends it."""
+        cmd = ctx.command
+        self._undock()
+        self.vx, self.vy = float(cmd.args["vx"]), float(cmd.args["vy"])
+        try:
+            while True:
+                stopped = cmd.command_id in self._interrupt
+                if stopped and not self.faults.get("ignore_halt"):
+                    self.vx = self.vy = 0.0
+                    return AdapterReport(False, "stopped",
+                                         {**self._pose_effects(),
+                                          "exit_mode": self.exit_mode or "hold"},
+                                         failure_reason="interrupted")
+                if cmd.command_id not in self._paused:
+                    self.x += self.vx * self.sim_dt
+                    self.y += self.vy * self.sim_dt
+                await asyncio.sleep(self.tick)
+        finally:
+            self.vx = self.vy = 0.0
 
     def _pose_effects(self) -> dict[str, Any]:
         return {"pose": {"x": round(self.x, 4), "y": round(self.y, 4)},
@@ -278,10 +377,14 @@ class FakeRobotAdapter(RobotAdapter):
                                clock_domain=clock.domain, acquired_at=now, received_at=now,
                                **kw)
 
+        pose_origin = (Origin.MODEL if self.faults.get("model_pose") else Origin.ESTIMATED)
         out = {
             "base.pose": obs("base.pose", {"x": round(self.x, 4), "y": round(self.y, 4),
                                            "theta": round(self.theta, 4)},
-                             frame="map", spatial=True, unit="m", uncertainty=0.01),
+                             frame="map", spatial=True, unit="m", uncertainty=0.01,
+                             covariance=(1e-4, 0.0, 0.0, 1e-4), origin=pose_origin),
+            "base.twist": obs("base.twist", {"vx": self.vx, "vy": self.vy}, frame="base"),
+            "lights.on": obs("lights.on", self.lights_on),
             "battery.charge": obs("battery.charge", round(self.battery, 2), unit="%"),
             "base.estop": obs("base.estop", self.estop),
             "base.docked_at": obs("base.docked_at", self.docked_at),

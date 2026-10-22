@@ -1,5 +1,5 @@
 {
-  "$schema": "ar.skill_set/1.0",
+  "$schema": "ar.skill_set/1.1",
   "meta": { "source": "agentic_robotics.integrations.fake", "revision": 1 },
   "skills": [
     {
@@ -21,6 +21,7 @@
       ],
       "side_effects": ["moves_base"],
       "interruption": "cancel",
+      "blocking": "soft",
       "execution": { "deadline_s": 5.0, "max_input_age_s": 1.0 },
       "expected_evidence": ["base.pose"]
     },
@@ -151,6 +152,38 @@
       "interruption": "none",
       "execution": { "deadline_s": 3.0, "max_input_age_s": 1.0 },
       "expected_evidence": ["camera.calibration"]
+    },
+    {
+      "skill_id": "drive_velocity",
+      "version": "1.0.0",
+      "description": "Continuous velocity drive (teleoperation). Runs until stopped; the commanding principal must send keepalives or the base stops and damps.",
+      "inputs": [
+        { "name": "vx", "type": "number", "unit": "m/s", "minimum": -1.0, "maximum": 1.0 },
+        { "name": "vy", "type": "number", "unit": "m/s", "minimum": -1.0, "maximum": 1.0 }
+      ],
+      "required_capabilities": ["mobility"],
+      "preconditions": [
+        { "signal": "base.estop", "op": "eq", "value": false, "description": "emergency stop released" }
+      ],
+      "side_effects": ["moves_base"],
+      "interruption": "pause",
+      "blocking": "soft",
+      "occupies": ["base"],
+      "execution": { "max_input_age_s": 0.5, "keepalive_period_s": 0.1, "exit_mode": "damp" }
+    },
+    {
+      "skill_id": "blink_lights",
+      "version": "1.0.0",
+      "description": "Blink the status lights. Non-blocking: may run while the base moves.",
+      "inputs": [{ "name": "times", "type": "integer", "minimum": 1, "maximum": 20, "required": false }],
+      "side_effects": ["signals_humans"],
+      "interruption": "cancel",
+      "blocking": "none",
+      "occupies": ["lights"],
+      "postconditions": [
+        { "signal": "lights.on", "op": "eq", "value": false, "description": "lights back off" }
+      ],
+      "execution": { "deadline_s": 2.0, "max_input_age_s": 1.0 }
     }
   ]
 }

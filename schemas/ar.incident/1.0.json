@@ -159,6 +159,10 @@
         "detail": {
           "type": "string",
           "default": ""
+        },
+        "approximate": {
+          "type": "boolean",
+          "default": false
         }
       },
       "required": [

@@ -258,3 +258,24 @@ protocols (`plugins`, `contracts`). Nothing in the core imports an integration.
 - Run logs declare formats, parameters and required feature flags before any data, so
   readers reject what they cannot interpret; sync and dropout markers make gaps explicit.
 - See [ADR 0013](decisions/0013-provenance-integrity-and-exports.md).
+## Runtime commitments (journal, verdicts, cancel, approval, deadman)
+ submit -> admission -> [AWAITING_APPROVAL --resume(id, digest)--> ] ACCEPTED
+        -> scheduler (blocking hard/soft/none, occupies holds by token)
+        -> dispatch checks, skip_if (-> SKIPPED), motion limits (applied vs requested)
+        -> journal "dispatch" (fsync) -> EXECUTING <-> PAUSED
+        -> adapter report (facts only) -> authoritative "after" evidence
+        -> VERIFIED | APPROXIMATE | FAILED(failure kind, retriable) | UNRESOLVED
+ cancel -> CancelResponse -> CANCELLED      kill / keepalive lapse -> halt(exit_mode) -> KILLED
+ restart with the same journal -> dispatched intents UNRESOLVED -> reconcile (never resend)
+- `runtime/journal.py` makes intents durable before dispatch. On restart, deduplication
+  and outcomes survive.
+- Only measured or estimated, authoritatively associated observations acquired after
+  execution can satisfy a postcondition. Model judgments (`Runtime.judge`) are evidence
+  and can at most make an outcome UNRESOLVED.
+- `runtime/holds.py` keeps robot-local subsystem holds that only the invocation's token
+  releases. UNRESOLVED keeps them.
+- Approval is single-use and bound to the command id and argument digest. It is denied
+  on timeout and in unattended mode.
+- Continuous skills declare a keepalive period below `max_input_age_s`. A missing
+  keepalive stops the skill with the declared exit mode.
+- See [ADR 0012](decisions/0012-runtime-commitments.md).

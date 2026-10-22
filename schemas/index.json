@@ -11,6 +11,14 @@
     "current": "1.1",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.activity/1.1.json"
   },
+  "ar.approval_decision": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.approval_decision/1.0.json"
+  },
+  "ar.approval_request": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.approval_request/1.0.json"
+  },
   "ar.asset_card": {
     "current": "1.0",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.asset_card/1.0.json"
@@ -27,13 +35,17 @@
     "current": "1.0",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.bounded_test/1.0.json"
   },
+  "ar.cancel_response": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.cancel_response/1.0.json"
+  },
   "ar.capability_report": {
     "current": "1.0",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.capability_report/1.0.json"
   },
   "ar.command": {
-    "current": "1.1",
-    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.command/1.1.json"
+    "current": "1.2",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.command/1.2.json"
   },
   "ar.component_manifest": {
     "current": "1.1",
@@ -72,12 +84,12 @@
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.episode/1.0.json"
   },
   "ar.execution_contract": {
-    "current": "1.0",
-    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.execution_contract/1.0.json"
+    "current": "1.1",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.execution_contract/1.1.json"
   },
   "ar.execution_result": {
-    "current": "1.0",
-    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.execution_result/1.0.json"
+    "current": "1.1",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.execution_result/1.1.json"
   },
   "ar.experiment_record": {
     "current": "1.1",
@@ -116,8 +128,8 @@
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.model_catalog/1.0.json"
   },
   "ar.observation": {
-    "current": "1.0",
-    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.observation/1.0.json"
+    "current": "1.1",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.observation/1.1.json"
   },
   "ar.parameter_schema": {
     "current": "1.0",
@@ -172,12 +184,12 @@
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.search_record/1.0.json"
   },
   "ar.skill_set": {
-    "current": "1.0",
-    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.skill_set/1.0.json"
+    "current": "1.1",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.skill_set/1.1.json"
   },
   "ar.skill_spec": {
-    "current": "1.0",
-    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.skill_spec/1.0.json"
+    "current": "1.1",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.skill_spec/1.1.json"
   },
   "ar.source_catalog": {
     "current": "1.0",
