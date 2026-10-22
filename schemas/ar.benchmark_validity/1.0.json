@@ -1,0 +1,145 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.benchmark_validity/1.0.json",
+  "title": "ar.benchmark_validity/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.benchmark_validity/1\\.\\d+|https?://.+/ar\\.benchmark_validity/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "validity_id": {
+      "type": "string"
+    },
+    "benchmark": {
+      "type": "string"
+    },
+    "sim_scores": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "real_scores": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "mmrv": {
+      "type": "number"
+    },
+    "pearson": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "max_mmrv": {
+      "type": "number",
+      "default": 0.1
+    },
+    "min_pearson": {
+      "type": "number",
+      "default": 0.7
+    },
+    "min_policies": {
+      "type": "integer",
+      "default": 3
+    },
+    "valid": {
+      "type": "boolean",
+      "default": false
+    },
+    "reasons": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "backend": {
+      "type": "string",
+      "default": ""
+    },
+    "backend_version": {
+      "type": "string",
+      "default": ""
+    },
+    "platform": {
+      "type": "string",
+      "default": ""
+    },
+    "real_evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "assessed_at": {
+      "type": "number",
+      "default": 0.0
+    },
+    "notes": {
+      "type": "object",
+      "additionalProperties": {}
+    }
+  },
+  "required": [
+    "validity_id",
+    "benchmark",
+    "sim_scores",
+    "real_scores",
+    "mmrv"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

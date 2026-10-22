@@ -57,6 +57,8 @@ All five must pass before committing. Versioning and deprecation rules:
   context pack, `air` provenance CLI
 - `hardware/`: typed catalog of robot classes, device types and protocols (JSON in
   `hardware/data/`, extended per project in `.air/hardware/`) and manifest checks
+- `engineering/`: experiment backends, time policy, seeds, reproducibility probe, golden runs,
+  search and release selection, evaluation validity, `air experiment`
 - `integrations/`: reference adapters (fake devices) behind the public adapter protocol
 - `testing/`: pytest evidence plugin
 - `plugins.py`, `conformance.py`, `registry.py`, `cli.py`: extension, conformance, assets, tool

@@ -1,0 +1,375 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.search_record/1.0.json",
+  "title": "ar.search_record/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.search_record/1\\.\\d+|https?://.+/ar\\.search_record/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "search_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "objectives": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Objective"
+      }
+    },
+    "space": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Param"
+      }
+    },
+    "sampler": {
+      "type": "string"
+    },
+    "sampler_seed": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "sampler_version": {
+      "type": "string",
+      "default": ""
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Constraint"
+      },
+      "default": []
+    },
+    "scenarios": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "seeds": {
+      "type": "array",
+      "items": {
+        "type": "integer"
+      },
+      "default": []
+    },
+    "budget": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "max_trials": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "status": {
+      "enum": [
+        "running",
+        "finished",
+        "abandoned"
+      ],
+      "default": "running"
+    },
+    "status_reason": {
+      "type": "string",
+      "default": ""
+    },
+    "trials": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TrialSummary"
+      },
+      "default": []
+    },
+    "candidates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CandidateSummary"
+      },
+      "default": []
+    },
+    "pareto": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "activity_id": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "search_id",
+    "title",
+    "objectives",
+    "space",
+    "sampler"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "CandidateSummary": {
+      "type": "object",
+      "properties": {
+        "candidate": {
+          "type": "string"
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "failed",
+            "pruned",
+            "abandoned"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "default": ""
+        },
+        "trials": {
+          "type": "integer",
+          "default": 0
+        },
+        "complete": {
+          "type": "integer",
+          "default": 0
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "constraints": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "feasible": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "candidate",
+        "config",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Constraint": {
+      "type": "object",
+      "description": "``metric op bound``; its value is the violation (feasible when <= 0).",
+      "properties": {
+        "metric": {
+          "type": "string"
+        },
+        "op": {
+          "enum": [
+            "<=",
+            ">="
+          ]
+        },
+        "bound": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "metric",
+        "op",
+        "bound"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "Objective": {
+      "type": "object",
+      "properties": {
+        "metric": {
+          "type": "string"
+        },
+        "direction": {
+          "enum": [
+            "minimize",
+            "maximize"
+          ],
+          "default": "minimize"
+        }
+      },
+      "required": [
+        "metric"
+      ],
+      "additionalProperties": false
+    },
+    "Param": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "float",
+            "int",
+            "choice"
+          ],
+          "default": "float"
+        },
+        "low": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "high": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "choices": {
+          "type": "array",
+          "items": {},
+          "default": []
+        },
+        "log": {
+          "type": "boolean",
+          "default": false
+        },
+        "grid_points": {
+          "type": "integer",
+          "default": 3
+        }
+      },
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "TrialSummary": {
+      "type": "object",
+      "properties": {
+        "trial_key": {
+          "type": "string"
+        },
+        "experiment_id": {
+          "type": "string"
+        },
+        "candidate": {
+          "type": "string"
+        },
+        "scenario": {
+          "type": "string"
+        },
+        "seed": {
+          "type": "integer"
+        },
+        "status": {
+          "enum": [
+            "complete",
+            "failed",
+            "pruned",
+            "abandoned"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "default": ""
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "activity_id": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "trial_key",
+        "experiment_id",
+        "candidate",
+        "scenario",
+        "seed",
+        "status"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

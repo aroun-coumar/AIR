@@ -154,9 +154,39 @@ class MaintenanceRecord(Contract):
             self.return_to_service_checks.values())
 
 
-@contract("experiment_record", version="1.0")
+class SeedSource(StrEnum):
+    """Where a seed came from. ``unset`` is recorded, never hidden (Isaac Lab ``seed=None``)."""
+
+    USER = "user"
+    DERIVED = "derived"
+    DRAWN = "drawn"
+    UNSET = "unset"
+
+
+@dataclass(frozen=True)
+class SeedRecord:
+    """Every seed an experiment used (ManiSkill main/episode seeds, W3.2).
+
+    ``seeded_rngs`` lists the generators that were *actually* seeded; anything else that
+    draws random numbers makes the run irreproducible. ``sample_states`` points to the
+    stored per-sample RNG snapshots, so one failing sample can be replayed alone."""
+
+    root: int | None = None
+    source: SeedSource = SeedSource.UNSET
+    per_episode: tuple[int, ...] = ()
+    per_env: tuple[int, ...] = ()
+    seeded_rngs: tuple[str, ...] = ()
+    derivation: str = ""
+    sample_states: str = ""
+
+
+@contract("experiment_record", version="1.1")
 class ExperimentRecord(Contract):
-    """Baseline section 10: everything needed to interpret, compare and reproduce."""
+    """Baseline section 10: everything needed to interpret, compare and reproduce.
+
+    1.1 adds the seed record, the backend actually used, the platform and runner version
+    that results may be compared within, the measured reproducibility, and the search
+    trial identity (key, status and reason)."""
 
     experiment_id: str
     hypothesis: str
@@ -173,3 +203,20 @@ class ExperimentRecord(Contract):
     results: dict[str, Any] = field(default_factory=dict)
     accepted: bool | None = None
     limitations: tuple[str, ...] = ()
+    seeds: SeedRecord | None = None
+    #: An ``ar.backend_info`` document: requested vs actual device, resolved timing,
+    #: declared capabilities (parsed strictly by ``engineering.backends``).
+    backend_info: dict[str, Any] = field(default_factory=dict)
+    config: dict[str, Any] = field(default_factory=dict)
+    scenario_params: dict[str, Any] = field(default_factory=dict)
+    platform: str = ""
+    runner_version: str = ""
+    physics_fingerprint: str = ""
+    #: Measured by a reproducibility probe: exact | within_tolerance | differs; "" = not measured.
+    reproducibility: str = ""
+    search_id: str = ""
+    trial_key: str = ""
+    #: Terminal trial status: complete | failed | pruned | abandoned; "" outside a search.
+    status: str = ""
+    status_reason: str = ""
+    budget: dict[str, Any] = field(default_factory=dict)

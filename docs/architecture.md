@@ -147,3 +147,28 @@ evidence spine ties everything together.
 `provenance` depend on `contracts`/`core`; `runtime` and `agents` use `provenance.tracing`.
 `hardware` depends on `contracts` and `core`. `integrations` depend only on public
 protocols (`plugins`, `contracts`). Nothing in the core imports an integration.
+
+## Engineering and optimization loop
+
+```
+ ExperimentBackend (declared capabilities, all false by default)   in process | air.backend/1 JSON lines
+          |  load(scenario, TimePolicy[integer decimation], features)  -> BackendInfo (what actually ran)
+          v
+ run_experiment -> ExperimentRecord 1.1 (SeedRecord, platform, runner_version, fingerprint)
+          |                 \-- per-sample RNG snapshots -> replay_sample (one sample alone)
+          |-- probe_reproducibility: exact | within_tolerance | differs (+ RNG, buffers, restore)
+          |-- golden runs per platform + simulator pin + runner version; re-measure, never trust
+          v
+ Search: trials keyed (config, scenario, seed, budget) -> complete | failed | pruned | abandoned
+          |  same seeds for every candidate; feasible Pareto set (constraints <= 0)
+          v
+ select_release: Pareto set re-run on held-out seeds -> ReleaseSelection
+ benchmark scores count only with recorded sim-to-real validity (MMRV, Pearson); invalidate, never delete
+```
+
+- `engineering` depends on `core` and `provenance`; samplers beyond random and grid
+  (Optuna) are optional extras imported lazily.
+- Every experiment, trial, search, probe, golden check, re-measurement, validity
+  assessment and release selection is a project activity.
+- `air experiment backends|run|probe|golden|search|list|remeasure|invalidate|validity`.
+- See [ADR 0014](decisions/0014-engineering-loop.md).
