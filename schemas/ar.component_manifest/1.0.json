@@ -1,0 +1,196 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.component_manifest/1.0.json",
+  "title": "ar.component_manifest/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.component_manifest/1\\.\\d+|https?://.+/ar\\.component_manifest/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "robot_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "hardware_revision": {
+      "type": "string"
+    },
+    "adapter": {
+      "$ref": "#/$defs/AdapterRef"
+    },
+    "components": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ComponentSpec"
+      },
+      "default": []
+    },
+    "nominal_capabilities": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "frames": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "robot_id",
+    "name",
+    "hardware_revision",
+    "adapter"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "AdapterRef": {
+      "type": "object",
+      "description": "Which adapter implements this robot, and its adapter-specific configuration.",
+      "properties": {
+        "kind": {
+          "type": "string"
+        },
+        "profile": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "config": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "ComponentSpec": {
+      "type": "object",
+      "properties": {
+        "component_id": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "revision": {
+          "type": "string"
+        },
+        "parent": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "interfaces": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/InterfaceSpec"
+          },
+          "default": []
+        },
+        "serial": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "component_id",
+        "kind",
+        "revision"
+      ],
+      "additionalProperties": false
+    },
+    "InterfaceSpec": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "kind": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "name",
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

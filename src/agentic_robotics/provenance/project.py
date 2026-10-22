@@ -162,7 +162,8 @@ class Project:
                 "layout_version": 1}
         (air / "project.json").write_text(json.dumps(meta, indent=2) + "\n",
                                           encoding="utf-8", newline="\n")
-        (air / ".gitignore").write_text("artifacts/\n*.trace.jsonl\ntest-evidence.json\n",
+        (air / ".gitignore").write_text("artifacts/\n*.trace.jsonl\ntest-evidence.json\n"
+                                        "*.jsonl.lock\n",
                                         encoding="utf-8", newline="\n")
         project = cls(root)
         project.ledger.append("project.created", project.name,
@@ -440,11 +441,16 @@ class ActivityRecorder(AbstractContextManager["ActivityRecorder"]):
         self._ctx = self._span.__enter__()
         self._started = time.time()
         self._environment = capture_environment(self.project.root)
+        fingerprints: dict[str, str] = {}
+        if known is not None and self.requirements:
+            from .traceability import requirement_fingerprints
+            fingerprints = requirement_fingerprints(known, self.requirements)
         self.project.ledger.append("activity.started", self.activity_id, {
             "kind": self.kind.value, "title": self.title,
             "requirements": list(self.requirements), "params": self.params,
             "actors": list(self.actors), "parent_id": self.parent,
             "environment": self._environment,
+            "requirement_fingerprints": fingerprints,
         })
         return self
 

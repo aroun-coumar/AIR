@@ -1,0 +1,11 @@
+# Reviews required from these owners for changes in matching paths.
+*                                   @aroun-coumar
+
+# Safety- and integrity-critical areas: changes here need explicit owner review.
+/src/agentic_robotics/runtime/      @aroun-coumar
+/src/agentic_robotics/coordination/ @aroun-coumar
+/src/agentic_robotics/provenance/   @aroun-coumar
+/src/agentic_robotics/contracts/    @aroun-coumar
+/schemas/                           @aroun-coumar
+/.github/                           @aroun-coumar
+/.air/                              @aroun-coumar

@@ -1,0 +1,192 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.execution_result/1.0.json",
+  "title": "ar.execution_result/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.execution_result/1\\.\\d+|https?://.+/ar\\.execution_result/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "command_id": {
+      "type": "string"
+    },
+    "robot_id": {
+      "type": "string"
+    },
+    "skill_id": {
+      "type": "string"
+    },
+    "state": {
+      "enum": [
+        "submitted",
+        "rejected",
+        "accepted",
+        "executing",
+        "reported_complete",
+        "verified",
+        "failed",
+        "cancelling",
+        "cancelled",
+        "unresolved"
+      ]
+    },
+    "reason": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "message": {
+      "type": "string",
+      "default": ""
+    },
+    "observed_effects": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "verification": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ConditionResult"
+      },
+      "default": []
+    },
+    "authority_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "capability_revision": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "started_at": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "finished_at": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "command_id",
+    "robot_id",
+    "skill_id",
+    "state"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ConditionResult": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "satisfied": {
+          "type": "boolean"
+        },
+        "observed": {
+          "default": null
+        },
+        "expected": {
+          "default": null
+        },
+        "observation_age_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "detail": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "description",
+        "satisfied"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

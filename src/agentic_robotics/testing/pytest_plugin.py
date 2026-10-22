@@ -82,12 +82,29 @@ class EvidenceCollector:
             totals[t["outcome"]] = totals.get(t["outcome"], 0) + 1
         doc = {"run": {"started_at": self.started, "finished_at": time.time(),
                        "exitstatus": int(exitstatus), "totals": totals,
-                       "environment": capture_environment(self.root)},
+                       "environment": capture_environment(self.root),
+                       "requirement_fingerprints": self._fingerprints(tests)},
                "tests": tests}
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8", newline="\n")
         if self.record:
             self._record(doc)
+
+    def _fingerprints(self, tests: list[dict[str, Any]]) -> dict[str, str]:
+        """Fingerprints of the cited requirements as they read *now*, so later changes
+        to a requirement mark this evidence stale. Empty outside an AIR project."""
+        from ..core.errors import FrameworkError
+        from ..provenance.project import Project
+        from ..provenance.traceability import requirement_fingerprints
+
+        try:
+            reqs = Project.open(self.root).requirements
+        except FrameworkError:
+            return {}
+        if reqs is None:
+            return {}
+        cited = {r for t in tests for r in t["requirements"]}
+        return requirement_fingerprints(reqs, cited)
 
     def _record(self, doc: dict[str, Any]) -> None:
         from ..provenance.project import Project

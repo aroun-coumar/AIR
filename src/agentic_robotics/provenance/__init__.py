@@ -17,7 +17,16 @@ from .model import (
     RequirementStatus,
 )
 from .project import AIR_DIR, ActivityRecorder, ArtifactStore, Project, capture_environment
-from .tracing import SpanContext, current, span
+from .tracing import (
+    SpanContext,
+    current,
+    from_traceparent,
+    new_span_id,
+    new_trace_id,
+    normalize_trace_id,
+    span,
+    to_traceparent,
+)
 
 __all__ = [
     "AIR_DIR",
@@ -42,5 +51,10 @@ __all__ = [
     "VerifyReport",
     "capture_environment",
     "current",
+    "from_traceparent",
+    "new_span_id",
+    "new_trace_id",
+    "normalize_trace_id",
     "span",
+    "to_traceparent",
 ]

@@ -75,6 +75,7 @@ def test_fencing_tokens_increase_and_supersede() -> None:
     assert rm.reserve("station", "agent:a") == a  # idempotent for the holder
     with pytest.raises(ResourceConflict):
         rm.reserve("station", "agent:b")
+    rm.set_occupancy("station", Occupancy.FREE)  # preemption needs known vacancy
     b = rm.reserve("station", "agent:b", preempt=True)
     assert b.fencing_token > a.fencing_token
     assert rm.validate_fence("station", a.fencing_token, "agent:a") == "stale_fencing_token"
@@ -93,11 +94,60 @@ def test_logical_release_does_not_imply_physical_vacancy() -> None:
 
 
 @ownership
-def test_lease_expiry_frees_logical_ownership() -> None:
+def test_lease_expiry_frees_a_known_vacant_resource() -> None:
     clock = ManualClock()
     rm = ResourceManager(clock)
     r = rm.reserve("station", "agent:a", lease_s=5.0)
+    rm.set_occupancy("station", Occupancy.FREE)
     clock.advance(5.0)
     assert rm.holder("station") is None
     assert rm.validate_fence("station", r.fencing_token, "agent:a") == "no_active_reservation"
     assert rm.reserve("station", "agent:b").fencing_token == r.fencing_token + 1
+
+
+@ownership
+@pytest.mark.parametrize("occupancy", [Occupancy.OCCUPIED, Occupancy.UNKNOWN])
+def test_lease_expiry_while_possibly_occupied_fails_closed(occupancy: Occupancy) -> None:
+    clock = ManualClock()
+    rm = ResourceManager(clock)
+    r = rm.reserve("station", "agent:a", lease_s=5.0)
+    if occupancy is Occupancy.OCCUPIED:
+        rm.set_occupancy("station", occupancy)
+    clock.advance(5.0)
+    held = rm.holder("station")
+    assert held is not None and held.state is ReservationState.EXPIRED_OCCUPIED
+    # The expired holder may not command, and nobody else may take it.
+    assert rm.validate_fence("station", r.fencing_token, "agent:a") == "lease_expired"
+    with pytest.raises(ResourceConflict) as exc:
+        rm.reserve("station", "agent:b")
+    assert exc.value.details["reason"] == "expired_occupied"
+    with pytest.raises(ResourceConflict):
+        rm.reserve("station", "agent:b", preempt=True)
+    # Observed vacancy finally frees it.
+    rm.set_occupancy("station", Occupancy.FREE)
+    assert rm.holder("station") is None
+    assert rm.reserve("station", "agent:b").fencing_token == r.fencing_token + 1
+
+
+@ownership
+def test_expired_holder_still_in_zone_can_renew() -> None:
+    clock = ManualClock()
+    rm = ResourceManager(clock)
+    r = rm.reserve("station", "agent:a", lease_s=1.0)
+    rm.set_occupancy("station", Occupancy.OCCUPIED)
+    clock.advance(1.0)
+    renewed = rm.reserve("station", "agent:a", lease_s=1.0)
+    assert renewed.state is ReservationState.HELD and renewed.fencing_token > r.fencing_token
+    assert rm.validate_fence("station", renewed.fencing_token, "agent:a") is None
+
+
+@ownership
+@pytest.mark.parametrize("occupancy", [Occupancy.OCCUPIED, Occupancy.UNKNOWN])
+def test_preemption_requires_known_vacancy(occupancy: Occupancy) -> None:
+    rm = ResourceManager(ManualClock())
+    rm.reserve("station", "agent:a")
+    if occupancy is Occupancy.OCCUPIED:
+        rm.set_occupancy("station", occupancy)
+    with pytest.raises(ResourceConflict) as exc:
+        rm.reserve("station", "agent:b", preempt=True)
+    assert exc.value.details["reason"] == "preempt_requires_vacancy"

@@ -9,6 +9,7 @@ or the :func:`implements` decorator; tests declare what they evidence with
 from __future__ import annotations
 
 import ast
+import hashlib
 import json
 from collections.abc import Callable, Iterable
 from dataclasses import asdict, dataclass, field
@@ -16,9 +17,10 @@ from importlib import resources
 from pathlib import Path
 from typing import Any, TypeVar
 
-from .model import RequirementKind, RequirementSet, RequirementStatus
+from .canonical import canonical_bytes
+from .model import Requirement, RequirementKind, RequirementSet, RequirementStatus
 
-__requirements__ = ("REQ02", "REQ18")
+__requirements__ = ("REQ02", "REQ18", "F01")
 
 F = TypeVar("F", bound=Callable[..., Any])
 
@@ -110,16 +112,42 @@ class TestEvidence:
                 out.setdefault(rid, []).append(t)
         return out
 
+    @property
+    def fingerprints(self) -> dict[str, str]:
+        """Requirement fingerprints the evidence was produced against (if recorded)."""
+        return dict(self.run.get("requirement_fingerprints", {}))
+
+
+def requirement_fingerprint(req: Requirement) -> str:
+    """Identity of what a requirement *means*: id, title, text, kind, links and
+    verification method. Status and owner are excluded, so re-claiming or reassigning a
+    requirement does not invalidate its evidence, but changing its wording does
+    (Doorstop-style suspect links, OpenFastTrace-style revisions)."""
+    body = {"req_id": req.req_id, "title": req.title, "text": req.text,
+            "kind": req.kind.value, "traces_to": sorted(req.traces_to),
+            "verification": sorted(req.verification)}
+    return "sha256:" + hashlib.sha256(canonical_bytes(body)).hexdigest()
+
+
+def requirement_fingerprints(requirements: RequirementSet,
+                             only: Iterable[str] | None = None) -> dict[str, str]:
+    wanted = set(only) if only is not None else None
+    return {r.req_id: requirement_fingerprint(r) for r in requirements.requirements
+            if wanted is None or r.req_id in wanted}
+
 
 class Computed:
     """What the evidence shows. ``evidenced`` means code (for requirements) and passing
     tagged tests exist; it does not by itself mean the requirement is complete. That is
-    what the separately *claimed* status says, and the check holds claims to evidence."""
+    what the separately *claimed* status says, and the check holds claims to evidence.
+    ``stale`` means the passing evidence was produced against an earlier wording of the
+    requirement and must be reviewed and re-run."""
 
     VERIFIED = "evidenced"
     IMPLEMENTED = "implemented"
     TESTED_ONLY = "tested_only"
     FAILING = "failing"
+    STALE = "stale"
     UNTRACED = "untraced"
 
 
@@ -141,14 +169,20 @@ def build_matrix(requirements: RequirementSet, code: dict[str, list[str]],
                  evidence: TestEvidence,
                  activity_counts: dict[str, int] | None = None) -> list[MatrixRow]:
     by_req = evidence.by_requirement()
+    produced_against = evidence.fingerprints
     rows = []
     for r in requirements.requirements:
         tests = by_req.get(r.req_id, [])
         passed = sorted(t["nodeid"] for t in tests if t["outcome"] == "passed")
         failed = sorted(t["nodeid"] for t in tests if t["outcome"] in ("failed", "error"))
         modules = sorted(set(code.get(r.req_id, [])))
+        recorded = produced_against.get(r.req_id)
+        stale = bool(passed) and recorded is not None and \
+            recorded != requirement_fingerprint(r)
         if failed:
             computed = Computed.FAILING
+        elif stale:
+            computed = Computed.STALE
         elif r.kind is RequirementKind.GATE:
             # Gates are demonstrations: evidenced by tests, not by code claims.
             computed = Computed.VERIFIED if passed else Computed.UNTRACED
@@ -173,6 +207,10 @@ def check(rows: list[MatrixRow], requirements: RequirementSet, code: dict[str, l
     for row in rows:
         if row.computed == Computed.FAILING:
             problems.append(f"{row.req_id}: failing tests {row.tests_failed}")
+        if row.computed == Computed.STALE and row.claimed in (
+                RequirementStatus.VERIFIED, RequirementStatus.IMPLEMENTED):
+            problems.append(f"{row.req_id}: evidence is stale (requirement changed since "
+                            "the tests ran); review the tests and re-run them")
         if row.claimed == RequirementStatus.VERIFIED and row.computed != Computed.VERIFIED:
             problems.append(f"{row.req_id}: claimed verified, evidence is {row.computed}")
         if row.claimed == RequirementStatus.IMPLEMENTED and row.computed in (
@@ -190,7 +228,7 @@ def check(rows: list[MatrixRow], requirements: RequirementSet, code: dict[str, l
 
 _ICON = {Computed.VERIFIED: "evidenced", Computed.IMPLEMENTED: "code only",
          Computed.TESTED_ONLY: "tested only", Computed.FAILING: "FAILING",
-         Computed.UNTRACED: "-"}
+         Computed.STALE: "STALE", Computed.UNTRACED: "-"}
 
 
 def render_markdown(rows: list[MatrixRow], kinds: Iterable[str] | None = None) -> str:

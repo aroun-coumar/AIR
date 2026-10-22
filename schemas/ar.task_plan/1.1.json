@@ -1,0 +1,129 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.task_plan/1.1.json",
+  "title": "ar.task_plan/1.1",
+  "type": "object",
+  "description": "1.1 adds ``trace_id``: the trace of the decision that produced the plan.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.task_plan/1\\.\\d+|https?://.+/ar\\.task_plan/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "goal": {
+      "type": "string"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TaskSpec"
+      }
+    },
+    "produced_by": {
+      "type": "string",
+      "default": "unspecified"
+    },
+    "rationale": {
+      "type": "string",
+      "default": ""
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "plan_id",
+    "goal",
+    "steps"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "TaskSpec": {
+      "type": "object",
+      "description": "One step of a plan: run ``skill_id`` on ``robot_id`` with ``args``.",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "skill_id": {
+          "type": "string"
+        },
+        "robot_id": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "rationale": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "task_id",
+        "skill_id",
+        "robot_id"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

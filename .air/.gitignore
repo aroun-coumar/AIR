@@ -1,3 +1,4 @@
 artifacts/
 *.trace.jsonl
 test-evidence.json
+*.jsonl.lock

@@ -33,6 +33,7 @@ from agentic_robotics.provenance.traceability import (
     baseline_requirements,
     build_matrix,
     check,
+    requirement_fingerprints,
     scan_code,
 )
 
@@ -257,6 +258,35 @@ def test_matrix_and_check_enforce_claims() -> None:
     assert any("REQ77" in p for p in problems)
 
 
+@pytest.mark.req("F01")
+def test_evidence_goes_stale_when_a_requirement_is_reworded() -> None:
+    reqs = baseline_requirements()
+    reqs = reqs.evolve(requirements=tuple(
+        dataclasses.replace(r, status=RequirementStatus.VERIFIED) if r.req_id == "REQ12"
+        else r for r in reqs.requirements))
+    code = {"REQ12": ["m.rt"]}
+    fp = requirement_fingerprints(reqs, ["REQ12"])
+    evidence = TestEvidence(
+        tests=[{"nodeid": "t::a", "outcome": "passed", "requirements": ["REQ12"]}],
+        run={"requirement_fingerprints": fp})
+    row = {r.req_id: r for r in build_matrix(reqs, code, evidence)}["REQ12"]
+    assert row.computed == Computed.VERIFIED
+
+    # Re-claiming or reassigning does not invalidate evidence...
+    reowned = reqs.evolve(requirements=tuple(
+        dataclasses.replace(r, owner="someone else") if r.req_id == "REQ12" else r
+        for r in reqs.requirements))
+    assert requirement_fingerprints(reowned, ["REQ12"]) == fp
+    # ...but changing what the requirement says does.
+    reworded = reqs.evolve(requirements=tuple(
+        dataclasses.replace(r, text="hard deadlines for every feature") if r.req_id == "REQ12"
+        else r for r in reqs.requirements))
+    rows = build_matrix(reworded, code, evidence)
+    stale = {r.req_id: r for r in rows}["REQ12"]
+    assert stale.computed == Computed.STALE
+    assert any("REQ12: evidence is stale" in p for p in check(rows, reworded, code, evidence))
+
+
 @pytest.mark.req("REQ18")
 def test_pytest_plugin_records_evidence_and_activity(tmp_path: Path) -> None:
     Project.init(tmp_path, requirements=baseline_requirements())
@@ -275,6 +305,7 @@ def test_pytest_plugin_records_evidence_and_activity(tmp_path: Path) -> None:
     outcomes = {t["nodeid"].split("::")[-1]: (t["outcome"], t["requirements"])
                 for t in doc["tests"]}
     assert outcomes == {"test_ok": ("passed", ["REQ12"]), "test_bad": ("failed", ["REQ13"])}
+    assert set(doc["run"]["requirement_fingerprints"]) == {"REQ12", "REQ13"}
     act = Project.open(tmp_path).activities(kind="evaluation")[0]
     assert act.status is ActivityStatus.FAILED and set(act.requirements) == {"REQ12", "REQ13"}
 

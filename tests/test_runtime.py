@@ -20,7 +20,7 @@ from agentic_robotics import (
     SkillRegistry,
     UnsupportedOperation,
 )
-from agentic_robotics.contracts import ExecutionContract
+from agentic_robotics.contracts import ExecutionContract, Occupancy
 from agentic_robotics.core import InvalidTransition, SyncState
 from agentic_robotics.integrations.fake import fake_skill_set
 from agentic_robotics.runtime import check_transition
@@ -273,6 +273,7 @@ async def test_exclusive_resource_requires_current_fencing_token(make_env: MakeE
     assert missing.reason == "missing_fencing_token"
 
     mine = rm.reserve("station_a", AGENT)
+    rm.set_occupancy("station_a", Occupancy.FREE)
     rm.reserve("station_a", "operator:bob", preempt=True)  # supersedes the agent
     stale = await env.runtime.submit(env.command(
         "dock_at", {"station": "station_a"}, fencing={"station_a": mine.fencing_token})).wait()

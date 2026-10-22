@@ -8,5 +8,6 @@ build/
 .mypy_cache/
 .ruff_cache/
 .ar-registry/
+*.jsonl.lock
 traces/
 *.trace.jsonl

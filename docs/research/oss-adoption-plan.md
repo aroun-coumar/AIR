@@ -65,7 +65,11 @@ Where AIR is behind is mostly maturity:
 Priorities: **P0** = do next (it either fixes something wrong or locks a format before it
 spreads); **P1** = with the next stage; **P2** = later or on demand. Effort: S/M/L.
 
-### Wave 1: correctness, formats and hygiene (P0, mostly S)
+### Wave 1: correctness, formats and hygiene (P0, mostly S): **done**
+
+W1.1 to W1.8 were implemented on 2026-10-22; see
+[ADR 0007](../decisions/0007-wave1-integrity-and-formats.md). The license decision is
+still open with the owner. D4's truncation and rewrite detection remains as W2.7.
 
 | Item | What | Learned from | AIR module | Serves |
 |---|---|---|---|---|

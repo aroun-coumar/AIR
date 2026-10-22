@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.resource_reservation/1.1.json",
+  "title": "ar.resource_reservation/1.1",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.resource_reservation/1\\.\\d+|https?://.+/ar\\.resource_reservation/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "reservation_id": {
+      "type": "string"
+    },
+    "resource": {
+      "type": "string"
+    },
+    "holder": {
+      "type": "string"
+    },
+    "fencing_token": {
+      "type": "integer"
+    },
+    "state": {
+      "enum": [
+        "held",
+        "released",
+        "superseded",
+        "expired",
+        "expired_occupied"
+      ],
+      "default": "held"
+    },
+    "exclusive": {
+      "type": "boolean",
+      "default": true
+    },
+    "lease_expires_at": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "physical_occupancy": {
+      "enum": [
+        "unknown",
+        "free",
+        "occupied"
+      ],
+      "default": "unknown"
+    },
+    "last_confirmed_at": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "reconciliation_policy": {
+      "type": "string",
+      "default": "observe_before_reassign"
+    }
+  },
+  "required": [
+    "reservation_id",
+    "resource",
+    "holder",
+    "fencing_token"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

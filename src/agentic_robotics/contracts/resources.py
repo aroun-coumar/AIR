@@ -25,9 +25,11 @@ class ReservationState(StrEnum):
     RELEASED = "released"
     SUPERSEDED = "superseded"
     EXPIRED = "expired"
+    # Lease ran out while the resource may still be occupied: blocks others, grants nothing.
+    EXPIRED_OCCUPIED = "expired_occupied"
 
 
-@contract("resource_reservation", version="1.0")
+@contract("resource_reservation", version="1.1")
 class ResourceReservation(Contract):
     reservation_id: str
     resource: str

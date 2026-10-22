@@ -1,0 +1,238 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.team_plan/1.0.json",
+  "title": "ar.team_plan/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.team_plan/1\\.\\d+|https?://.+/ar\\.team_plan/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "plan_id": {
+      "type": "string"
+    },
+    "mission": {
+      "$ref": "#/$defs/Mission"
+    },
+    "assignments": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Assignment"
+      },
+      "default": []
+    },
+    "unassigned": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Unassigned"
+      },
+      "default": []
+    },
+    "trace_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "plan_id",
+    "mission"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Assignment": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "participant": {
+          "type": "string"
+        },
+        "cost": {
+          "type": "number"
+        },
+        "capability_revision": {
+          "type": "integer"
+        },
+        "bids": {
+          "type": "array",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "default": []
+        },
+        "rationale": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "task_id",
+        "participant",
+        "cost",
+        "capability_revision"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "Mission": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "meta": {
+          "$ref": "#/$defs/Meta"
+        },
+        "mission_id": {
+          "type": "string"
+        },
+        "goal": {
+          "type": "string"
+        },
+        "tasks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/MissionTask"
+          }
+        }
+      },
+      "required": [
+        "mission_id",
+        "goal",
+        "tasks"
+      ],
+      "additionalProperties": false
+    },
+    "MissionTask": {
+      "type": "object",
+      "description": "A task in a mission, before allocation. ``colocated_with`` forces the same participant as another task (e.g. it holds the part); ``assign_to`` pins one.",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "skill_id": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "depends_on": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "colocated_with": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "assign_to": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "priority": {
+          "type": "integer",
+          "default": 0
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "task_id",
+        "skill_id"
+      ],
+      "additionalProperties": false
+    },
+    "Unassigned": {
+      "type": "object",
+      "properties": {
+        "task_id": {
+          "type": "string"
+        },
+        "reason": {
+          "type": "string"
+        },
+        "declines": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "string"
+          }
+        }
+      },
+      "required": [
+        "task_id",
+        "reason"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

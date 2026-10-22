@@ -1,0 +1,139 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.experiment_record/1.0.json",
+  "title": "ar.experiment_record/1.0",
+  "type": "object",
+  "description": "Baseline section 10: everything needed to interpret, compare and reproduce.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.experiment_record/1\\.\\d+|https?://.+/ar\\.experiment_record/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "experiment_id": {
+      "type": "string"
+    },
+    "hypothesis": {
+      "type": "string"
+    },
+    "requirement_ids": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "candidate": {
+      "type": "string",
+      "default": ""
+    },
+    "scenario": {
+      "type": "string",
+      "default": ""
+    },
+    "backend": {
+      "type": "string",
+      "default": ""
+    },
+    "backend_version": {
+      "type": "string",
+      "default": ""
+    },
+    "model_fidelity": {
+      "type": "string",
+      "default": ""
+    },
+    "seed": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "numerical_settings": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "resource_limits": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "acceptance_criteria": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "results": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "accepted": {
+      "anyOf": [
+        {
+          "type": "boolean"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "limitations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "experiment_id",
+    "hypothesis"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

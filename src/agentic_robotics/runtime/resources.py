@@ -3,6 +3,12 @@
 Each new reservation of a resource receives a strictly larger fencing token. The
 executor checks the token a command carries; a superseded owner's commands are
 rejected even if they arrive late. Logical release and physical occupancy are separate.
+
+Fail closed on physical uncertainty: a lease that runs out while the resource may still
+be occupied (OCCUPIED or UNKNOWN) does not free it. It becomes EXPIRED_OCCUPIED, which
+keeps blocking other holders while denying the expired holder new commands, until
+vacancy is observed. Preemption likewise requires the resource to be known vacant.
+(Open-RMF force-releases idle mutex groups while robots are still in them; AIR does not.)
 """
 
 from __future__ import annotations
@@ -34,11 +40,24 @@ class ResourceManager:
         self._expire(resource)
         current = self._current.get(resource)
         if current is not None:
-            if current.holder == holder:
+            if current.holder == holder and current.state is ReservationState.HELD:
                 return current
-            if not preempt:
-                raise ResourceConflict("resource is held by another participant",
-                                       resource=resource, holder=current.holder)
+            if current.holder != holder:
+                if current.state is ReservationState.EXPIRED_OCCUPIED:
+                    raise ResourceConflict(
+                        "lease expired but the resource may still be physically occupied",
+                        reason="expired_occupied", resource=resource,
+                        holder=current.holder, occupancy=self.occupancy(resource).value)
+                if not preempt:
+                    raise ResourceConflict("resource is held by another participant",
+                                           reason="held", resource=resource,
+                                           holder=current.holder)
+                if self.occupancy(resource) is not Occupancy.FREE:
+                    raise ResourceConflict(
+                        "preemption requires the resource to be known vacant",
+                        reason="preempt_requires_vacancy", resource=resource,
+                        holder=current.holder, occupancy=self.occupancy(resource).value)
+            # Same holder renewing an expired-but-occupied lease, or a vacant preemption.
             self._set(current.evolve(state=ReservationState.SUPERSEDED))
         token = self._tokens.get(resource, 0) + 1
         self._tokens[resource] = token
@@ -89,26 +108,42 @@ class ResourceManager:
             return "stale_fencing_token"
         if current.holder != holder:
             return "not_reservation_holder"
+        if current.state is ReservationState.EXPIRED_OCCUPIED:
+            return "lease_expired"
         return None
 
     def set_occupancy(self, resource: str, occupancy: Occupancy) -> None:
         self._occupancy[resource] = occupancy
         current = self._current.get(resource)
-        if current is not None:
-            updated = current.evolve(physical_occupancy=occupancy,
-                                     last_confirmed_at=self.clock.now())
-            self._current[resource] = updated
-            self._set(updated)
+        if current is None:
+            return
+        if current.state is ReservationState.EXPIRED_OCCUPIED and occupancy is Occupancy.FREE:
+            del self._current[resource]
+            self._set(current.evolve(state=ReservationState.EXPIRED,
+                                     physical_occupancy=occupancy,
+                                     last_confirmed_at=self.clock.now()))
+            return
+        updated = current.evolve(physical_occupancy=occupancy,
+                                 last_confirmed_at=self.clock.now())
+        self._current[resource] = updated
+        self._set(updated)
 
     def occupancy(self, resource: str) -> Occupancy:
         return self._occupancy.get(resource, Occupancy.UNKNOWN)
 
     def _expire(self, resource: str) -> None:
         current = self._current.get(resource)
-        if current and current.lease_expires_at is not None and \
-                self.clock.now() >= current.lease_expires_at:
+        if not (current and current.state is ReservationState.HELD
+                and current.lease_expires_at is not None
+                and self.clock.now() >= current.lease_expires_at):
+            return
+        if self.occupancy(resource) is Occupancy.FREE:
             del self._current[resource]
             self._set(current.evolve(state=ReservationState.EXPIRED))
+        else:
+            blocked = current.evolve(state=ReservationState.EXPIRED_OCCUPIED)
+            self._current[resource] = blocked
+            self._set(blocked)
 
     def _set(self, r: ResourceReservation) -> None:
         self._by_id[r.reservation_id] = r

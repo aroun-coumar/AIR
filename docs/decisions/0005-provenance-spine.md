@@ -22,6 +22,10 @@ Baseline: REQ02, REQ10, REQ15, REQ16 and foundations F01, F05.
 - A blockchain or consensus layer is not used. Cross-organization trust can be added
   behind the same ledger interface, for example by anchoring the head hash.
 
+Amended by [ADR 0007](0007-wave1-integrity-and-formats.md): the ledger now uses a v2
+canonical encoding (RFC 8785) and serializes writers with an OS file lock, and trace ids
+use the W3C/OTel format.
+
 ## Consequences
 Every new feature carries a small tagging and evidence cost. The ledger is local and
 single-writer; concurrent writers on one file are not supported, beyond reloading

@@ -54,7 +54,8 @@ runtime.trace.add_sink(project.runtime_sink())     # runtime evidence -> same le
 
 | Capability | How |
 |---|---|
-| Tamper-evident ledger | `.air/ledger.jsonl` is hash-chained; `air ledger verify` detects edits, deletions and reordering |
+| Tamper-evident ledger | `.air/ledger.jsonl` is hash-chained over RFC 8785 canonical JSON, so any implementation can verify it; writers are serialized by a file lock; `air ledger verify` detects edits, deletions and reordering |
+| Contract schemas | JSON Schema (Draft 2020-12) for every contract in `schemas/`; `air schema check` guards drift and compatibility; see [versioning policy](docs/policy/versioning.md) |
 | Causal tracing | trace and span ids link agent decision → plan → command → verification; `Command.trace_id` crosses boundaries |
 | Lineage | `air lineage <file-or-entity>` (where it came from), `air impact <entity>` (what depends on it) |
 | Maintenance | `air maintenance record --robot … --component … --replace OLD=NEW --check test=pass`: replaced components keep their lineage, invalidated calibration is recorded |

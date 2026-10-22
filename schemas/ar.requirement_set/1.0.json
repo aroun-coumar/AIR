@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.requirement_set/1.0.json",
+  "title": "ar.requirement_set/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.requirement_set/1\\.\\d+|https?://.+/ar\\.requirement_set/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "name": {
+      "type": "string"
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Requirement"
+      }
+    }
+  },
+  "required": [
+    "name",
+    "requirements"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "Requirement": {
+      "type": "object",
+      "properties": {
+        "req_id": {
+          "type": "string"
+        },
+        "title": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "requirement",
+            "gate",
+            "domain",
+            "foundation"
+          ],
+          "default": "requirement"
+        },
+        "text": {
+          "type": "string",
+          "default": ""
+        },
+        "owner": {
+          "type": "string",
+          "default": ""
+        },
+        "status": {
+          "enum": [
+            "planned",
+            "in_progress",
+            "implemented",
+            "verified"
+          ],
+          "default": "planned"
+        },
+        "traces_to": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "verification": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "test"
+          ]
+        }
+      },
+      "required": [
+        "req_id",
+        "title"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

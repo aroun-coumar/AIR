@@ -374,7 +374,7 @@ class TeamCoordinator:
         try:
             rec.reservations = await self._reserve_all(sorted(set(resources)), info.principal)
         except ResourceConflict as exc:
-            self._fail(conv, rec, "reservation_timeout", **exc.details)
+            self._fail(conv, rec, "reservation_timeout", conflict=exc.details)
             return "done"
         self._move(conv, rec, T.RESERVED, ", ".join(
             f"{r.resource}#{r.fencing_token}" for r in rec.reservations) or "no resources")

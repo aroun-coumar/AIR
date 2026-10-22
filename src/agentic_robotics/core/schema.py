@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import dataclasses
 import json
+import re
 import types
 import typing
 from collections.abc import Callable, Mapping
@@ -28,6 +29,21 @@ __requirements__ = ("REQ01", "REQ18")
 
 SCHEMA_KEY = "$schema"
 SCHEMA_NAMESPACE = "ar"
+#: Published JSON Schemas live under this base URI. A document's ``$schema`` may be the
+#: short tag ``ar.<name>/<ver>`` or the URI ``<base>ar.<name>/<ver>.json``; both mean the
+#: same contract, and the URI form lets editors validate documents against the schema.
+SCHEMA_BASE_URI = "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/"
+_SCHEMA_URI = re.compile(r"^https?://.+/(ar\.[a-z0-9_]+)/(\d+\.\d+)\.json$")
+
+
+def normalize_schema_id(declared: str) -> str:
+    """Map the URI form of a ``$schema`` value to the short ``ar.<name>/<ver>`` tag."""
+    m = _SCHEMA_URI.match(declared)
+    return f"{m.group(1)}/{m.group(2)}" if m else declared
+
+
+def schema_uri(schema_id: str) -> str:
+    return f"{SCHEMA_BASE_URI}{schema_id}.json"
 
 C = TypeVar("C", bound="Contract")
 
@@ -117,7 +133,35 @@ def contract(name: str, version: str = "1.0") -> Callable[[type[C]], type[C]]:
     return wrap
 
 
+#: Modules that define the framework's own contracts; imported on demand so that
+#: ``load_any`` and the registry do not depend on what happens to be imported already.
+BUILTIN_CONTRACT_MODULES = (
+    "agentic_robotics.contracts",
+    "agentic_robotics.coordination.protocol",
+    "agentic_robotics.provenance.model",
+)
+CONTRACT_ENTRY_POINT_GROUP = "agentic_robotics.contracts"
+_loaded_all = False
+
+
+def load_contract_modules() -> None:
+    """Import built-in contract modules and third-party ones registered under the
+    ``agentic_robotics.contracts`` entry-point group (value: a module path)."""
+    global _loaded_all
+    if _loaded_all:
+        return
+    import importlib
+    from importlib.metadata import entry_points
+
+    for module in BUILTIN_CONTRACT_MODULES:
+        importlib.import_module(module)
+    for ep in entry_points(group=CONTRACT_ENTRY_POINT_GROUP):
+        importlib.import_module(ep.value)
+    _loaded_all = True
+
+
 def registered_contracts() -> dict[str, type[Contract]]:
+    load_contract_modules()
     return dict(_REGISTRY)
 
 
@@ -126,8 +170,12 @@ def load_any(data: Mapping[str, Any]) -> Contract:
     declared = data.get(SCHEMA_KEY)
     if not isinstance(declared, str):
         raise SchemaError(f"document has no {SCHEMA_KEY} field")
+    declared = normalize_schema_id(declared)
     name = declared.split("/", 1)[0].removeprefix(f"{SCHEMA_NAMESPACE}.")
     cls = _REGISTRY.get(name)
+    if cls is None:
+        load_contract_modules()
+        cls = _REGISTRY.get(name)
     if cls is None:
         raise SchemaError("unknown schema", schema=declared)
     return cls.from_dict(data)
@@ -137,7 +185,7 @@ def load_any(data: Mapping[str, Any]) -> Contract:
 
 
 def _check_schema_id(cls: type[Contract], declared: str) -> None:
-    name, _, version = declared.partition("/")
+    name, _, version = normalize_schema_id(declared).partition("/")
     if name != f"{SCHEMA_NAMESPACE}.{cls.SCHEMA}":
         raise SchemaError("document declares a different schema", expected=cls.schema_id(),
                           actual=declared)

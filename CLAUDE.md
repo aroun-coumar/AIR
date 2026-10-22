@@ -20,8 +20,11 @@ particular robot, simulator, model provider or hosted service.
 - Lint/types: `.venv/Scripts/ruff check src tests examples` and `.venv/Scripts/mypy` (strict)
 - Traceability: `.venv/Scripts/python -m pytest -q --air-evidence .air/test-evidence.json`
   then `.venv/Scripts/air requirements matrix --check`
+- Schemas: `.venv/Scripts/air schema check` (after a contract version bump:
+  `air schema export` and commit the new file; never edit a published schema)
 
-All four must pass before committing.
+All five must pass before committing. Versioning and deprecation rules:
+`docs/policy/versioning.md`.
 
 ## Rules that keep the architecture honest
 

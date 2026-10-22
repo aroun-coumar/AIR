@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.delegation/1.0.json",
+  "title": "ar.delegation/1.0",
+  "type": "object",
+  "description": "Scoped authority granted by ``grantor`` to ``grantee``.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.delegation/1\\.\\d+|https?://.+/ar\\.delegation/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "delegation_id": {
+      "type": "string"
+    },
+    "grantor": {
+      "type": "string"
+    },
+    "grantee": {
+      "type": "string"
+    },
+    "robots": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "*"
+      ]
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "*"
+      ]
+    },
+    "operations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "execute"
+      ]
+    },
+    "parent_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "valid_from": {
+      "type": "number",
+      "default": 0.0
+    },
+    "valid_until": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "may_redelegate": {
+      "type": "boolean",
+      "default": false
+    },
+    "limits": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    },
+    "reason": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "delegation_id",
+    "grantor",
+    "grantee"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -118,6 +118,66 @@ def test_registry_detects_tampering(tmp_path: Path) -> None:
         reg.fetch("policy")
 
 
+@integrity
+def test_registry_detects_document_and_stored_digest_rewritten_together(
+        tmp_path: Path) -> None:
+    from agentic_robotics.registry import document_digest
+
+    reg = LocalRegistry(tmp_path)
+    reg.publish("policy", "1", Delegation(delegation_id="d", grantor="a", grantee="b"))
+    path = tmp_path / "policy" / "1.json"
+    record = json.loads(path.read_text())
+    record["document"]["grantee"] = "agent:attacker"
+    record["ref"]["digest"] = document_digest(record["document"])  # self-consistent forgery
+    path.write_text(json.dumps(record))
+    with pytest.raises(SchemaError, match="integrity"):
+        reg.fetch("policy")
+    assert reg.verify_log()
+
+
+@integrity
+def test_registry_digest_pinning_and_refs(tmp_path: Path) -> None:
+    reg = LocalRegistry(tmp_path)
+    ref = reg.publish("skills", "1.0.0", fake_skill_set())
+    assert reg.fetch("skills", "1.0.0", digest=ref.digest) == fake_skill_set()
+    assert reg.resolve(str(ref)) == fake_skill_set()
+    with pytest.raises(SchemaError, match="pinned digest"):
+        reg.fetch("skills", "1.0.0", digest="sha256:" + "0" * 64)
+
+
+def test_registry_version_precedence_and_prereleases(tmp_path: Path) -> None:
+    from agentic_robotics.registry import is_prerelease, version_key
+
+    ordered = ["0.9", "1.0.0-alpha", "1.0.0-alpha.2", "1.0.0-alpha.10", "1.0.0rc1",
+               "1.0.0", "1.0.1", "1.2.0", "1.10.0", "2"]
+    assert sorted(reversed(ordered), key=version_key) == ordered
+    assert version_key("1.0") == version_key("1.0.0")
+    assert is_prerelease("1.0.0-rc.1") and is_prerelease("2.0.0rc1")
+    assert not is_prerelease("1.10.0")
+
+    reg = LocalRegistry(tmp_path)
+    skills = fake_skill_set()
+    reg.publish("s", "1.0.0", skills)
+    reg.publish("s", "1.1.0-rc1", Delegation(delegation_id="d", grantor="a", grantee="b"))
+    assert reg.latest("s") == "1.0.0"  # a prerelease is never "latest" by default
+    assert reg.fetch("s") == skills
+    assert reg.latest("s", include_prerelease=True) == "1.1.0-rc1"
+    reg.publish("only", "0.1.0-dev1", skills)
+    with pytest.raises(SchemaError, match="only prereleases"):
+        reg.fetch("only")
+
+
+@integrity
+def test_registry_lockfile(tmp_path: Path) -> None:
+    reg = LocalRegistry(tmp_path / "reg")
+    reg.publish("skills", "1.0.0", fake_skill_set())
+    lock = tmp_path / "air.lock"
+    locked = reg.lock(["skills"], lock)
+    assert locked["skills"].startswith("skills@1.0.0#sha256:")
+    reg.publish("skills", "2.0.0", Delegation(delegation_id="d", grantor="a", grantee="b"))
+    assert reg.fetch_locked("skills", lock) == fake_skill_set()  # lock wins over latest
+
+
 def test_registry_rejects_path_like_names(tmp_path: Path) -> None:
     reg = LocalRegistry(tmp_path)
     with pytest.raises(SchemaError):

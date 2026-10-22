@@ -33,6 +33,21 @@ def _schemas(_: argparse.Namespace) -> int:
     return 0
 
 
+def _schema(args: argparse.Namespace) -> int:
+    from .core.jsonschema import check_schemas, export_schemas
+
+    if args.action == "export":
+        written = export_schemas(args.dir)
+        print(f"wrote {len(written)} schemas to {args.dir}")
+        return 0
+    problems = check_schemas(args.dir)
+    for p in problems:
+        print(f"SCHEMA FAIL: {p}", file=sys.stderr)
+    if not problems:
+        print("schemas up to date and backwards compatible")
+    return 1 if problems else 0
+
+
 def _adapters(_: argparse.Namespace) -> int:
     from .plugins import available_adapters
     for kind in sorted(available_adapters()):
@@ -88,6 +103,11 @@ def build_parser() -> argparse.ArgumentParser:
     v.set_defaults(fn=_validate)
 
     sub.add_parser("schemas", help="list registered contract schemas").set_defaults(fn=_schemas)
+
+    js = sub.add_parser("schema", help="JSON Schema export and drift/compatibility check")
+    js.add_argument("action", choices=["export", "check"])
+    js.add_argument("--dir", default="schemas")
+    js.set_defaults(fn=_schema)
     sub.add_parser("adapters", help="list discoverable robot adapters").set_defaults(fn=_adapters)
 
     c = sub.add_parser("conformance", help="run the adapter conformance suite")
