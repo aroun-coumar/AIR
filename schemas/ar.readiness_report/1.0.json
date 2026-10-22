@@ -1,0 +1,152 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.readiness_report/1.0.json",
+  "title": "ar.readiness_report/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.readiness_report/1\\.\\d+|https?://.+/ar\\.readiness_report/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "robot_id": {
+      "type": "string"
+    },
+    "evaluated_at": {
+      "type": "number"
+    },
+    "modes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "can_run": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "failsafe": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "boolean"
+      }
+    },
+    "level": {
+      "enum": [
+        "ok",
+        "warn",
+        "error",
+        "stale"
+      ],
+      "default": "ok"
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CheckResult"
+      },
+      "default": []
+    },
+    "checks_run": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "robot_id",
+    "evaluated_at",
+    "modes",
+    "can_run"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "CheckResult": {
+      "type": "object",
+      "properties": {
+        "check_id": {
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "ok",
+            "warn",
+            "error",
+            "stale"
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string",
+          "default": ""
+        },
+        "blocks": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "failsafe": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "check_id",
+        "level",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

@@ -156,6 +156,11 @@ BUILTIN_CONTRACT_MODULES = (
     "agentic_robotics.contracts.parameters",
     "agentic_robotics.contracts.dataset",
     "agentic_robotics.contracts.release",
+    "agentic_robotics.health.model",
+    "agentic_robotics.health.readiness",
+    "agentic_robotics.health.diagnosis",
+    "agentic_robotics.incidents.model",
+    "agentic_robotics.maintenance.prognostics",
 )
 CONTRACT_ENTRY_POINT_GROUP = "agentic_robotics.contracts"
 _loaded_all = False

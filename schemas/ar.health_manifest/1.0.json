@@ -1,0 +1,241 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.health_manifest/1.0.json",
+  "title": "ar.health_manifest/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.health_manifest/1\\.\\d+|https?://.+/ar\\.health_manifest/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "robot_id": {
+      "type": "string"
+    },
+    "expected": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ExpectedItem"
+      },
+      "default": []
+    },
+    "gates": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/CapabilityGate"
+      },
+      "default": []
+    },
+    "robot_owned_recovery": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "default_timeout_s": {
+      "type": "number",
+      "default": 5.0
+    }
+  },
+  "required": [
+    "robot_id"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "CapabilityGate": {
+      "type": "object",
+      "description": "How bad health on matching items restricts a capability profile.",
+      "properties": {
+        "capability": {
+          "type": "string"
+        },
+        "match": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "on_warn": {
+          "enum": [
+            "available",
+            "restricted",
+            "unavailable"
+          ],
+          "default": "available"
+        },
+        "on_error": {
+          "enum": [
+            "available",
+            "restricted",
+            "unavailable"
+          ],
+          "default": "unavailable"
+        },
+        "on_stale": {
+          "enum": [
+            "available",
+            "restricted",
+            "unavailable"
+          ],
+          "default": "unavailable"
+        },
+        "reason": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "capability",
+        "match"
+      ],
+      "additionalProperties": false
+    },
+    "ExpectedItem": {
+      "type": "object",
+      "description": "A reporter the robot must have. Missing is ERROR; silent for ``timeout_s`` is STALE.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "path": {
+          "type": "string"
+        },
+        "component_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "signal": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "warn_above": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "critical_above": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "warn_below": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "critical_below": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "timeout_s": {
+          "type": "number",
+          "default": 5.0
+        },
+        "critical": {
+          "type": "boolean",
+          "default": false
+        },
+        "limit_source": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "name",
+        "path"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

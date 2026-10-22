@@ -23,6 +23,10 @@
     "current": "1.0",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.benchmark_validity/1.0.json"
   },
+  "ar.bounded_test": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.bounded_test/1.0.json"
+  },
   "ar.capability_report": {
     "current": "1.0",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.capability_report/1.0.json"
@@ -50,6 +54,10 @@
   "ar.device_catalog": {
     "current": "1.0",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.device_catalog/1.0.json"
+  },
+  "ar.diagnosis_table": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.diagnosis_table/1.0.json"
   },
   "ar.domain_library": {
     "current": "1.0",
@@ -79,9 +87,21 @@
     "current": "1.0",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.golden_run/1.0.json"
   },
+  "ar.health_manifest": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.health_manifest/1.0.json"
+  },
+  "ar.health_report": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.health_report/1.0.json"
+  },
   "ar.human_intervention": {
     "current": "1.0",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.human_intervention/1.0.json"
+  },
+  "ar.incident": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.incident/1.0.json"
   },
   "ar.maintenance_record": {
     "current": "1.0",
@@ -110,6 +130,14 @@
   "ar.policy_manifest": {
     "current": "1.0",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.policy_manifest/1.0.json"
+  },
+  "ar.prognostic_estimate": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.prognostic_estimate/1.0.json"
+  },
+  "ar.readiness_report": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.readiness_report/1.0.json"
   },
   "ar.release": {
     "current": "1.0",

@@ -1,0 +1,343 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.incident/1.0.json",
+  "title": "ar.incident/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.incident/1\\.\\d+|https?://.+/ar\\.incident/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "incident_id": {
+      "type": "string"
+    },
+    "robot_id": {
+      "type": "string"
+    },
+    "detected_at": {
+      "type": "number"
+    },
+    "detector": {
+      "type": "string"
+    },
+    "signal": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "signature": {
+      "type": "string"
+    },
+    "novel": {
+      "type": "boolean"
+    },
+    "known_classes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "component_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "state": {
+      "enum": [
+        "open",
+        "investigating",
+        "recovered",
+        "handed_off",
+        "closed"
+      ],
+      "default": "open"
+    },
+    "occurrences": {
+      "type": "integer",
+      "default": 1
+    },
+    "hypotheses": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Hypothesis"
+      },
+      "default": []
+    },
+    "tests": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TestRun"
+      },
+      "default": []
+    },
+    "recovery": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "handed_off_to": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "resolution": {
+      "type": "string",
+      "default": ""
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "incident_id",
+    "robot_id",
+    "detected_at",
+    "detector",
+    "signal",
+    "summary",
+    "signature",
+    "novel"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ConditionResult": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "satisfied": {
+          "type": "boolean"
+        },
+        "observed": {
+          "default": null
+        },
+        "expected": {
+          "default": null
+        },
+        "observation_age_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "detail": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "description",
+        "satisfied"
+      ],
+      "additionalProperties": false
+    },
+    "Hypothesis": {
+      "type": "object",
+      "properties": {
+        "hypothesis_id": {
+          "type": "string"
+        },
+        "statement": {
+          "type": "string"
+        },
+        "proposed_by": {
+          "type": "string"
+        },
+        "authoritative": {
+          "type": "boolean"
+        },
+        "failure_class": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "status": {
+          "enum": [
+            "proposed",
+            "supported",
+            "refuted",
+            "inconclusive"
+          ],
+          "default": "proposed"
+        },
+        "evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "hypothesis_id",
+        "statement",
+        "proposed_by",
+        "authoritative"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "TestRun": {
+      "type": "object",
+      "properties": {
+        "test_id": {
+          "type": "string"
+        },
+        "hypothesis_id": {
+          "type": "string"
+        },
+        "outcome": {
+          "enum": [
+            "supported",
+            "refuted",
+            "inconclusive",
+            "not_run",
+            "aborted"
+          ]
+        },
+        "reason": {
+          "type": "string",
+          "default": ""
+        },
+        "before": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConditionResult"
+          },
+          "default": []
+        },
+        "after": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ConditionResult"
+          },
+          "default": []
+        },
+        "deviated": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "commands": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "started_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "finished_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "test_id",
+        "hypothesis_id",
+        "outcome"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

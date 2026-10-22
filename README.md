@@ -389,6 +389,12 @@ use only public protocols, and nothing in the core imports an integration. See
 | Validate or diff typed parameter sets | `air params validate schema.json set.json` · `air params diff schema.json old.json new.json` |
 | Convert an episode to RLDS-like or LeRobot-like JSON | `air dataset convert ep.json --to lerobot` |
 | Write a versioned conformance report | `air conformance <manifest.json> --skills <skills.json> --out report.json` |
+| Expected health items for a robot, from the catalog | `air health derive robot.manifest.json --out health.json` |
+| Aggregate readings (ERROR/STALE exit 1, optionally into triage) | `air health check health.json --readings r.json --triage` |
+| Readiness before activating a mode | `air health ready robot.manifest.json --readings r.json --mode autonomous` |
+| Host pressure (Linux PSI) and the diagnosis table | `air health psi` · `air health diagnosis --exercise` |
+| Open, investigate, hand off and close incidents | `air incident open --robot … --signal …` · `air incident list` · `air incident close <id> --by … --resolution …` |
+| Time-to-event with uncertainty, gated on p5 | `air prognose estimate --series soh.csv --threshold 80 --robot … --component … --signal … --mission 8h` |
 
 ## Status and roadmap
 
@@ -424,6 +430,9 @@ src/agentic_robotics/
 ├── engineering/   experiment backends · seeds · reproducibility probe · golden runs · search · validity
 ├── hardware/      device catalog: 100 robot classes · 648 device types · 122 protocols · manifest checks
 ├── releases/      policy slots (load gate, two-step start) · trial-then-confirm activation · TUF metadata
+├── health/        expected items · STALE · rollup · monitors · PSI · capability gate · readiness · diagnosis
+├── incidents/     detection · novelty · hypotheses · bounded tests through admission · recovery or handoff
+├── maintenance/   prognostics: time-of-event distributions, censoring, gating on p5
 ├── integrations/  fake carrier and arm (reference adapters)
 └── testing/       pytest evidence plugin
 schemas/           published JSON Schemas for every contract
