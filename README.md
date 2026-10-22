@@ -357,6 +357,12 @@ use only public protocols, and nothing in the core imports an integration. See
 | Start a provenance project | `air init --baseline` |
 | Record research, simulation, maintenance and other activities | `air activity record --kind simulation …` |
 | Verify ledger integrity | `air ledger verify` |
+| Checkpoint the ledger (Merkle root, optionally signed); prove one entry | `air ledger checkpoint` · `air ledger prove 42` |
+| Detect ledger truncation or rewrite since a checkpoint | `air ledger verify --since latest` |
+| in-toto attestations of a work run or a test run | `air attest work <activity-id>` · `air attest tests` |
+| Export provenance, traces, requirements | `air export prov` · `air export otel --endpoint http://localhost:4318` · `air export sdoc` |
+| Register a recording (MCAP, run log, any file) with its sha256 | `air recording register run.mcap --activity <id>` |
+| Lock inputs and environment; what changed since? | `air repro lock` · `air repro --check` |
 | Explain why a command failed | `air trace explain <command-id>` |
 | Where did this artifact come from? | `air lineage <file-or-entity>` |
 | What depends on it? | `air impact <entity>` |

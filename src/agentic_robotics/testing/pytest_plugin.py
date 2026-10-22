@@ -5,6 +5,7 @@ It only registers the ``req`` marker unless asked to do more:
 
     pytest --air-evidence .air/test-evidence.json      # write evidence file
     pytest --air-evidence ... --air-record             # also log an evaluation activity
+    pytest --air-evidence ... --air-attest run.intoto.json   # in-toto test-result statement
 
 Mark tests with ``@pytest.mark.req("REQ09", "G06")``.
 """
@@ -19,7 +20,7 @@ from typing import Any
 
 import pytest
 
-__requirements__ = ("REQ02", "REQ18")
+__requirements__ = ("REQ02", "REQ18", "REQ10")
 
 
 def pytest_addoption(parser: pytest.Parser) -> None:
@@ -29,21 +30,30 @@ def pytest_addoption(parser: pytest.Parser) -> None:
     group.addoption("--air-record", action="store_true", default=False,
                     help="also record this run as an evaluation activity in the project "
                          "ledger (requires an initialized .air project)")
+    group.addoption("--air-attest", default=None, metavar="PATH",
+                    help="also write an in-toto test-result/v0.1 statement for this run "
+                         "(needs --air-evidence)")
 
 
 def pytest_configure(config: pytest.Config) -> None:
     config.addinivalue_line(
         "markers", "req(*ids): requirements or gates this test provides evidence for")
     path = config.getoption("--air-evidence")
+    attest = config.getoption("--air-attest")
+    if attest and not path:
+        raise pytest.UsageError("--air-attest needs --air-evidence")
     if path:
         config.pluginmanager.register(
             EvidenceCollector(Path(path), bool(config.getoption("--air-record")),
-                              Path(str(config.rootpath))), "air-evidence")
+                              Path(str(config.rootpath)),
+                              Path(attest) if attest else None), "air-evidence")
 
 
 class EvidenceCollector:
-    def __init__(self, path: Path, record: bool, root: Path) -> None:
+    def __init__(self, path: Path, record: bool, root: Path,
+                 attest: Path | None = None) -> None:
         self.path = path
+        self.attest = attest
         self.record = record
         self.root = root
         self.started = time.time()
@@ -87,6 +97,13 @@ class EvidenceCollector:
                "tests": tests}
         self.path.parent.mkdir(parents=True, exist_ok=True)
         self.path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8", newline="\n")
+        if self.attest is not None:
+            from ..provenance.attest import evidence_statement
+
+            statement = evidence_statement(doc, root=self.root)
+            self.attest.parent.mkdir(parents=True, exist_ok=True)
+            self.attest.write_text(json.dumps(statement, indent=2, sort_keys=True) + "\n",
+                                   encoding="utf-8", newline="\n")
         if self.record:
             self._record(doc)
 
@@ -116,7 +133,9 @@ class EvidenceCollector:
             cited = [r for r in cited if known.get(r) is not None]
         with project.activity("evaluation", "automated test run", requirements=cited,
                               actors=("pytest",)) as act:
-            act.generate(self.path, kind="test_evidence")
+            evidence = act.generate(self.path, kind="test_evidence")
+            if self.attest is not None:
+                act.generate(self.attest, kind="attestation", derived_from=[evidence])
             for k, v in doc["run"]["totals"].items():
                 act.metric(k, v)
             failed = doc["run"]["totals"].get("failed", 0) + doc["run"]["totals"].get("error", 0)
