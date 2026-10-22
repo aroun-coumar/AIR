@@ -14,3 +14,6 @@ traces/
 
 # Research notes and the source catalog stay local (owner decision)
 docs/research/
+
+# Agent worktrees created by Claude Code
+.claude/worktrees/
