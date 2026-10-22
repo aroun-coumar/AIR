@@ -1,0 +1,1 @@
+Enforcing sandboxes (ADR 0017): bubblewrap, Landlock and Seatbelt adapters, Windows job-object limits, an egress proxy with deny-by-default ranges and pinned allowlists, strict versus best-effort isolation, a remote sandbox protocol, command policy rules, risk analysis, and approvals bound to the call and its arguments (`air sandbox`, `air work rules`).

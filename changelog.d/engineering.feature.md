@@ -1,0 +1,1 @@
+Engineering loop (ADR 0014): experiment backends with declared capabilities and an out-of-process protocol, TimePolicy, seed records with per-sample replay, a reproducibility probe, per-platform golden runs, constrained search with held-out release selection (optional Optuna), and sim-to-real benchmark validity (`air experiment`).

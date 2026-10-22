@@ -1,0 +1,1 @@
+Policies and releases (ADR 0016): content-addressed policy manifests with a load gate and origin authority, trial-then-confirm release activation with a security counter, TUF-style signed metadata and a director, typed parameter sets, dataset episodes with RLDS/LeRobot-like conversion, a cross-embodiment action space, asset cards and conformance reports.

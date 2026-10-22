@@ -1,0 +1,1 @@
+Operations (ADR 0015): health aggregation from the hardware catalog with STALE as a first-class level and a health gate on capabilities, a readiness gate, a diagnosis table, an incident pipeline with bounded tests through admission, clean-room prognostics gated on p5, and triage signals for all of them (`air health`, `air incident`, `air prognose`).

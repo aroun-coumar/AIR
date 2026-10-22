@@ -1,0 +1,1 @@
+Provenance integrity and exports (ADR 0013): RFC 9162 Merkle checkpoints with inclusion and consistency proofs (`air ledger checkpoint|prove`, `verify --since`), in-toto statements for work runs and test results, PROV-JSON, OTLP/JSON, StrictDoc exports, recording entities with an MCAP reader, `air repro lock`, and a self-describing run log.

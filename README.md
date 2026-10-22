@@ -420,10 +420,11 @@ All APIs are experimental (`0.x`) until they pass their acceptance gates in the 
 | 3 | Two-robot coordination and handoff | ✅ done |
 | + | Evidence spine: ledger v2, tracing, traceability, context feeder | ✅ done |
 | + | Agentic engineering work: sandboxes, model router, proposals | ✅ first version |
-| Next | Commitment semantics: intent journal, cancellation, approval interrupts, deadman | 🔜 next |
-| 4 | Engineering and optimization loop: experiment backends, seeds, search | 📋 planned |
-| 5 | Operations: health, incidents, prognostics, takeover and handback | 📋 planned |
-| 6 | Ecosystem: a second, materially different integration; hosted registry | 📋 planned |
+| + | Triage and hardware catalog with semantic, domain and task context | ✅ first version |
+| 2b | Commitment semantics: intent journal, cancellation, approval interrupts, deadman, coordination liveness | ✅ first version |
+| 4 | Engineering and optimization loop: experiment backends, seeds, golden runs, search, eval validity | ✅ first version (reference backend only; no real simulator adapters yet) |
+| 5 | Operations: health, readiness, incidents, prognostics | ✅ first version (takeover and handback still to do) |
+| 6 | Ecosystem: bridges (Microduck, Unitree, Piper, ROS 2, VDA 5050, openpi, dora), MCP server | 🔧 in progress (tested against fake peers; not yet run on real robots or stacks; no hosted registry) |
 
 **Quality bar for every change:** tests (`pytest`), lint (`ruff`), strict typing (`mypy`),
 the traceability matrix check, and the schema drift and compatibility check. CI runs all
@@ -459,8 +460,10 @@ docs/              architecture · decisions (ADRs) · policy · CONTEXT.md
 
 Read [CLAUDE.md](CLAUDE.md) for the rules that keep the architecture honest. These apply
 to people and AI agents alike. Decisions are recorded as ADRs in
-[docs/decisions/](docs/decisions/). Report security issues privately as described in
-[SECURITY.md](SECURITY.md).
+[docs/decisions/](docs/decisions/). Agents start from [AGENTS.md](AGENTS.md). Add a news
+fragment to [changelog.d/](changelog.d/) for user-visible changes. Report security issues
+privately as described in [SECURITY.md](SECURITY.md). Package maturity is stated honestly in
+the [quality declaration](QUALITY_DECLARATION.md).
 
 ## License
 
