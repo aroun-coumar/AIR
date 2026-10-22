@@ -405,6 +405,7 @@ use only public protocols, and nothing in the core imports an integration. See
 | Host pressure (Linux PSI) and the diagnosis table | `air health psi` · `air health diagnosis --exercise` |
 | Open, investigate, hand off and close incidents | `air incident open --robot … --signal …` · `air incident list` · `air incident close <id> --by … --resolution …` |
 | Time-to-event with uncertainty, gated on p5 | `air prognose estimate --series soh.csv --threshold 80 --robot … --component … --signal … --mission 8h` |
+| Watch a robot lose its link mid-prefix, or a mission be cancelled | `air scenario handoff --variant disconnect` · `air scenario handoff --variant cancel` |
 
 ## Status and roadmap
 

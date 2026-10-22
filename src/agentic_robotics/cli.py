@@ -79,10 +79,11 @@ def _quickstart(_: argparse.Namespace) -> int:
 
 def _scenario(args: argparse.Namespace) -> int:
     from .provenance.project import Project
-    from .scenarios import run_handoff
+    from .scenarios import EXPECTED, run_handoff
 
     project = Project.open(args.project) if args.record else None
-    return 0 if asyncio.run(run_handoff(project=project)).verified else 1
+    result = asyncio.run(run_handoff(project=project, variant=args.variant))
+    return 0 if result.state is EXPECTED[args.variant] else 1
 
 
 def _registry(args: argparse.Namespace) -> int:
@@ -129,6 +130,10 @@ def build_parser() -> argparse.ArgumentParser:
     sc.add_argument("--record", action="store_true",
                     help="record evidence into the AIR project ledger")
     sc.add_argument("--project", default=".")
+    sc.add_argument("--variant", choices=["nominal", "disconnect", "cancel"],
+                    default="nominal",
+                    help="disconnect: lose the carrier during its released prefix; "
+                         "cancel: cancel the mission while the carrier drives")
     sc.set_defaults(fn=_scenario)
 
     r = sub.add_parser("registry", help="local asset registry")

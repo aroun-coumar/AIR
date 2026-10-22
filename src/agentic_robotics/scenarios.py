@@ -4,10 +4,23 @@
 stationary arm picks and inspects it. Exercises allocation, fenced reservations of the
 shared station, readiness, ledgered commitments, physical-occupancy-aware release and
 verified outcomes. Run with ``air scenario handoff``.
+
+Variants (``air scenario handoff --variant ...``):
+
+- ``disconnect``: the carrier's first three steps are *released* together (a released
+  prefix), the rest of its sequence is horizon. The carrier loses its connection while
+  driving. The coordinator sees CONNECTION_BROKEN, keeps the carrier's holds and marks
+  the released steps UNRESOLVED; the carrier finishes exactly the released prefix and
+  executes nothing from the horizon. After reconnecting, ``resume`` reconciles the
+  prefix by observation and the mission completes, with nothing executed twice.
+- ``cancel``: the mission is cancelled while the carrier is driving. The cancel gets its
+  own response, the drive is interrupted, the released-but-unstarted step is confirmed
+  never started, and every task ends CANCELLED. The mission is CANCELLED, never VERIFIED.
 """
 
 from __future__ import annotations
 
+import asyncio
 import json
 from collections.abc import Callable
 from typing import Any
@@ -18,17 +31,25 @@ from .coordination import (
     LocalTransport,
     Mission,
     MissionResult,
+    MissionState,
     MissionTask,
+    TaskState,
     Team,
 )
+from .core.errors import FrameworkError
 from .core.ids import new_id
-from .integrations.fake import fake_skill_set
+from .integrations.fake import FakeRobotAdapter, fake_skill_set
 from .integrations.world import FakeWorld
 from .provenance.project import Project
 from .robot import Robot
 from .skills import SkillRegistry
 
-__requirements__ = ("REQ06", "REQ09", "REQ18")
+__requirements__ = ("REQ06", "REQ09", "REQ17", "REQ18")
+
+VARIANTS = ("nominal", "disconnect", "cancel")
+#: The mission state each variant is expected to end in.
+EXPECTED = {"nominal": MissionState.VERIFIED, "disconnect": MissionState.VERIFIED,
+            "cancel": MissionState.CANCELLED}
 
 
 def handoff_robots(world: str, *, carriers: int = 1, tick_s: float = 0.002,
@@ -71,19 +92,49 @@ def handoff_mission(mission_id: str = "inspect-part-7") -> Mission:
     ))
 
 
+async def until(predicate: Callable[[], bool], timeout: float = 10.0,
+                what: str = "condition") -> None:
+    """Wait (polling) until ``predicate()`` holds."""
+    loop = asyncio.get_running_loop()
+    deadline = loop.time() + timeout
+    while not predicate():
+        if loop.time() > deadline:
+            raise FrameworkError("scenario timed out waiting", waiting_for=what)
+        await asyncio.sleep(0.005)
+
+
+def _holds(team: Team) -> str:
+    held = []
+    for name in ("intake", "handoff"):
+        r = team.resources.holder(name)
+        held.append(f"{name}={r.holder}#{r.fencing_token}" if r else f"{name}=free")
+    return ", ".join(held)
+
+
 async def run_handoff(echo: Callable[[str], None] = print, *,
-                      project: Project | None = None) -> MissionResult:
+                      project: Project | None = None,
+                      variant: str = "nominal") -> MissionResult:
+    if variant not in VARIANTS:
+        raise FrameworkError("unknown handoff variant", variant=variant, known=VARIANTS)
     world = new_id("cell")
+    slow = {"tick_s": 0.01, "speed_mps": 0.2} if variant != "nominal" else None
     try:
-        team = Team(handoff_robots(world), SkillRegistry(fake_skill_set().skills),
-                    project=project, timeouts=CoordinatorTimeouts())
+        team = Team(handoff_robots(world, carrier_config=slow),
+                    SkillRegistry(fake_skill_set().skills), project=project,
+                    timeouts=CoordinatorTimeouts())
         async with team:
-            plan = await team.plan(handoff_mission())
+            window = 3 if variant != "nominal" else 1
+            plan = await team.plan(handoff_mission(), release_window=window)
             for a in plan.assignments:
                 echo(f"  allocate {a.task_id:<13} -> {a.participant:<10} "
                      f"bids={json.dumps(dict(a.bids))}")
-            result = await team.execute(plan)
-            echo(result.summary())
+            if variant == "nominal":
+                result = await team.execute(plan)
+                echo(result.summary())
+            elif variant == "disconnect":
+                result = await _disconnect(team, plan, echo)
+            else:
+                result = await _cancel(team, plan, echo)
             sent = team.transport.stats.sent if isinstance(team.transport,
                                                            LocalTransport) else "?"
             echo(f"ledger: {len(team.coordinator.ledger)} entries, "
@@ -92,3 +143,54 @@ async def run_handoff(echo: Callable[[str], None] = print, *,
             return result
     finally:
         FakeWorld.reset(world)
+
+
+async def _disconnect(team: Team, plan: Any, echo: Callable[[str], None]) -> MissionResult:
+    net = team.transport
+    assert isinstance(net, LocalTransport)
+    carrier = team.robot("carrier-1").adapter
+    assert isinstance(carrier, FakeRobotAdapter)
+    mission_id = plan.mission.mission_id
+    running = asyncio.get_running_loop().create_task(team.execute(plan))
+    await until(lambda: len(carrier.executed) >= 1, what="carrier moving")
+    echo("  >> carrier-1 loses its connection while driving to intake")
+    net.disconnect("carrier-1")
+    first = await running
+    echo(first.summary())
+    echo(f"  connection: carrier-1 {team.coordinator.connection('carrier-1').value}; "
+         f"holds kept: {_holds(team)}")
+    rt = team.runtimes["carrier-1"]
+    await until(lambda: len(carrier.executed) >= 3 and not rt.busy("carrier-1"),
+                what="released prefix finished")
+    await asyncio.sleep(0.05)
+    horizon = [t for t, r in team.coordinator.records(mission_id).items()
+               if r.assignee == "carrier-1" and r.state is TaskState.ACCEPTED]
+    echo(f"  carrier-1 executed {len(carrier.executed)} released steps while disconnected; "
+         f"horizon not executed: {', '.join(horizon)}")
+    echo("  >> carrier-1 reconnects; resume reconciles the prefix by observation")
+    net.reconnect("carrier-1")
+    resumed = await team.resume(first)
+    echo(resumed.summary())
+    echo(f"  carrier-1 commands executed in total: {len(carrier.executed)} (none twice)")
+    return resumed
+
+
+async def _cancel(team: Team, plan: Any, echo: Callable[[str], None]) -> MissionResult:
+    mission_id = plan.mission.mission_id
+    running = asyncio.get_running_loop().create_task(team.execute(plan))
+
+    def driving() -> bool:
+        rec = team.coordinator.records(mission_id).get("dock_intake")
+        return rec is not None and rec.state is TaskState.EXECUTING
+
+    await until(driving, what="carrier driving")
+    echo("  >> operator cancels the mission while carrier-1 is driving")
+    report = await team.cancel(mission_id)
+    for participant, results in report.responses.items():
+        for command_id, r in results.items():
+            echo(f"  cancel response {participant}: {command_id}: "
+                 f"{'accepted' if r.get('accepted') else 'rejected'} ({r.get('reason')})")
+    result = await running
+    echo(result.summary())
+    echo(f"  holds after confirmed stop: {_holds(team)}")
+    return result

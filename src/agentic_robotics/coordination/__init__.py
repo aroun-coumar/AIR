@@ -1,8 +1,10 @@
 """Multi-robot coordination: typed commitment protocol, allocation, fenced reservations,
-selective acknowledgements and reconciliation (baseline section 11)."""
+selective acknowledgements, released prefix vs horizon, cancellation and instant actions,
+liveness, and reconciliation (baseline section 11)."""
 
 from .allocation import Allocator, Bid, LowestCostAllocator
 from .coordinator import (
+    CancelReport,
     CoordinatorTimeouts,
     MissionResult,
     MissionState,
@@ -10,31 +12,62 @@ from .coordinator import (
     TaskRecord,
     TeamCoordinator,
 )
+from .hlc import ClockDriftError, HlcTimestamp, HybridLogicalClock
+from .liveness import (
+    ConnectionState,
+    LivenessMonitor,
+    SeqStatus,
+    SeqTracker,
+    SeqVerdict,
+    Stamper,
+)
+from .orders import Acceptance, OrderBook, OrderStep, OrderUpdate, Verdict
 from .participant import Participant
 from .protocol import (
+    RESPONSE_KINDS,
     TASK_TRANSITIONS,
     Assignment,
+    CancelMode,
     CoordinationMessage,
+    InstantAction,
     MessageKind,
     Mission,
     MissionTask,
     TaskState,
     TeamPlan,
+    TrustLevel,
     Unassigned,
     check_task_transition,
 )
 from .team import TEAM_TRACE_KINDS, Team
-from .transport import LinkFaults, LocalTransport, Transport, TransportStats
+from .transport import (
+    LinkFaults,
+    LivelinessTransport,
+    LocalTransport,
+    Transport,
+    TransportStats,
+)
 
 __all__ = [
+    "RESPONSE_KINDS",
     "TASK_TRANSITIONS",
     "TEAM_TRACE_KINDS",
+    "Acceptance",
     "Allocator",
     "Assignment",
     "Bid",
+    "CancelMode",
+    "CancelReport",
+    "ClockDriftError",
+    "ConnectionState",
     "CoordinationMessage",
     "CoordinatorTimeouts",
+    "HlcTimestamp",
+    "HybridLogicalClock",
+    "InstantAction",
     "LinkFaults",
+    "LivelinessTransport",
+    "LivenessMonitor",
     "LocalTransport",
     "LowestCostAllocator",
     "MessageKind",
@@ -42,8 +75,15 @@ __all__ = [
     "MissionResult",
     "MissionState",
     "MissionTask",
+    "OrderBook",
+    "OrderStep",
+    "OrderUpdate",
     "Participant",
     "ParticipantInfo",
+    "SeqStatus",
+    "SeqTracker",
+    "SeqVerdict",
+    "Stamper",
     "TaskRecord",
     "TaskState",
     "Team",
@@ -51,6 +91,8 @@ __all__ = [
     "TeamPlan",
     "Transport",
     "TransportStats",
+    "TrustLevel",
     "Unassigned",
+    "Verdict",
     "check_task_transition",
 ]
