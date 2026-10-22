@@ -8,20 +8,22 @@ append their own checks without replacing the runtime.
 
 from __future__ import annotations
 
-from collections.abc import Callable
+import math
+from collections.abc import Callable, Mapping
 from dataclasses import dataclass
+from typing import Any
 
 from ..contracts.capability import CapabilityReport, ProfileStatus
 from ..contracts.execution import Command
 from ..contracts.observation import Observation, Quality
-from ..contracts.skill import SkillSpec
+from ..contracts.skill import LimitAction, SkillSpec
 from ..core.clock import Clock
 from ..core.errors import AdmissionRejected, AuthorityError
 from ..robot import Robot
 from .authority import AuthorityService
 from .resources import ResourceManager
 
-__requirements__ = ("REQ12", "REQ13", "REQ17")
+__requirements__ = ("REQ12", "REQ13", "REQ14", "REQ17")
 
 
 @dataclass
@@ -121,7 +123,7 @@ def check_fencing(ctx: AdmissionContext) -> None:
                                     current_token=ctx.resources.current_token(resource))
 
 
-DEFAULT_CHECKS: tuple[AdmissionCheck, ...] = (
+_BASE_CHECKS: tuple[AdmissionCheck, ...] = (
     check_supported,
     check_arguments,
     check_authority,
@@ -133,3 +135,64 @@ DEFAULT_CHECKS: tuple[AdmissionCheck, ...] = (
 
 # Re-checked immediately before dispatch, to close the gap between admission and start.
 DISPATCH_CHECKS: tuple[AdmissionCheck, ...] = (check_authority, check_fencing)
+
+
+def apply_motion_limits(skill: SkillSpec, args: Mapping[str, Any],
+                        observations: Mapping[str, Observation],
+                        now: float) -> tuple[dict[str, Any], tuple[str, ...]]:
+    """Return ``(applied_args, limited_by)`` after the skill's workspace box and
+    ``max_relative_target`` limits. Raises :class:`AdmissionRejected` for a non-finite
+    target, or a violation of a ``reject`` limit. ``limited_by`` names each clamp."""
+    applied = dict(args)
+    limited: list[str] = []
+    for name, value in args.items():
+        if isinstance(value, float) and not math.isfinite(value):
+            raise AdmissionRejected("non_finite_target", "target is not a finite number",
+                                    argument=name)
+    box = skill.workspace
+    if box is not None:
+        for name, (lo, hi) in ((n, (b[0], b[1])) for n, b in box.bounds.items()):
+            if name not in applied:
+                continue
+            v = float(applied[name])
+            if lo <= v <= hi:
+                continue
+            if box.action is LimitAction.REJECT:
+                raise AdmissionRejected("outside_workspace", "target lies outside the "
+                                        "skill's workspace box", argument=name, value=v,
+                                        bounds=[lo, hi], frame=box.frame)
+            applied[name] = min(max(v, lo), hi)
+            limited.append(f"workspace:{name}")
+    max_age = skill.execution.max_input_age_s
+    for limit in skill.max_relative_target:
+        if limit.arg not in applied:
+            continue
+        obs = observations.get(limit.signal)
+        current: Any = obs.value if obs is not None else None
+        if obs is not None and limit.field:
+            for part in limit.field.split("."):
+                current = current.get(part) if isinstance(current, Mapping) else None
+        if (obs is None or not obs.authoritative or obs.age(now) > max_age
+                or not isinstance(current, (int, float)) or isinstance(current, bool)):
+            raise AdmissionRejected("relative_target_unobservable",
+                                    "cannot bound the target: no fresh authoritative "
+                                    "observation of the current value",
+                                    argument=limit.arg, signal=limit.signal)
+        target = float(applied[limit.arg])
+        delta = target - float(current)
+        if abs(delta) <= limit.max_delta:
+            continue
+        if limit.action is LimitAction.REJECT:
+            raise AdmissionRejected("relative_target_exceeded", "target moves further than "
+                                    "max_relative_target allows", argument=limit.arg,
+                                    delta=round(delta, 6), max_delta=limit.max_delta)
+        applied[limit.arg] = float(current) + math.copysign(limit.max_delta, delta)
+        limited.append(f"max_relative_target:{limit.arg}")
+    return applied, tuple(limited)
+
+
+def check_motion_limits(ctx: AdmissionContext) -> None:
+    apply_motion_limits(ctx.skill, ctx.command.args, ctx.observations, ctx.clock.now())
+
+
+DEFAULT_CHECKS: tuple[AdmissionCheck, ...] = (*_BASE_CHECKS, check_motion_limits)

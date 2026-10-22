@@ -1,0 +1,179 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.observation/1.1.json",
+  "title": "ar.observation/1.1",
+  "type": "object",
+  "description": "A measurement or artifact reference with its time, frame, quality and uncertainty.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.observation/1\\.\\d+|https?://.+/ar\\.observation/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "source": {
+      "type": "string"
+    },
+    "signal": {
+      "type": "string"
+    },
+    "clock_domain": {
+      "type": "string"
+    },
+    "acquired_at": {
+      "type": "number"
+    },
+    "received_at": {
+      "type": "number"
+    },
+    "value": {
+      "default": null
+    },
+    "unit": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "frame": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "spatial": {
+      "type": "boolean",
+      "default": false
+    },
+    "quality": {
+      "enum": [
+        "good",
+        "degraded",
+        "invalid"
+      ],
+      "default": "good"
+    },
+    "uncertainty": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "artifact_ref": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "origin": {
+      "enum": [
+        "measured",
+        "estimated",
+        "model",
+        "reported"
+      ],
+      "default": "measured"
+    },
+    "association_quality": {
+      "enum": [
+        "authoritative",
+        "best_effort"
+      ],
+      "default": "authoritative"
+    },
+    "covariance": {
+      "anyOf": [
+        {
+          "type": "array",
+          "items": {
+            "type": "number"
+          }
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "score": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "source",
+    "signal",
+    "clock_domain",
+    "acquired_at",
+    "received_at"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

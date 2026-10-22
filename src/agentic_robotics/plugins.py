@@ -15,26 +15,41 @@ from importlib.metadata import entry_points
 from typing import Any, ClassVar
 
 from .contracts.capability import CapabilityReport
-from .contracts.execution import Command
+from .contracts.execution import Command, ExitMode, FailureKind
 from .contracts.manifest import ComponentManifest
 from .contracts.observation import Observation
 from .contracts.skill import SkillSpec
 from .core.clock import Clock
-from .core.errors import PluginError
+from .core.errors import PluginError, UnsupportedOperation
 
-__requirements__ = ("REQ01", "REQ03", "REQ18")
+__requirements__ = ("REQ01", "REQ03", "REQ14", "REQ18")
 
 ENTRY_POINT_GROUP = "agentic_robotics.adapters"
 
 
+#: Keys an adapter may not use in ``effects``: a report states facts, never a verdict.
+#: The runtime strips them and records ``adapter_claim_ignored``.
+RESERVED_CLAIMS = frozenset({"verified", "verdict", "state", "outcome", "success"})
+
+
 @dataclass(frozen=True)
 class AdapterReport:
-    """What an adapter *reports* about an execution. The runtime still verifies it."""
+    """What an adapter *reports* about an execution: facts, never a verdict. The runtime
+    still verifies it against observations; nothing here can make a command VERIFIED.
+
+    ``failure`` types a failure (taxonomy); ``retriable`` says that trying again is
+    physically safe *if someone decides to* (the runtime never resends by itself);
+    ``applied``/``limited_by`` report what the device actually applied when it clipped
+    the command (LeRobot ``send_action``)."""
 
     completed: bool
     message: str = ""
     effects: dict[str, Any] = field(default_factory=dict)
     failure_reason: str | None = None
+    failure: FailureKind | None = None
+    retriable: bool = False
+    applied: dict[str, Any] | None = None
+    limited_by: tuple[str, ...] = ()
 
 
 @dataclass(frozen=True)
@@ -54,6 +69,10 @@ class ExecutionContext:
     clock: Clock
     progress: Callable[[str, Mapping[str, Any]], None]
     authority_valid: Callable[[], bool]
+    #: The arguments as requested; ``command.args`` holds what was applied after the
+    #: skill's motion limits (identical unless ``limited_by`` is non-empty).
+    requested_args: Mapping[str, Any] = field(default_factory=dict)
+    limited_by: tuple[str, ...] = ()
 
 
 class RobotAdapter(abc.ABC):
@@ -104,6 +123,25 @@ class RobotAdapter(abc.ABC):
     @abc.abstractmethod
     async def interrupt(self, command_id: str) -> InterruptReport:
         """Request that the active command stop. Report whether stopping is confirmed."""
+
+    async def halt(self, command_id: str, exit_mode: ExitMode) -> InterruptReport:
+        """Forced stop (deadman, ``Runtime.kill``): stop now and enter ``exit_mode``.
+        Defaults to :meth:`interrupt`; override when the device has a real hold or damp
+        mode. Called even for skills that cannot be cancelled cooperatively."""
+        return await self.interrupt(command_id)
+
+    async def pause(self, command_id: str) -> InterruptReport:
+        """Instant action: pause a running command (skills with ``interruption: pause``)."""
+        raise UnsupportedOperation("adapter does not support pause", kind=self.kind)
+
+    async def resume(self, command_id: str) -> InterruptReport:
+        """Instant action: resume a paused command."""
+        raise UnsupportedOperation("adapter does not support resume", kind=self.kind)
+
+    async def on_halted(self, command_id: str, reason: str) -> None:  # noqa: B027
+        """Called exactly once when the runtime halted a started command (cancel, kill,
+        deadline, deadman, revocation), after it stopped executing (BT.CPP
+        ``onHalted``). Use it to release device-side state. Optional."""
 
     def hosted_models(self) -> list[dict[str, Any]]:
         """Optional: inference servers this robot hosts itself, so agents can use the
@@ -156,6 +194,7 @@ def create_adapter(manifest: ComponentManifest) -> RobotAdapter:
 
 __all__ = [
     "ENTRY_POINT_GROUP",
+    "RESERVED_CLAIMS",
     "AdapterFactory",
     "AdapterReport",
     "ExecutionContext",

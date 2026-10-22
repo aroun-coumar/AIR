@@ -367,4 +367,4 @@ def test_context_pack_for_this_repository() -> None:
     text = build_context_pack(ROOT)
     assert "# Context pack: agentic-robotics" in text
     assert "## Package map" in text and "runtime/runtime.py" in text
-    assert "`command/1.1`" in text
+    assert "`command/1.2`" in text

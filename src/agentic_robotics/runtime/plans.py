@@ -19,7 +19,7 @@ from ..core.ids import new_id
 from ..provenance import tracing
 from .runtime import Runtime
 
-__requirements__ = ("REQ09", "REQ06", "REQ07")
+__requirements__ = ("REQ09", "REQ06", "REQ07", "REQ14")
 
 
 class PlanState(StrEnum):
@@ -103,12 +103,20 @@ class PlanExecutor:
                 result.held_reservations.extend(reservations)
                 result.state, result.stopped_at = PlanState.UNRESOLVED, step.task_id
                 break
+            if step_result.state in (CommandState.CANCELLED, CommandState.KILLED) and \
+                    step_result.observed_effects.get("stopped_confirmed") is False:
+                # A stop that is not physically confirmed may leave the robot in the zone.
+                result.held_reservations.extend(reservations)
+                result.state, result.stopped_at = PlanState.CANCELLED, step.task_id
+                break
             for r in reservations:
                 released = rt.resources.release(r.reservation_id)
                 rt.trace.record("reservation_released", plan.plan_id,
                                 resource=released.resource, task_id=step.task_id,
                                 physical_occupancy=released.physical_occupancy.value)
-            if step_result.state is not CommandState.VERIFIED:
+            # SKIPPED (the step did not apply) passes; APPROXIMATE is never counted as
+            # an exact success, so it stops the plan like a failure.
+            if step_result.state not in (CommandState.VERIFIED, CommandState.SKIPPED):
                 result.state = (PlanState.CANCELLED
                                 if step_result.state is CommandState.CANCELLED
                                 else PlanState.FAILED)

@@ -1,0 +1,106 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.approval_request/1.0.json",
+  "title": "ar.approval_request/1.0",
+  "type": "object",
+  "description": "A command waiting for a human decision (W2.5). The decision must name this ``command_id`` and ``args_digest`` exactly; it is honoured once.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.approval_request/1\\.\\d+|https?://.+/ar\\.approval_request/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "command_id": {
+      "type": "string"
+    },
+    "robot_id": {
+      "type": "string"
+    },
+    "skill_id": {
+      "type": "string"
+    },
+    "issued_by": {
+      "type": "string"
+    },
+    "args": {
+      "type": "object",
+      "additionalProperties": {}
+    },
+    "args_digest": {
+      "type": "string",
+      "default": ""
+    },
+    "authority_revision": {
+      "type": "integer",
+      "default": 0
+    },
+    "requested_at": {
+      "type": "number",
+      "default": 0.0
+    },
+    "expires_at": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "reason": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "command_id",
+    "robot_id",
+    "skill_id",
+    "issued_by"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

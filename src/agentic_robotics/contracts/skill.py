@@ -20,7 +20,7 @@ from ..core.units import dimension_of
 from .execution import ConditionResult, ExecutionContract
 from .observation import Observation, Quality
 
-__requirements__ = ("REQ01", "REQ05")
+__requirements__ = ("REQ01", "REQ05", "REQ12", "REQ14")
 
 ARG_REF = "$args."
 
@@ -54,6 +54,16 @@ class Condition:
     field: str | None = None
     tolerance: float = 0.0
     description: str = ""
+    accept_within: float | None = None
+
+    def __post_init__(self) -> None:
+        if self.accept_within is not None:
+            if self.op is not Op.APPROX:
+                raise SchemaError("accept_within applies only to approx conditions",
+                                  signal=self.signal)
+            if not (math.isfinite(self.accept_within) and self.accept_within >= self.tolerance):
+                raise SchemaError("accept_within must be finite and at least the tolerance",
+                                  signal=self.signal)
 
     def resolved_signal(self, args: Mapping[str, Any]) -> str:
         """Signal names may template arguments: ``"station.{station}.part"``."""
@@ -74,8 +84,12 @@ class Condition:
         return f"{target} {self.op.value} {expected}".strip()
 
     def evaluate(
-        self, observations: Mapping[str, Observation], args: Mapping[str, Any], now: float
+        self, observations: Mapping[str, Observation], args: Mapping[str, Any], now: float,
+        *, require_authoritative: bool = False,
     ) -> ConditionResult:
+        """Evaluate against ``observations``. With ``require_authoritative`` (used for
+        postconditions) a model judgment or best-effort association never satisfies
+        the condition; the result is then inconclusive (``detail`` is set)."""
         label = self.label(args)
         obs = observations.get(self.resolved_signal(args))
         if obs is None:
@@ -84,6 +98,11 @@ class Condition:
         if obs.quality is Quality.INVALID:
             return ConditionResult(label, False, observation_age_s=age,
                                    detail="observation quality is invalid")
+        if require_authoritative and not obs.authoritative:
+            return ConditionResult(label, False, observation_age_s=age,
+                                   detail=f"evidence is not authoritative "
+                                          f"(origin={obs.origin.value}, association="
+                                          f"{obs.association_quality.value})")
         observed: Any = obs.value
         if self.field:
             for part in self.field.split("."):
@@ -96,9 +115,16 @@ class Condition:
         expected = resolve_arg(self.value, args)
         try:
             ok = _compare(self.op, observed, expected, self.tolerance)
-        except TypeError:
+            approx = (not ok and self.accept_within is not None
+                      and _compare(self.op, observed, expected, self.accept_within))
+        except (TypeError, ValueError):
             return ConditionResult(label, False, observed, expected, age,
                                    detail="values are not comparable")
+        if approx:
+            return ConditionResult(label, True, observed, expected, age,
+                                   detail=f"within acceptance band {self.accept_within}, "
+                                          f"outside tolerance {self.tolerance}",
+                                   approximate=True)
         return ConditionResult(label, ok, observed, expected, age)
 
 
@@ -140,6 +166,8 @@ class ParamSpec:
         """Return an error description, or ``None`` if ``value`` is acceptable."""
         if not _PARAM_TYPES[self.type](value):
             return f"{self.name}: expected {self.type}"
+        if self.type == "number" and not math.isfinite(value):
+            return f"{self.name}: not a finite number"
         if self.minimum is not None and value < self.minimum:
             return f"{self.name}: below minimum {self.minimum}"
         if self.maximum is not None and value > self.maximum:
@@ -165,10 +193,64 @@ class Interruption(StrEnum):
 
     NONE = "none"          # cannot be interrupted once started
     CANCEL = "cancel"      # can be stopped; outcome must then be observed
-    PAUSE = "pause"        # can be paused and resumed
+    PAUSE = "pause"        # can be paused and resumed (and cancelled)
 
 
-@contract("skill_spec", version="1.0")
+class Blocking(StrEnum):
+    """What else may run on the same robot while this skill runs (VDA 5050
+    ``blockingType``). ``hard``: nothing else; ``soft``: only ``none`` skills;
+    ``none``: anything that is not ``hard``. ``occupies`` subsystems are exclusive
+    regardless."""
+
+    NONE = "none"
+    SOFT = "soft"
+    HARD = "hard"
+
+
+class LimitAction(StrEnum):
+    REJECT = "reject"
+    CLAMP = "clamp"
+
+
+@dataclass(frozen=True)
+class WorkspaceBox:
+    """Axis-aligned box the target arguments must lie in (RAI ``WorkspaceBounds``).
+
+    ``bounds`` maps an argument name to ``[min, max]`` in ``frame``. Non-finite targets
+    are always rejected. ``clamp`` moves an out-of-box target onto the box and reports
+    the applied command; ``reject`` refuses it."""
+
+    frame: str
+    bounds: dict[str, tuple[float, ...]]
+    action: LimitAction = LimitAction.REJECT
+
+    def __post_init__(self) -> None:
+        if not self.bounds:
+            raise SchemaError("workspace box needs at least one bounded argument")
+        for name, b in self.bounds.items():
+            if len(b) != 2 or not all(math.isfinite(v) for v in b) or b[0] > b[1]:
+                raise SchemaError("workspace bound must be a finite [min, max] pair",
+                                  argument=name, bound=list(b))
+
+
+@dataclass(frozen=True)
+class RelativeTargetLimit:
+    """Largest allowed change of a target argument from its currently observed value
+    (LeRobot ``max_relative_target``). The current value is read from ``signal``
+    (optionally ``field``) at dispatch."""
+
+    arg: str
+    signal: str
+    max_delta: float
+    field: str | None = None
+    action: LimitAction = LimitAction.CLAMP
+
+    def __post_init__(self) -> None:
+        if not (math.isfinite(self.max_delta) and self.max_delta > 0):
+            raise SchemaError("max_delta must be finite and positive", arg=self.arg)
+
+
+@contract("skill_spec", version="1.1")
 class SkillSpec(Contract):
     skill_id: str
     version: str
@@ -184,6 +266,26 @@ class SkillSpec(Contract):
     expected_evidence: tuple[str, ...] = ()
     on_uncertain_outcome: str = "reconcile"
     experimental: bool = False
+    # -- 1.1 (ADR 0012) -----------------------------------------------------------------
+    occupies: tuple[str, ...] = ()
+    blocking: Blocking = Blocking.HARD
+    skip_if: tuple[Condition, ...] = ()
+    requires_approval: bool = False
+    approval_timeout_s: float = 60.0
+    retriable_failures: tuple[str, ...] = ()
+    workspace: WorkspaceBox | None = None
+    max_relative_target: tuple[RelativeTargetLimit, ...] = ()
+
+    def __post_init__(self) -> None:
+        if self.approval_timeout_s <= 0:
+            raise SchemaError("approval_timeout_s must be positive", skill_id=self.skill_id)
+        declared = {p.name for p in self.inputs}
+        limited = [*(self.workspace.bounds if self.workspace else ()),
+                   *(r.arg for r in self.max_relative_target)]
+        unknown = sorted(set(limited) - declared)
+        if unknown:
+            raise SchemaError("motion limits name undeclared inputs", skill_id=self.skill_id,
+                              arguments=unknown)
 
     def validate_args(self, args: Mapping[str, Any]) -> list[str]:
         problems = []
@@ -224,8 +326,10 @@ class SkillSpec(Contract):
         }
 
 
-@contract("skill_set", version="1.0")
+@contract("skill_set", version="1.1")
 class SkillSet(Contract):
+    """1.1 carries ``skill_spec`` 1.1 entries."""
+
     skills: tuple[SkillSpec, ...]
 
 

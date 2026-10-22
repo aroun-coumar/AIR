@@ -1,0 +1,183 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.execution_contract/1.1.json",
+  "title": "ar.execution_contract/1.1",
+  "type": "object",
+  "description": "Timing, freshness and fallback terms a feature or skill executes under.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.execution_contract/1\\.\\d+|https?://.+/ar\\.execution_contract/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "trigger": {
+      "type": "string",
+      "default": "on_command"
+    },
+    "deadline_s": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "deadline_kind": {
+      "enum": [
+        "hard",
+        "firm",
+        "soft"
+      ],
+      "default": "firm"
+    },
+    "period_s": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "max_input_age_s": {
+      "type": "number",
+      "default": 1.0
+    },
+    "result_validity_s": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "jitter_s": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "queue_policy": {
+      "enum": [
+        "reject_if_busy",
+        "queue_fifo",
+        "replace_latest"
+      ],
+      "default": "reject_if_busy"
+    },
+    "compute_budget": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "memory_budget_mb": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "allowed_clock_states": {
+      "type": "array",
+      "items": {
+        "enum": [
+          "locked",
+          "holdover",
+          "unsynchronized"
+        ]
+      },
+      "default": [
+        "locked",
+        "holdover"
+      ]
+    },
+    "fallback": {
+      "type": "string",
+      "default": "stop"
+    },
+    "keepalive_period_s": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "exit_mode": {
+      "enum": [
+        "hold",
+        "damp"
+      ],
+      "default": "hold"
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

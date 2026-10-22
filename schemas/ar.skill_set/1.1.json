@@ -1,0 +1,538 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.skill_set/1.1.json",
+  "title": "ar.skill_set/1.1",
+  "type": "object",
+  "description": "1.1 carries ``skill_spec`` 1.1 entries.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.skill_set/1\\.\\d+|https?://.+/ar\\.skill_set/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "skills": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/SkillSpec"
+      }
+    }
+  },
+  "required": [
+    "skills"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Condition": {
+      "type": "object",
+      "properties": {
+        "signal": {
+          "type": "string"
+        },
+        "op": {
+          "enum": [
+            "eq",
+            "ne",
+            "lt",
+            "le",
+            "gt",
+            "ge",
+            "approx",
+            "present"
+          ]
+        },
+        "value": {
+          "default": null
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tolerance": {
+          "type": "number",
+          "default": 0.0
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        },
+        "accept_within": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "signal",
+        "op"
+      ],
+      "additionalProperties": false
+    },
+    "ExecutionContract": {
+      "type": "object",
+      "description": "Timing, freshness and fallback terms a feature or skill executes under.",
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "meta": {
+          "$ref": "#/$defs/Meta"
+        },
+        "trigger": {
+          "type": "string",
+          "default": "on_command"
+        },
+        "deadline_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "deadline_kind": {
+          "enum": [
+            "hard",
+            "firm",
+            "soft"
+          ],
+          "default": "firm"
+        },
+        "period_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max_input_age_s": {
+          "type": "number",
+          "default": 1.0
+        },
+        "result_validity_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "jitter_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "queue_policy": {
+          "enum": [
+            "reject_if_busy",
+            "queue_fifo",
+            "replace_latest"
+          ],
+          "default": "reject_if_busy"
+        },
+        "compute_budget": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "memory_budget_mb": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "allowed_clock_states": {
+          "type": "array",
+          "items": {
+            "enum": [
+              "locked",
+              "holdover",
+              "unsynchronized"
+            ]
+          },
+          "default": [
+            "locked",
+            "holdover"
+          ]
+        },
+        "fallback": {
+          "type": "string",
+          "default": "stop"
+        },
+        "keepalive_period_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "exit_mode": {
+          "enum": [
+            "hold",
+            "damp"
+          ],
+          "default": "hold"
+        }
+      },
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "ParamSpec": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "required": {
+          "type": "boolean",
+          "default": true
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "minimum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "maximum": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "name",
+        "type"
+      ],
+      "additionalProperties": false
+    },
+    "RelativeTargetLimit": {
+      "type": "object",
+      "description": "Largest allowed change of a target argument from its currently observed value (LeRobot ``max_relative_target``). The current value is read from ``signal`` (optionally ``field``) at dispatch.",
+      "properties": {
+        "arg": {
+          "type": "string"
+        },
+        "signal": {
+          "type": "string"
+        },
+        "max_delta": {
+          "type": "number"
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "action": {
+          "enum": [
+            "reject",
+            "clamp"
+          ],
+          "default": "clamp"
+        }
+      },
+      "required": [
+        "arg",
+        "signal",
+        "max_delta"
+      ],
+      "additionalProperties": false
+    },
+    "SkillSpec": {
+      "type": "object",
+      "properties": {
+        "$schema": {
+          "type": "string"
+        },
+        "meta": {
+          "$ref": "#/$defs/Meta"
+        },
+        "skill_id": {
+          "type": "string"
+        },
+        "version": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "inputs": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/ParamSpec"
+          },
+          "default": []
+        },
+        "required_capabilities": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "preconditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          },
+          "default": []
+        },
+        "postconditions": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          },
+          "default": []
+        },
+        "exclusive_resources": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "side_effects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "interruption": {
+          "enum": [
+            "none",
+            "cancel",
+            "pause"
+          ],
+          "default": "cancel"
+        },
+        "execution": {
+          "$ref": "#/$defs/ExecutionContract"
+        },
+        "expected_evidence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "on_uncertain_outcome": {
+          "type": "string",
+          "default": "reconcile"
+        },
+        "experimental": {
+          "type": "boolean",
+          "default": false
+        },
+        "occupies": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "blocking": {
+          "enum": [
+            "none",
+            "soft",
+            "hard"
+          ],
+          "default": "hard"
+        },
+        "skip_if": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Condition"
+          },
+          "default": []
+        },
+        "requires_approval": {
+          "type": "boolean",
+          "default": false
+        },
+        "approval_timeout_s": {
+          "type": "number",
+          "default": 60.0
+        },
+        "retriable_failures": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "workspace": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WorkspaceBox"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max_relative_target": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/RelativeTargetLimit"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "skill_id",
+        "version",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "WorkspaceBox": {
+      "type": "object",
+      "description": "Axis-aligned box the target arguments must lie in (RAI ``WorkspaceBounds``).",
+      "properties": {
+        "frame": {
+          "type": "string"
+        },
+        "bounds": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "array",
+            "items": {
+              "type": "number"
+            }
+          }
+        },
+        "action": {
+          "enum": [
+            "reject",
+            "clamp"
+          ],
+          "default": "reject"
+        }
+      },
+      "required": [
+        "frame",
+        "bounds"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

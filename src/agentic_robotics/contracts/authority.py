@@ -4,11 +4,12 @@ from __future__ import annotations
 
 from dataclasses import field
 from enum import StrEnum
+from typing import Any
 
 from ..core.errors import SchemaError
 from ..core.schema import Contract, contract
 
-__requirements__ = ("REQ01", "REQ17")
+__requirements__ = ("REQ01", "REQ07", "REQ17")
 
 ANY = "*"
 
@@ -103,3 +104,40 @@ class HumanIntervention(Contract):
     command_owner: str | None = None
     physically_confirmed: bool = False
     handback_conditions: tuple[str, ...] = ()
+
+
+class ApprovalOutcome(StrEnum):
+    APPROVE = "approve"
+    REJECT = "reject"
+
+
+@contract("approval_request", version="1.0")
+class ApprovalRequest(Contract):
+    """A command waiting for a human decision (W2.5). The decision must name this
+    ``command_id`` and ``args_digest`` exactly; it is honoured once."""
+
+    command_id: str
+    robot_id: str
+    skill_id: str
+    issued_by: str
+    args: dict[str, Any] = field(default_factory=dict)
+    args_digest: str = ""
+    authority_revision: int = 0
+    requested_at: float = 0.0
+    expires_at: float | None = None
+    reason: str = ""
+
+
+@contract("approval_decision", version="1.0")
+class ApprovalDecision(Contract):
+    """A recorded decision on an :class:`ApprovalRequest`. ``authority_revision`` is the
+    authority state the approver decided under; a stale one is refused."""
+
+    command_id: str
+    decision: ApprovalOutcome
+    approver: str
+    authority_revision: int
+    args_digest: str
+    decided_at: float | None = None
+    delegation_id: str | None = None
+    note: str = ""

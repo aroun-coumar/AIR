@@ -45,7 +45,7 @@ def test_skill_set_round_trips_through_json() -> None:
     skills = fake_skill_set()
     again = SkillSet.from_json(skills.to_json())
     assert again == skills
-    assert skills.to_dict()["$schema"] == "ar.skill_set/1.0"
+    assert skills.to_dict()["$schema"] == "ar.skill_set/1.1"
 
 
 @pytest.mark.parametrize("contract", [
