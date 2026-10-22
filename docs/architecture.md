@@ -229,3 +229,32 @@ protocols (`plugins`, `contracts`). Nothing in the core imports an integration.
 - `air health derive|check|ready|psi|diagnosis`, `air incident open|list|show|propose|
   handoff|close`, `air prognose estimate|list`.
 - See [ADR 0015](decisions/0015-health-incidents-prognostics.md).
+## Provenance integrity and interoperable exports
+ ledger.jsonl (hash chain) --RFC 9162 leaves = entry hashes--> Merkle root
+        |                                                        |
+        | air ledger prove <seq>  (inclusion proof)              v
+        |                                       .air/checkpoints/<size>.checkpoint
+        |                                       C2SP note: origin / size / root
+        |                                       unsigned | HMAC | Ed25519 ([signing])
+        |                                       committed to git = the anchor
+        | air ledger verify --since <ckpt>  (consistency proof: no truncation, no rewrite)
+        v
+ views (lossy, never the source of truth):
+   in-toto Statement v1  -- work runs (SLSA provenance v1) · test runs (test-result v0.1)
+                            optionally in a DSSE envelope
+   PROV-JSON             -- activities, entities, used / wasGeneratedBy / wasDerivedFrom
+   OTLP/JSON             -- activity, model-turn, tool-call and runtime spans, W3C ids;
+                            GenAI names in one pinned table (Development status)
+   StrictDoc .sdoc       -- requirement matrix (StrictDoc converts to ReqIF)
+ recordings: MCAP (stdlib reader/writer) · AIR run logs · any file -> sha256 entities
+ .air/repro.lock       -- inputs, outputs, environment per activity; air repro --check
+- The chain detects edits inside the log; a committed checkpoint also detects a
+  truncated tail or a consistent rewrite. A checkpoint is never written over a ledger
+  that is inconsistent with the previous one.
+- Ed25519 verification is pure stdlib; Ed25519 signing needs `agentic-robotics[signing]`.
+  HMAC proves "someone with the project key", not a person. Rekor anchoring is designed
+  (`merkle.Anchor`) but not enabled.
+- Exports leave out parameters, prompts, goals, tool arguments and outputs.
+- Run logs declare formats, parameters and required feature flags before any data, so
+  readers reject what they cannot interpret; sync and dropout markers make gaps explicit.
+- See [ADR 0013](decisions/0013-provenance-integrity-and-exports.md).

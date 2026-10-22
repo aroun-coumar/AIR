@@ -163,7 +163,7 @@ class Project:
         (air / "project.json").write_text(json.dumps(meta, indent=2) + "\n",
                                           encoding="utf-8", newline="\n")
         (air / ".gitignore").write_text("artifacts/\n*.trace.jsonl\ntest-evidence.json\n"
-                                        "*.jsonl.lock\n",
+                                        "*.jsonl.lock\nexports/\n",
                                         encoding="utf-8", newline="\n")
         project = cls(root)
         project.ledger.append("project.created", project.name,

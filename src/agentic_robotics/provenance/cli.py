@@ -441,8 +441,10 @@ def add_commands(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> No
 
     lg = sub.add_parser("ledger", help="inspect and verify the evidence ledger")
     lgs = lg.add_subparsers(dest="action", required=True)
-    proj(lgs.add_parser("verify", help="check hash-chain integrity")).set_defaults(
-        fn=cmd_ledger_verify)
+    lv = proj(lgs.add_parser("verify", help="check hash-chain integrity"))
+    lv.set_defaults(fn=cmd_ledger_verify)
+    from .interop_cli import add_interop_commands, add_ledger_commands
+    add_ledger_commands(lgs, lv, proj, cmd_ledger_verify)
     ll = proj(lgs.add_parser("log", help="list ledger entries"))
     ll.add_argument("--kind")
     ll.add_argument("--prefix", help="kind prefix, e.g. activity. or runtime.")
@@ -579,3 +581,5 @@ def add_commands(sub: argparse._SubParsersAction[argparse.ArgumentParser]) -> No
     sw = cat(ss.add_parser("render", help="write the Markdown catalog"))
     sw.add_argument("--out")
     sw.set_defaults(fn=cmd_sources_render)
+
+    add_interop_commands(sub, proj)
