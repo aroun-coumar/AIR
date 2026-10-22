@@ -1,0 +1,79 @@
+{
+ "device_types": [
+  {
+   "type_id": "sensor.airspeed.pitot_differential",
+   "name": "Airspeed sensor (pitot-static, differential pressure)",
+   "category": "sensor",
+   "description": "Pitot-static probe with a differential pressure sensor; gives indicated airspeed for fixed-wing and VTOL aircraft.",
+   "domains": [
+    "D05"
+   ],
+   "aliases": [
+    "pitot tube",
+    "airspeed sensor"
+   ],
+   "properties": [
+    {
+     "name": "pressure_range",
+     "kind": "quantity",
+     "unit": "Pa",
+     "required": true,
+     "description": "Differential pressure full scale"
+    },
+    {
+     "name": "max_airspeed",
+     "kind": "quantity",
+     "unit": "m/s",
+     "required": true
+    },
+    {
+     "name": "output_data_rate",
+     "kind": "quantity",
+     "unit": "Hz",
+     "required": false
+    }
+   ],
+   "interfaces": [
+    "bus.i2c",
+    "can.dronecan",
+    "can.cyphal"
+   ],
+   "provides": [
+    "velocity_sensing"
+   ],
+   "telemetry": [
+    {
+     "name": "differential_pressure",
+     "unit": "Pa"
+    },
+    {
+     "name": "probe_temperature",
+     "unit": "degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "pitot tube and static ports",
+     "basis": "condition",
+     "action": "inspect for blockage (insects, ice, water) before flight"
+    },
+    {
+     "item": "zero offset",
+     "basis": "condition",
+     "action": "re-zero at power-up with no airflow"
+    }
+   ],
+   "failure_modes": [
+    "blocked pitot (icing, debris)",
+    "zero drift",
+    "tubing leak"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.aerial.*",
+    "compute.flight_controller"
+   ],
+   "references": []
+  }
+ ]
+}

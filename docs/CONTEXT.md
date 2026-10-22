@@ -1,6 +1,6 @@
 # Context pack: agentic-robotics
 
-Generated 2026-10-22 10:25 UTC at commit `2ce1d40` by `air context`. Do not edit by hand; regenerate it.
+Generated 2026-10-22 11:15 UTC at commit `6f639bd` by `air context`. Do not edit by hand; regenerate it.
 
 ## Project
 
@@ -17,7 +17,7 @@ Generated 2026-10-22 10:25 UTC at commit `2ce1d40` by `air context`. Do not edit
 
 ## Requirements status
 
-Evidence status for REQ and gate items: evidenced 30, implemented 1, untraced 5
+Evidence status for REQ and gate items: evidenced 31, implemented 1, untraced 4
 
 Open (not yet claimed verified):
 
@@ -43,7 +43,7 @@ Open (not yet claimed verified):
 - G08 Context efficiency: claimed in_progress, evidence evidenced
 - G09 Qualified handoff: claimed planned, evidence untraced
 - G10 Hardware adaptation: claimed in_progress, evidence evidenced
-- G11 Unfamiliar failure: claimed planned, evidence untraced
+- G11 Unfamiliar failure: claimed planned, evidence evidenced
 - G12 Human control: claimed in_progress, evidence evidenced
 - G13 Maintenance readiness: claimed in_progress, evidence evidenced
 - G14 Deployment resilience: claimed planned, evidence evidenced
@@ -92,6 +92,13 @@ Open (not yet claimed verified):
 - `src/agentic_robotics/core/schema.py`: Versioned, typed contract base. [REQ01, REQ18]
 - `src/agentic_robotics/core/units.py`: Minimal units and coordinate-frame support. [REQ01]
 - `src/agentic_robotics/core/versions.py`: Version precedence shared by the registry, deprecations and compatibility checks. [REQ18]
+- `src/agentic_robotics/hardware/__init__.py`: Hardware catalog: robot classes, device types and protocols, and manifest checks. [REQ03]
+- `src/agentic_robotics/hardware/catalog.py`: Hardware catalog: robot classes, device types and protocols AIR can describe. [REQ03, REQ01, REQ13, REQ16]
+- `src/agentic_robotics/hardware/cli.py`: ``air hardware``: browse the catalog, check manifests, and build task context. [REQ03, REQ16]
+- `src/agentic_robotics/hardware/context.py`: Task context: the hardware facts a specific task needs, ranked and within a budget. [REQ08, REQ14, REQ16, AIR01]
+- `src/agentic_robotics/hardware/domains.py`: Domain packs: the engineering knowledge of each of AIR's 19 domains (D01 to D19). [REQ03, D14, D15]
+- `src/agentic_robotics/hardware/semantics.py`: Shared meaning for catalog data: vocabulary links, signal binding, WoT and JSON-LD export. [REQ03, REQ01, D16, D17]
+- `src/agentic_robotics/hardware/validate.py`: Check robot manifests against the hardware catalog, and derive what to watch and maintain. [REQ03, REQ13, REQ16, D14]
 - `src/agentic_robotics/integrations/__init__.py`: Reference integrations. Each lives behind the public adapter protocol, so products
 - `src/agentic_robotics/integrations/fake.py`: Fake mobile robot: a dependency-free adapter for quickstarts, tests and conformance. [REQ03, REQ13]
 - `src/agentic_robotics/integrations/fake_arm.py`: Fake stationary manipulator with an inspection station, for the two-robot reference [REQ03, REQ06]
@@ -123,6 +130,12 @@ Open (not yet claimed verified):
 - `src/agentic_robotics/skills.py`: Skill registry: discovery and lookup of declared skills. [REQ05, REQ18]
 - `src/agentic_robotics/testing/__init__.py`: Testing support for projects built on the framework (pytest evidence plugin).
 - `src/agentic_robotics/testing/pytest_plugin.py`: pytest plugin: turns test results into requirement evidence. [REQ02, REQ18]
+- `src/agentic_robotics/triage/__init__.py`: Triage: one queue for everything AIR finds wrong (ADR 0009).
+- `src/agentic_robotics/triage/book.py`: The triage book: an event-sourced queue over the project ledger (ADR 0009). [REQ14, REQ15, REQ17, G11, G12]
+- `src/agentic_robotics/triage/cli.py`: ``air triage``: sweep, list, decide and silence triage items. [REQ14, REQ15, REQ17]
+- `src/agentic_robotics/triage/collectors.py`: Collectors turn AIR's existing signals into triage signals (ADR 0009). [REQ14, REQ15, REQ17, G11]
+- `src/agentic_robotics/triage/contracts.py`: Triage contracts: signals in, tracked items out (ADR 0009). [REQ14, REQ15, REQ17]
+- `src/agentic_robotics/triage/policy.py`: Triage policy as data: routing rules, inhibitions and silences (ADR 0009). [REQ14, REQ15, REQ17]
 - `src/agentic_robotics/work/__init__.py`: Agent-performed engineering work (research, development, simulation, evaluation,
 - `src/agentic_robotics/work/agent.py`: Work agents: research, development, simulation, evaluation, maintenance and diagnosis [AIR01, AIR03, REQ02, REQ04, REQ05, REQ11, REQ16, REQ17]
 - `src/agentic_robotics/work/cli.py`: ``air work`` and ``air models``: run agent work in sandboxes, review proposals. [AIR01, REQ02, REQ18]
@@ -135,9 +148,11 @@ Open (not yet claimed verified):
 - `activity/1.1` (Activity): activity_id, kind, title, status, started_at, ended_at, actors, requirements, used, generated, parent_id, trace_id, params, environment, metrics, notes, outcome, error
 - `capability_report/1.0` (CapabilityReport): robot_id, capability_revision, observed_at, clock_domain, profiles
 - `command/1.1` (Command): command_id, robot_id, skill_id, issued_by, delegation_id, authority_revision, args, capability_revision, fencing, task_id, plan_id, trace_id
-- `component_manifest/1.0` (ComponentManifest): robot_id, name, hardware_revision, adapter, components, nominal_capabilities, frames, description
+- `component_manifest/1.1` (ComponentManifest): robot_id, name, hardware_revision, adapter, components, nominal_capabilities, frames, description, robot_class
 - `coordination_message/1.0` (CoordinationMessage): message_id, conversation_id, task_id, task_revision, sender, recipients, kind, sent_at, causal_ref, expires_at, payload, evidence, trace_id
 - `delegation/1.0` (Delegation): delegation_id, grantor, grantee, robots, skills, operations, parent_id, valid_from, valid_until, may_redelegate, limits, reason
+- `device_catalog/1.0` (DeviceCatalog): name, device_types, robot_classes, protocols
+- `domain_library/1.0` (DomainLibrary): domains
 - `entity_ref/1.0` (EntityRef): entity_id, kind, name, version, digest, uri, size_bytes, physical, attributes
 - `execution_contract/1.0` (ExecutionContract): trigger, deadline_s, deadline_kind, period_s, max_input_age_s, result_validity_s, jitter_s, queue_policy, compute_budget, memory_budget_mb, allowed_clock_states, fallback
 - `execution_result/1.0` (ExecutionResult): command_id, robot_id, skill_id, state, reason, message, observed_effects, verification, authority_revision, capability_revision, started_at, finished_at
@@ -155,6 +170,8 @@ Open (not yet claimed verified):
 - `source_catalog/1.0` (SourceCatalog): name, updated, sources
 - `task_plan/1.1` (TaskPlan): plan_id, goal, steps, produced_by, rationale, trace_id
 - `team_plan/1.0` (TeamPlan): plan_id, mission, assignments, unassigned, trace_id
+- `triage_item/1.0` (TriageItem): item_id, fingerprint, kind, source, subject, title, severity, priority, state, rule, owner, assignee, escalation, escalation_level, labels, robot_id, requirements, evidence, first_seen, last_seen, count, ack_due, resolve_due, resolve_escalated, suppressed_by, resolution, grouping_version, missing_group_labels, content_hash, priority_locked, snooze_until, wake_after_count, stale
+- `triage_policy/1.0` (TriagePolicy): rules, inhibitions, default, max_silence_s, max_snooze_s
 - `work_proposal/1.0` (Proposal): proposal_id, task_id, kind, title, summary, artifacts, evidence, requirements, produced_by, status
 - `work_task/1.0` (WorkTask): task_id, kind, goal, requirements, inputs, deliverables, acceptance, tools, approval_required, data_classification, budget, sandbox, models, robot_id
 
@@ -168,9 +185,16 @@ Open (not yet claimed verified):
 - [0006. Team coordination: transactional coordinator, revisions, occupancy-aware release](docs/decisions/0006-team-coordination.md): Accepted
 - [0007. Wave 1: fail-closed leases, verifiable registry, ledger v2, W3C ids, schemas](docs/decisions/0007-wave1-integrity-and-formats.md): Accepted
 - [0008. Agentic engineering work in sandboxes, with provider-agnostic models](docs/decisions/0008-agentic-engineering-work.md): Accepted
+- [0009. Triage: one queue for everything AIR finds wrong](docs/decisions/0009-triage.md): Accepted
+- [0010. A typed hardware catalog for robots, devices and protocols](docs/decisions/0010-hardware-catalog.md): Accepted
+- [0011. Hardware semantics, domain packs, task context and custom components](docs/decisions/0011-hardware-semantics-and-context.md): Accepted
 
 ## Recent recorded activities
 
+- 2026-10-22 development: hardware context: custom components, semantics, domain packs, task context (succeeded) [REQ03, REQ08, REQ14, REQ16, D14, D15, D16]
+- 2026-10-22 development: hardware catalog: robot classes, device types, protocols (succeeded) [REQ03, REQ13, REQ16, D05, D07, D14, D16]
+- 2026-10-22 development: triage review fixes: full fingerprints, content hash, severity rise, priority lock, snooze, stale, silence limits (succeeded) [REQ14, REQ15, REQ17, G11, G12]
+- 2026-10-22 development: triage: one queue for everything AIR finds wrong (ADR 0009) (succeeded) [REQ14, REQ15, REQ17, G11, G12]
 - 2026-10-22 development: ar.source_catalog/1.0 contract and air sources CLI (succeeded) [REQ16, REQ18]
 - 2026-10-22 research: open-source source catalog: 343 projects in 8 areas (succeeded) [REQ16, REQ18, AIR01]
 - 2026-10-22 evaluation: automated test run (succeeded) [AIR01, AIR02, AIR03, F01, F02, F05, F06, F07, G01, G05, G06, G07, G08, G10, G12, G13, G14, G15, REQ01, REQ02, REQ03, REQ04, REQ05, REQ06, REQ07, REQ08, REQ09, REQ10, REQ12, REQ13, REQ14, REQ15, REQ16, REQ17, REQ18]
@@ -182,18 +206,23 @@ Open (not yet claimed verified):
 - 2026-10-22 research: Open-source landscape survey: what AIR should adopt (6 areas incl. Microduck) (succeeded) [REQ01, REQ02, REQ06, REQ10, REQ14, REQ17, REQ18]
 - 2026-10-22 evaluation: automated test run (succeeded) [F01, F02, F05, F06, G01, G05, G06, G07, G08, G10, G12, G13, G14, G15, REQ01, REQ02, REQ03, REQ05, REQ06, REQ07, REQ08, REQ09, REQ10, REQ12, REQ13, REQ14, REQ15, REQ16, REQ17, REQ18]
 - 2026-10-22 development: Stage 3: two-robot coordination, fake arm, shared world, handoff scenario (succeeded) [REQ06, REQ07, REQ09, REQ10, REQ14]
-- 2026-10-22 decision: Team coordination design (ADR 0006) (succeeded) [REQ06, REQ07, REQ09, REQ10]
-- 2026-10-22 evaluation: automated test run (succeeded) [F01, F02, F05, F06, G01, G05, G06, G07, G08, G10, G12, G13, G15, REQ01, REQ02, REQ03, REQ05, REQ06, REQ07, REQ08, REQ09, REQ10, REQ12, REQ13, REQ14, REQ15, REQ16, REQ17, REQ18]
-- 2026-10-22 development: Evidence spine: tracing, ledger, provenance, traceability, debug CLI, context feeder (succeeded) [REQ02, REQ10, REQ14, REQ15, REQ16, REQ18]
-- 2026-10-22 decision: Provenance spine (ADR 0005) (succeeded) [REQ02, REQ10, REQ15, REQ16]
+
+## Open triage
+
+3 open item(s); run `air triage sweep` to refresh and `air triage list` for details.
+
+- `tri_994f14ffe2364496` hygiene/P4 new, role:maintainer: qemu/qemu: optional integration with an AGPL-incompatible license (GPL-2.0); keep it a separate process or tool (x2)
+- `tri_b95ad4742ff34361` hygiene/P4 new, role:maintainer: eclipse-ditto/ditto: optional integration with an AGPL-incompatible license (EPL-2.0); keep it a separate process or tool (x2)
+- `tri_ee280d984b604722` hygiene/P4 new, role:maintainer: IDEA-Research/GroundingDINO: no push since 2024-08-12 (x2)
 
 ## Ledger
 
-- entries: 280, integrity: OK
-- head: `90a2df0c3b500391`
+- entries: 374, integrity: OK
+- head: `15bef02905cd2c52`
 
 ## Recent commits
 
+- `6f639bd` Rewrite README: why, what, how, where, with architecture diagrams (2026-10-22)
 - `2ce1d40` Add source catalog tooling; keep research notes local (2026-10-22)
 - `ec964d2` Add agentic engineering work: sandboxes, provider-agnostic models, proposals (2026-10-22)
 - `a5bbbfb` Wave 1: fail-closed leases, verifiable registry, ledger v2, W3C ids, schemas (2026-10-22)

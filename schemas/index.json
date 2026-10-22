@@ -12,8 +12,8 @@
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.command/1.1.json"
   },
   "ar.component_manifest": {
-    "current": "1.0",
-    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.component_manifest/1.0.json"
+    "current": "1.1",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.component_manifest/1.1.json"
   },
   "ar.coordination_message": {
     "current": "1.0",
@@ -22,6 +22,14 @@
   "ar.delegation": {
     "current": "1.0",
     "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.delegation/1.0.json"
+  },
+  "ar.device_catalog": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.device_catalog/1.0.json"
+  },
+  "ar.domain_library": {
+    "current": "1.0",
+    "uri": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.domain_library/1.0.json"
   },
   "ar.entity_ref": {
     "current": "1.0",

@@ -109,9 +109,41 @@ evidence spine ties everything together.
 - `air triage sweep|list|show|ack|assign|start|resolve|dismiss|reopen|silence|rules`.
 - See [ADR 0009](decisions/0009-triage.md).
 
+## Hardware catalog
+
+```
+ hardware/data/*.json  +  .air/hardware/*.json  (project extensions, ids never collide)
+          |
+          v
+ DeviceCatalog (ar.device_catalog/1.0): RobotClass (slots) · DeviceType · Protocol
+          |
+          | check_manifest(ComponentManifest 1.1: robot_class, components[type_id, properties])
+          v
+ findings (unknown type, missing/wrong-unit property, interface, slot counts)
+ telemetry_limits / maintenance_plan  -->  health monitoring, maintenance, triage
+```
+
+- Device types declare typed properties (units checked for dimension), interfaces
+  (protocol ids), telemetry with typical limits, maintenance items, failure modes and a
+  safety flag.
+- The catalog is data, so the core stays stdlib-only. `DeviceCatalog.problems()` keeps it
+  internally consistent.
+- The catalog describes and never prescribes: composition findings are advice unless
+  `strict`.
+- `extends` specializations, per-unit `limits`, pinned `documents`, typed `relations`
+  and `sensitivity` carry custom-component context.
+- `semantics` links units, classes and registry ids to QUDT, SOSA/SSN, SAREF, LwM2M and
+  Matter, and exports WoT Thing Models and JSON-LD.
+- `domains` holds the 19 domain packs, used for validation advice and agent briefings.
+- `context` selects, ranks and budgets the facts for a task, with sources, and withholds
+  restricted ones when data would leave the device.
+- See [hardware-catalog.md](hardware-catalog.md),
+  [ADR 0010](decisions/0010-hardware-catalog.md) and
+  [ADR 0011](decisions/0011-hardware-semantics-and-context.md).
+
 ## Package dependency rule
 
 `core` depends on nothing. `contracts` depend on `core`. `runtime`, `agents` and
 `provenance` depend on `contracts`/`core`; `runtime` and `agents` use `provenance.tracing`.
-`integrations` depend only on public protocols (`plugins`, `contracts`). Nothing in the
-core imports an integration.
+`hardware` depends on `contracts` and `core`. `integrations` depend only on public
+protocols (`plugins`, `contracts`). Nothing in the core imports an integration.

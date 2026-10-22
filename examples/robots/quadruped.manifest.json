@@ -1,0 +1,1053 @@
+{
+  "$schema": "ar.component_manifest/1.1",
+  "meta": {
+    "source": "examples",
+    "revision": 1
+  },
+  "robot_id": "quad-1",
+  "name": "Inspection quadruped (example)",
+  "hardware_revision": "example-A",
+  "robot_class": "robot.legged.quadruped",
+  "description": "Twelve quasi-direct-drive joints on CAN FD, a GPU SoM for perception, NMC pack.",
+  "adapter": {
+    "kind": "unbound",
+    "profile": "description-only",
+    "config": {}
+  },
+  "nominal_capabilities": [
+    "walking",
+    "mobility",
+    "inspection",
+    "mapping"
+  ],
+  "frames": [
+    "map",
+    "odom",
+    "base_link"
+  ],
+  "components": [
+    {
+      "component_id": "compute",
+      "kind": "Perception and planning SoM",
+      "revision": "r1",
+      "type_id": "compute.som.gpu_jetson_class",
+      "properties": {
+        "cpu_cores": 12,
+        "ram": {
+          "value": 32,
+          "unit": "GB"
+        },
+        "compute": {
+          "value": 200,
+          "unit": "TOPS"
+        },
+        "tdp": {
+          "value": 40,
+          "unit": "W"
+        },
+        "operating_temperature_max": {
+          "value": 80,
+          "unit": "degC"
+        }
+      },
+      "relations": [
+        {
+          "kind": "powered_by",
+          "target": "battery"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "kind": "net.ethernet"
+        }
+      ]
+    },
+    {
+      "component_id": "motion-mcu",
+      "kind": "Low-level motion MCU",
+      "revision": "r1",
+      "type_id": "compute.mcu.cortex_m",
+      "properties": {
+        "core": "Cortex-M7",
+        "clock_frequency": {
+          "value": 480,
+          "unit": "MHz"
+        },
+        "flash": {
+          "value": 2,
+          "unit": "MB"
+        }
+      },
+      "interfaces": [
+        {
+          "name": "can0",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "imu",
+      "kind": "Body IMU",
+      "revision": "r1",
+      "type_id": "sensor.imu.mems_6axis",
+      "properties": {
+        "accel_range": {
+          "value": 16,
+          "unit": "g0"
+        },
+        "gyro_range": {
+          "value": 2000,
+          "unit": "deg/s"
+        },
+        "output_data_rate": {
+          "value": 1000,
+          "unit": "Hz"
+        }
+      },
+      "parent": "motion-mcu",
+      "interfaces": [
+        {
+          "name": "spi1",
+          "kind": "bus.spi"
+        }
+      ]
+    },
+    {
+      "component_id": "front-stereo",
+      "kind": "Front depth camera",
+      "revision": "r1",
+      "type_id": "sensor.camera.active_stereo",
+      "properties": {
+        "resolution_px_h": 1280,
+        "resolution_px_v": 720,
+        "frame_rate": {
+          "value": 30,
+          "unit": "fps"
+        },
+        "baseline": {
+          "value": 95,
+          "unit": "mm"
+        },
+        "depth_range_max": {
+          "value": 6,
+          "unit": "m"
+        }
+      },
+      "parent": "compute",
+      "interfaces": [
+        {
+          "name": "usb",
+          "kind": "bus.usb"
+        }
+      ]
+    },
+    {
+      "component_id": "lidar",
+      "kind": "3D lidar",
+      "revision": "r1",
+      "type_id": "sensor.lidar.mechanical_3d",
+      "properties": {
+        "channels": 32,
+        "max_range": {
+          "value": 100,
+          "unit": "m"
+        },
+        "vertical_field_of_view": {
+          "value": 40,
+          "unit": "deg"
+        },
+        "rotation_rate": {
+          "value": 10,
+          "unit": "Hz"
+        },
+        "wavelength": {
+          "value": 905,
+          "unit": "nm"
+        }
+      },
+      "parent": "compute",
+      "interfaces": [
+        {
+          "name": "eth",
+          "kind": "net.ethernet"
+        }
+      ]
+    },
+    {
+      "component_id": "battery",
+      "kind": "Main battery",
+      "revision": "r1",
+      "type_id": "power.battery.li_ion_nmc_pack",
+      "properties": {
+        "nominal_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "capacity": {
+          "value": 15,
+          "unit": "Ah"
+        },
+        "max_discharge_current": {
+          "value": 60,
+          "unit": "A"
+        }
+      }
+    },
+    {
+      "component_id": "bms",
+      "kind": "Battery management",
+      "revision": "r1",
+      "type_id": "power.bms",
+      "properties": {
+        "series_cells_supported": 13,
+        "max_continuous_current": {
+          "value": 60,
+          "unit": "A"
+        },
+        "balancing": "passive"
+      },
+      "parent": "battery",
+      "interfaces": [
+        {
+          "name": "can0",
+          "kind": "can.classic"
+        }
+      ]
+    },
+    {
+      "component_id": "main-contactor",
+      "kind": "Motor power contactor",
+      "revision": "r1",
+      "type_id": "power.contactor",
+      "properties": {
+        "rated_current": {
+          "value": 100,
+          "unit": "A"
+        },
+        "rated_voltage": {
+          "value": 60,
+          "unit": "V"
+        },
+        "coil_voltage": {
+          "value": 24,
+          "unit": "V"
+        }
+      },
+      "parent": "battery",
+      "interfaces": [
+        {
+          "name": "coil",
+          "kind": "electrical.digital_io"
+        }
+      ]
+    },
+    {
+      "component_id": "estop",
+      "kind": "On-body emergency stop",
+      "revision": "r1",
+      "type_id": "safety.emergency_stop_button",
+      "properties": {
+        "nc_contacts": 2,
+        "latching": true
+      },
+      "relations": [
+        {
+          "kind": "controls",
+          "target": "main-contactor"
+        }
+      ]
+    },
+    {
+      "component_id": "wifi",
+      "kind": "Wi-Fi",
+      "revision": "r1",
+      "type_id": "comms.wifi.client_module",
+      "properties": {
+        "wifi_standard": "802.11ax",
+        "host_interface": "pcie"
+      },
+      "parent": "compute"
+    },
+    {
+      "component_id": "fl-hip_abd",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "fl-hip_abd-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "fl-hip_abd",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "fl-hip_abd-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "fl-hip_abd"
+    },
+    {
+      "component_id": "fl-hip_flex",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "fl-hip_flex-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "fl-hip_flex",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "fl-hip_flex-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "fl-hip_flex"
+    },
+    {
+      "component_id": "fl-knee",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "fl-knee-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "fl-knee",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "fl-knee-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "fl-knee"
+    },
+    {
+      "component_id": "fr-hip_abd",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "fr-hip_abd-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "fr-hip_abd",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "fr-hip_abd-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "fr-hip_abd"
+    },
+    {
+      "component_id": "fr-hip_flex",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "fr-hip_flex-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "fr-hip_flex",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "fr-hip_flex-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "fr-hip_flex"
+    },
+    {
+      "component_id": "fr-knee",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "fr-knee-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "fr-knee",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "fr-knee-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "fr-knee"
+    },
+    {
+      "component_id": "rl-hip_abd",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "rl-hip_abd-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "rl-hip_abd",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "rl-hip_abd-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "rl-hip_abd"
+    },
+    {
+      "component_id": "rl-hip_flex",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "rl-hip_flex-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "rl-hip_flex",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "rl-hip_flex-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "rl-hip_flex"
+    },
+    {
+      "component_id": "rl-knee",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "rl-knee-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "rl-knee",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "rl-knee-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "rl-knee"
+    },
+    {
+      "component_id": "rr-hip_abd",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "rr-hip_abd-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "rr-hip_abd",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "rr-hip_abd-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "rr-hip_abd"
+    },
+    {
+      "component_id": "rr-hip_flex",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "rr-hip_flex-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "rr-hip_flex",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "rr-hip_flex-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "rr-hip_flex"
+    },
+    {
+      "component_id": "rr-knee",
+      "kind": "Quasi-direct-drive joint",
+      "revision": "r1",
+      "type_id": "actuator.module.qdd_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 12,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 33,
+          "unit": "N*m"
+        },
+        "gear_ratio": 9.1
+      },
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.fd"
+        }
+      ]
+    },
+    {
+      "component_id": "rr-knee-drive",
+      "kind": "FOC servo drive",
+      "revision": "r1",
+      "type_id": "drive.foc_servo_lv",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 20,
+          "unit": "A"
+        }
+      },
+      "parent": "rr-knee",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.canopen"
+        }
+      ]
+    },
+    {
+      "component_id": "rr-knee-enc",
+      "kind": "Joint encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 14,
+        "accuracy": {
+          "value": 0.1,
+          "unit": "deg"
+        },
+        "protocol": "spi"
+      },
+      "parent": "rr-knee"
+    }
+  ]
+}

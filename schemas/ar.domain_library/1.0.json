@@ -1,0 +1,290 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.domain_library/1.0.json",
+  "title": "ar.domain_library/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.domain_library/1\\.\\d+|https?://.+/ar\\.domain_library/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "domains": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/DomainPack"
+      },
+      "default": []
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "DomainCheck": {
+      "type": "object",
+      "properties": {
+        "check_id": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "basis": {
+          "type": "string",
+          "default": "condition"
+        },
+        "interval": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "check_id",
+        "description"
+      ],
+      "additionalProperties": false
+    },
+    "DomainPack": {
+      "type": "object",
+      "properties": {
+        "domain_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "summary": {
+          "type": "string",
+          "default": ""
+        },
+        "scope": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "vocabulary": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Term"
+          },
+          "default": []
+        },
+        "standards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "invariants": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "failure_taxonomy": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/FailureClass"
+          },
+          "default": []
+        },
+        "checks": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DomainCheck"
+          },
+          "default": []
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/DomainRule"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "domain_id",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "DomainRule": {
+      "type": "object",
+      "properties": {
+        "rule_id": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "requires_component",
+            "requires_relation",
+            "requires_property",
+            "requires_interface",
+            "max_count"
+          ]
+        },
+        "when": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "message": {
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "error",
+            "warning"
+          ],
+          "default": "warning"
+        },
+        "any_of": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "relation": {
+          "type": "string",
+          "default": "any"
+        },
+        "property": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "rationale": {
+          "type": "string",
+          "default": ""
+        },
+        "standards": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "rule_id",
+        "kind",
+        "when",
+        "message"
+      ],
+      "additionalProperties": false
+    },
+    "FailureClass": {
+      "type": "object",
+      "properties": {
+        "failure_id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        },
+        "detect_via": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "failure_id",
+        "name"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "Term": {
+      "type": "object",
+      "properties": {
+        "term": {
+          "type": "string"
+        },
+        "definition": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "term",
+        "definition"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

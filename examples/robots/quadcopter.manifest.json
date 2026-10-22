@@ -1,0 +1,369 @@
+{
+  "$schema": "ar.component_manifest/1.1",
+  "meta": {
+    "source": "examples",
+    "revision": 1
+  },
+  "robot_id": "uav-1",
+  "name": "Survey quadcopter (example)",
+  "hardware_revision": "example-A",
+  "robot_class": "robot.aerial.quadcopter",
+  "description": "PX4/ArduPilot-class flight controller over MAVLink and DroneCAN.",
+  "adapter": {
+    "kind": "unbound",
+    "profile": "description-only",
+    "config": {}
+  },
+  "nominal_capabilities": [
+    "flight",
+    "imaging",
+    "localization"
+  ],
+  "frames": [
+    "map",
+    "odom",
+    "base_link"
+  ],
+  "components": [
+    {
+      "component_id": "fc",
+      "kind": "Flight controller",
+      "revision": "r1",
+      "type_id": "compute.flight_controller",
+      "properties": {
+        "processor": "STM32H7",
+        "imu_count": 3,
+        "firmware": "PX4 v1.15"
+      },
+      "interfaces": [
+        {
+          "name": "telem1",
+          "kind": "app.mavlink"
+        },
+        {
+          "name": "can1",
+          "kind": "can.dronecan"
+        }
+      ]
+    },
+    {
+      "component_id": "gnss",
+      "kind": "GNSS receiver",
+      "revision": "r1",
+      "type_id": "sensor.gnss.single",
+      "properties": {
+        "constellations": "gps",
+        "bands": "l1_l5",
+        "update_rate": {
+          "value": 10,
+          "unit": "Hz"
+        },
+        "horizontal_accuracy_cep": {
+          "value": 1.5,
+          "unit": "m"
+        }
+      },
+      "parent": "fc",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.dronecan"
+        }
+      ]
+    },
+    {
+      "component_id": "baro",
+      "kind": "Barometer",
+      "revision": "r1",
+      "type_id": "sensor.barometer",
+      "properties": {
+        "range_min": {
+          "value": 30,
+          "unit": "kPa"
+        },
+        "range_max": {
+          "value": 110,
+          "unit": "kPa"
+        },
+        "relative_accuracy": {
+          "value": 6,
+          "unit": "Pa"
+        }
+      },
+      "parent": "fc"
+    },
+    {
+      "component_id": "mag",
+      "kind": "Magnetometer",
+      "revision": "r1",
+      "type_id": "sensor.magnetometer",
+      "properties": {
+        "range": {
+          "value": 4900,
+          "unit": "uT"
+        },
+        "resolution": {
+          "value": 0.15,
+          "unit": "uT"
+        },
+        "output_data_rate": {
+          "value": 100,
+          "unit": "Hz"
+        }
+      },
+      "parent": "gnss"
+    },
+    {
+      "component_id": "imu",
+      "kind": "Flight IMU",
+      "revision": "r1",
+      "type_id": "sensor.imu.mems_6axis",
+      "properties": {
+        "accel_range": {
+          "value": 16,
+          "unit": "g0"
+        },
+        "gyro_range": {
+          "value": 2000,
+          "unit": "deg/s"
+        },
+        "output_data_rate": {
+          "value": 8000,
+          "unit": "Hz"
+        }
+      },
+      "parent": "fc"
+    },
+    {
+      "component_id": "frame",
+      "kind": "Quad X airframe",
+      "revision": "r1",
+      "type_id": "mechanical.airframe.multirotor",
+      "properties": {
+        "rotor_count": 4,
+        "wheelbase": {
+          "value": 450,
+          "unit": "mm"
+        }
+      }
+    },
+    {
+      "component_id": "battery",
+      "kind": "Flight battery",
+      "revision": "r1",
+      "type_id": "power.battery.lipo_uav",
+      "properties": {
+        "nominal_voltage": {
+          "value": 22.2,
+          "unit": "V"
+        },
+        "capacity": {
+          "value": 10,
+          "unit": "Ah"
+        },
+        "max_discharge_current": {
+          "value": 150,
+          "unit": "A"
+        }
+      }
+    },
+    {
+      "component_id": "telemetry",
+      "kind": "Telemetry radio",
+      "revision": "r1",
+      "type_id": "comms.radio.telemetry",
+      "properties": {
+        "frequency_band": "915 MHz ISM",
+        "air_data_rate": {
+          "value": 64,
+          "unit": "kbit/s"
+        },
+        "encryption": true
+      },
+      "parent": "fc",
+      "interfaces": [
+        {
+          "name": "serial",
+          "kind": "app.mavlink"
+        }
+      ]
+    },
+    {
+      "component_id": "rc-rx",
+      "kind": "RC receiver",
+      "revision": "r1",
+      "type_id": "comms.rc.receiver",
+      "properties": {
+        "output_protocol": "crsf",
+        "frequency_band": "2.4 GHz",
+        "channels": 12,
+        "failsafe_mode": "no_pulses"
+      },
+      "parent": "fc"
+    },
+    {
+      "component_id": "prop-1",
+      "kind": "Propulsion unit",
+      "revision": "r1",
+      "type_id": "actuator.other.uav_propulsion_unit",
+      "properties": {
+        "max_thrust": {
+          "value": 25,
+          "unit": "N"
+        },
+        "rated_voltage": {
+          "value": 22.2,
+          "unit": "V"
+        },
+        "max_current": {
+          "value": 30,
+          "unit": "A"
+        },
+        "propeller_size": "10x4.5"
+      }
+    },
+    {
+      "component_id": "esc-1",
+      "kind": "ESC",
+      "revision": "r1",
+      "type_id": "drive.esc_bldc",
+      "properties": {
+        "max_continuous_current": {
+          "value": 40,
+          "unit": "A"
+        },
+        "cell_count_max": 6
+      },
+      "parent": "prop-1",
+      "interfaces": [
+        {
+          "name": "dshot",
+          "kind": "electrical.pwm"
+        }
+      ]
+    },
+    {
+      "component_id": "prop-2",
+      "kind": "Propulsion unit",
+      "revision": "r1",
+      "type_id": "actuator.other.uav_propulsion_unit",
+      "properties": {
+        "max_thrust": {
+          "value": 25,
+          "unit": "N"
+        },
+        "rated_voltage": {
+          "value": 22.2,
+          "unit": "V"
+        },
+        "max_current": {
+          "value": 30,
+          "unit": "A"
+        },
+        "propeller_size": "10x4.5"
+      }
+    },
+    {
+      "component_id": "esc-2",
+      "kind": "ESC",
+      "revision": "r1",
+      "type_id": "drive.esc_bldc",
+      "properties": {
+        "max_continuous_current": {
+          "value": 40,
+          "unit": "A"
+        },
+        "cell_count_max": 6
+      },
+      "parent": "prop-2",
+      "interfaces": [
+        {
+          "name": "dshot",
+          "kind": "electrical.pwm"
+        }
+      ]
+    },
+    {
+      "component_id": "prop-3",
+      "kind": "Propulsion unit",
+      "revision": "r1",
+      "type_id": "actuator.other.uav_propulsion_unit",
+      "properties": {
+        "max_thrust": {
+          "value": 25,
+          "unit": "N"
+        },
+        "rated_voltage": {
+          "value": 22.2,
+          "unit": "V"
+        },
+        "max_current": {
+          "value": 30,
+          "unit": "A"
+        },
+        "propeller_size": "10x4.5"
+      }
+    },
+    {
+      "component_id": "esc-3",
+      "kind": "ESC",
+      "revision": "r1",
+      "type_id": "drive.esc_bldc",
+      "properties": {
+        "max_continuous_current": {
+          "value": 40,
+          "unit": "A"
+        },
+        "cell_count_max": 6
+      },
+      "parent": "prop-3",
+      "interfaces": [
+        {
+          "name": "dshot",
+          "kind": "electrical.pwm"
+        }
+      ]
+    },
+    {
+      "component_id": "prop-4",
+      "kind": "Propulsion unit",
+      "revision": "r1",
+      "type_id": "actuator.other.uav_propulsion_unit",
+      "properties": {
+        "max_thrust": {
+          "value": 25,
+          "unit": "N"
+        },
+        "rated_voltage": {
+          "value": 22.2,
+          "unit": "V"
+        },
+        "max_current": {
+          "value": 30,
+          "unit": "A"
+        },
+        "propeller_size": "10x4.5"
+      }
+    },
+    {
+      "component_id": "esc-4",
+      "kind": "ESC",
+      "revision": "r1",
+      "type_id": "drive.esc_bldc",
+      "properties": {
+        "max_continuous_current": {
+          "value": 40,
+          "unit": "A"
+        },
+        "cell_count_max": 6
+      },
+      "parent": "prop-4",
+      "interfaces": [
+        {
+          "name": "dshot",
+          "kind": "electrical.pwm"
+        }
+      ]
+    }
+  ]
+}

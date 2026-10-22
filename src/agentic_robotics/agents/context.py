@@ -10,17 +10,25 @@ from __future__ import annotations
 import hashlib
 import json
 from collections.abc import Iterable
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from ..contracts.observation import Quality
 from ..robot import Robot
+
+if TYPE_CHECKING:
+    from ..hardware.catalog import DeviceCatalog
 
 __requirements__ = ("REQ08",)
 
 
 class ContextBuilder:
-    def __init__(self, stale_after_s: float = 2.0) -> None:
+    """``catalog`` (optional) adds a compact hardware section: robot class, safety-relevant
+    components, and observations named ``<component>.<signal>`` outside their limits."""
+
+    def __init__(self, stale_after_s: float = 2.0,
+                 catalog: DeviceCatalog | None = None) -> None:
         self.stale_after_s = stale_after_s
+        self.catalog = catalog
 
     def robot_view(self, robot: Robot, now: float,
                    signals: Iterable[str] | None = None) -> dict[str, Any]:
@@ -41,7 +49,7 @@ class ContextBuilder:
             if age > self.stale_after_s:
                 entry["stale"] = True
             observations[name] = entry
-        return {
+        view: dict[str, Any] = {
             "robot_id": robot.robot_id,
             "capability_revision": cap.capability_revision,
             "capabilities": {
@@ -52,6 +60,28 @@ class ContextBuilder:
             },
             "observations": observations,
         }
+        if self.catalog is not None:
+            view["hardware"] = self._hardware(robot, observations)
+        return view
+
+    def _hardware(self, robot: Robot, observations: dict[str, Any]) -> dict[str, Any]:
+        from ..hardware.semantics import bind_observation
+
+        assert self.catalog is not None
+        m = robot.manifest
+        safety = [c.component_id for c in m.components
+                  if c.type_id and (t := self.catalog.type(c.type_id)) and t.safety_relevant]
+        alerts = {}
+        for name, entry in observations.items():
+            if not isinstance(entry.get("value"), int | float):
+                continue
+            b = bind_observation(m, self.catalog, name, float(entry["value"]), entry.get("unit"))
+            if b is not None and b.status in ("warn", "critical"):
+                alerts[name] = b.status
+        out: dict[str, Any] = {"robot_class": m.robot_class, "safety_components": safety}
+        if alerts:
+            out["alerts"] = alerts
+        return out
 
     @staticmethod
     def size(context: dict[str, Any]) -> int:

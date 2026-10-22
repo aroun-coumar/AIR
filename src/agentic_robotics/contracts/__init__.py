@@ -17,7 +17,17 @@ from .execution import (
     ExecutionResult,
     QueuePolicy,
 )
-from .manifest import AdapterRef, ComponentManifest, ComponentSpec, InterfaceSpec
+from .manifest import (
+    AdapterRef,
+    ComponentManifest,
+    ComponentSpec,
+    DocumentRef,
+    InterfaceSpec,
+    LimitOverride,
+    Relation,
+    RelationKind,
+    Sensitivity,
+)
 from .observation import Observation, Quality
 from .resources import Occupancy, ReservationState, ResourceReservation
 from .skill import (
@@ -44,6 +54,7 @@ __all__ = [
     "ConditionResult",
     "DeadlineKind",
     "Delegation",
+    "DocumentRef",
     "ExecutionContract",
     "ExecutionResult",
     "HumanIntervention",
@@ -51,6 +62,7 @@ __all__ = [
     "Interruption",
     "InterventionKind",
     "InterventionState",
+    "LimitOverride",
     "Observation",
     "Occupancy",
     "Op",
@@ -58,8 +70,11 @@ __all__ = [
     "ProfileStatus",
     "Quality",
     "QueuePolicy",
+    "Relation",
+    "RelationKind",
     "ReservationState",
     "ResourceReservation",
+    "Sensitivity",
     "SkillSet",
     "SkillSpec",
     "TaskPlan",

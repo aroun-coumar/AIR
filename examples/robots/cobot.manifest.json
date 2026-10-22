@@ -1,0 +1,514 @@
+{
+  "$schema": "ar.component_manifest/1.1",
+  "meta": {
+    "source": "examples",
+    "revision": 1
+  },
+  "robot_id": "cobot-1",
+  "name": "Six-axis collaborative arm (example)",
+  "hardware_revision": "example-A",
+  "robot_class": "robot.industrial.cobot",
+  "description": "EtherCAT strain-wave joints with joint torque sensing and a wrist F/T sensor.",
+  "adapter": {
+    "kind": "unbound",
+    "profile": "description-only",
+    "config": {}
+  },
+  "nominal_capabilities": [
+    "manipulation",
+    "force_control",
+    "grasping"
+  ],
+  "frames": [
+    "world",
+    "base",
+    "tool0"
+  ],
+  "components": [
+    {
+      "component_id": "controller",
+      "kind": "Robot controller",
+      "revision": "r1",
+      "type_id": "compute.robot_controller",
+      "properties": {
+        "axes_max": 7,
+        "supply_voltage": {
+          "value": 48,
+          "unit": "V"
+        }
+      },
+      "interfaces": [
+        {
+          "name": "ethercat",
+          "kind": "fieldbus.ethercat"
+        },
+        {
+          "name": "opcua",
+          "kind": "app.opcua"
+        }
+      ]
+    },
+    {
+      "component_id": "pendant",
+      "kind": "Teach pendant",
+      "revision": "r1",
+      "type_id": "hmi.teach_pendant",
+      "properties": {
+        "has_emergency_stop": true,
+        "has_enabling_switch": true
+      },
+      "parent": "controller"
+    },
+    {
+      "component_id": "enable",
+      "kind": "Three-position enabling switch",
+      "revision": "r1",
+      "type_id": "safety.enabling_switch",
+      "properties": {
+        "contact_channels": 2,
+        "panic_position": true
+      },
+      "parent": "pendant"
+    },
+    {
+      "component_id": "ft",
+      "kind": "Wrist F/T sensor",
+      "revision": "r1",
+      "type_id": "sensor.force_torque.six_axis",
+      "properties": {
+        "force_range_xy": {
+          "value": 200,
+          "unit": "N"
+        },
+        "force_range_z": {
+          "value": 400,
+          "unit": "N"
+        },
+        "torque_range": {
+          "value": 10,
+          "unit": "N*m"
+        },
+        "update_rate": {
+          "value": 1000,
+          "unit": "Hz"
+        }
+      }
+    },
+    {
+      "component_id": "gripper",
+      "kind": "Electric parallel gripper",
+      "revision": "r1",
+      "type_id": "end_effector.gripper.parallel.electric",
+      "properties": {
+        "gripping_force": {
+          "value": 140,
+          "unit": "N"
+        },
+        "stroke_per_jaw": {
+          "value": 40,
+          "unit": "mm"
+        },
+        "payload": {
+          "value": 3,
+          "unit": "kg"
+        },
+        "rated_voltage": {
+          "value": 24,
+          "unit": "V"
+        }
+      },
+      "parent": "ft",
+      "interfaces": [
+        {
+          "name": "modbus",
+          "kind": "fieldbus.modbus_rtu"
+        }
+      ]
+    },
+    {
+      "component_id": "psu",
+      "kind": "Control cabinet power supply",
+      "revision": "r1",
+      "type_id": "power.ac_dc",
+      "properties": {
+        "input_voltage_min": {
+          "value": 100,
+          "unit": "V"
+        },
+        "input_voltage_max": {
+          "value": 240,
+          "unit": "V"
+        },
+        "output_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "output_power": {
+          "value": 1000,
+          "unit": "W"
+        }
+      },
+      "parent": "controller"
+    },
+    {
+      "component_id": "joint-1",
+      "kind": "Strain-wave joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.harmonic_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 90.0,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 150,
+          "unit": "N*m"
+        },
+        "gear_ratio": 101
+      },
+      "parent": "controller",
+      "interfaces": [
+        {
+          "name": "ecat",
+          "kind": "fieldbus.ethercat"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-1-torque",
+      "kind": "Joint torque sensor",
+      "revision": "r1",
+      "type_id": "sensor.torque.joint",
+      "properties": {
+        "rated_torque": {
+          "value": 150,
+          "unit": "N*m"
+        },
+        "update_rate": {
+          "value": 4,
+          "unit": "kHz"
+        }
+      },
+      "parent": "joint-1"
+    },
+    {
+      "component_id": "joint-1-enc",
+      "kind": "Output encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 19,
+        "accuracy": {
+          "value": 0.01,
+          "unit": "deg"
+        },
+        "protocol": "biss_c"
+      },
+      "parent": "joint-1"
+    },
+    {
+      "component_id": "joint-2",
+      "kind": "Strain-wave joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.harmonic_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 90.0,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 150,
+          "unit": "N*m"
+        },
+        "gear_ratio": 101
+      },
+      "parent": "controller",
+      "interfaces": [
+        {
+          "name": "ecat",
+          "kind": "fieldbus.ethercat"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-2-torque",
+      "kind": "Joint torque sensor",
+      "revision": "r1",
+      "type_id": "sensor.torque.joint",
+      "properties": {
+        "rated_torque": {
+          "value": 150,
+          "unit": "N*m"
+        },
+        "update_rate": {
+          "value": 4,
+          "unit": "kHz"
+        }
+      },
+      "parent": "joint-2"
+    },
+    {
+      "component_id": "joint-2-enc",
+      "kind": "Output encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 19,
+        "accuracy": {
+          "value": 0.01,
+          "unit": "deg"
+        },
+        "protocol": "biss_c"
+      },
+      "parent": "joint-2"
+    },
+    {
+      "component_id": "joint-3",
+      "kind": "Strain-wave joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.harmonic_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 90.0,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 150,
+          "unit": "N*m"
+        },
+        "gear_ratio": 101
+      },
+      "parent": "controller",
+      "interfaces": [
+        {
+          "name": "ecat",
+          "kind": "fieldbus.ethercat"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-3-torque",
+      "kind": "Joint torque sensor",
+      "revision": "r1",
+      "type_id": "sensor.torque.joint",
+      "properties": {
+        "rated_torque": {
+          "value": 150,
+          "unit": "N*m"
+        },
+        "update_rate": {
+          "value": 4,
+          "unit": "kHz"
+        }
+      },
+      "parent": "joint-3"
+    },
+    {
+      "component_id": "joint-3-enc",
+      "kind": "Output encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 19,
+        "accuracy": {
+          "value": 0.01,
+          "unit": "deg"
+        },
+        "protocol": "biss_c"
+      },
+      "parent": "joint-3"
+    },
+    {
+      "component_id": "joint-4",
+      "kind": "Strain-wave joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.harmonic_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 16.8,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 28,
+          "unit": "N*m"
+        },
+        "gear_ratio": 101
+      },
+      "parent": "controller",
+      "interfaces": [
+        {
+          "name": "ecat",
+          "kind": "fieldbus.ethercat"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-4-torque",
+      "kind": "Joint torque sensor",
+      "revision": "r1",
+      "type_id": "sensor.torque.joint",
+      "properties": {
+        "rated_torque": {
+          "value": 28,
+          "unit": "N*m"
+        },
+        "update_rate": {
+          "value": 4,
+          "unit": "kHz"
+        }
+      },
+      "parent": "joint-4"
+    },
+    {
+      "component_id": "joint-4-enc",
+      "kind": "Output encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 19,
+        "accuracy": {
+          "value": 0.01,
+          "unit": "deg"
+        },
+        "protocol": "biss_c"
+      },
+      "parent": "joint-4"
+    },
+    {
+      "component_id": "joint-5",
+      "kind": "Strain-wave joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.harmonic_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 16.8,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 28,
+          "unit": "N*m"
+        },
+        "gear_ratio": 101
+      },
+      "parent": "controller",
+      "interfaces": [
+        {
+          "name": "ecat",
+          "kind": "fieldbus.ethercat"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-5-torque",
+      "kind": "Joint torque sensor",
+      "revision": "r1",
+      "type_id": "sensor.torque.joint",
+      "properties": {
+        "rated_torque": {
+          "value": 28,
+          "unit": "N*m"
+        },
+        "update_rate": {
+          "value": 4,
+          "unit": "kHz"
+        }
+      },
+      "parent": "joint-5"
+    },
+    {
+      "component_id": "joint-5-enc",
+      "kind": "Output encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 19,
+        "accuracy": {
+          "value": 0.01,
+          "unit": "deg"
+        },
+        "protocol": "biss_c"
+      },
+      "parent": "joint-5"
+    },
+    {
+      "component_id": "joint-6",
+      "kind": "Strain-wave joint module",
+      "revision": "r1",
+      "type_id": "actuator.module.harmonic_joint",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_torque": {
+          "value": 16.8,
+          "unit": "N*m"
+        },
+        "peak_torque": {
+          "value": 28,
+          "unit": "N*m"
+        },
+        "gear_ratio": 101
+      },
+      "parent": "controller",
+      "interfaces": [
+        {
+          "name": "ecat",
+          "kind": "fieldbus.ethercat"
+        }
+      ]
+    },
+    {
+      "component_id": "joint-6-torque",
+      "kind": "Joint torque sensor",
+      "revision": "r1",
+      "type_id": "sensor.torque.joint",
+      "properties": {
+        "rated_torque": {
+          "value": 28,
+          "unit": "N*m"
+        },
+        "update_rate": {
+          "value": 4,
+          "unit": "kHz"
+        }
+      },
+      "parent": "joint-6"
+    },
+    {
+      "component_id": "joint-6-enc",
+      "kind": "Output encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_absolute",
+      "properties": {
+        "resolution_bits_singleturn": 19,
+        "accuracy": {
+          "value": 0.01,
+          "unit": "deg"
+        },
+        "protocol": "biss_c"
+      },
+      "parent": "joint-6"
+    }
+  ]
+}

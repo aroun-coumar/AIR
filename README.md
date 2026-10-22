@@ -170,6 +170,29 @@ embed it and bring their own robots, models and infrastructure.
 | **Tool** | The `air` CLI: validate, conformance, scenarios, ledger, traces, requirements, work, models | `cli` |
 | **Platform** | Content-addressed asset registry for manifests, skills, plans and policies (local today; hosted later, same interface) | `registry` |
 
+**What hardware it knows.** A typed [hardware catalog](docs/hardware-catalog.md) ships
+in the package:
+- **100 robot classes:** industrial arms and cobots, AGVs and AMRs, quadrupeds,
+  humanoids and exoskeletons, multirotor and fixed-wing UAVs, USVs, ROVs and AUVs, and
+  agricultural, construction, medical, cleaning and inspection robots.
+- **648 device types:** motors, joint modules, hydraulics and pneumatics, drives,
+  gearboxes, encoders, IMUs, lidar, radar, cameras, F/T and tactile sensors, batteries
+  and BMS, compute, radios, IoT sensors and meters, docks, doors and elevators,
+  grippers, HMIs, and safety devices.
+- **122 protocols:** from PWM, CAN and EtherCAT to MQTT, Matter, OPC UA, ROS 2 and
+  VDA 5050.
+
+Each device type has typed properties with units, interfaces, telemetry limits,
+maintenance items and failure modes. Links to QUDT, SOSA/SSN, SAREF, LwM2M and Matter
+give the data a meaning other systems share. 19 domain packs (D01–D19) hold engineering
+invariants, failure taxonomies and rules. A task-context selector hands agents the
+facts a job needs, each with its source, and withholds restricted data from cloud
+models. Projects add vendor parts that extend built-in types, per-unit limits and pinned
+datasheets.
+
+The catalog **describes** hardware; it never requires it. Composition checks are advice
+unless you pass `--strict`.
+
 **Who it's for**
 
 - **Robot product teams** who want LLM planning without giving the LLM the keys.
@@ -345,6 +368,14 @@ use only public protocols, and nothing in the core imports an integration. See
 | Acknowledge, assign or close an item | `air triage ack <id> --by …`, `air triage resolve <id> --by … --reason … --evidence ledger:<seq>` |
 | List declared models | `air models` |
 | Query a catalog of studied open-source projects | `air sources list --priority P0 -v` |
+| Find device types, robot classes, protocols | `air hardware types lidar` · `air hardware classes` · `air hardware protocols` |
+| Check a robot manifest against the catalog | `air hardware check robot.manifest.json --strict` |
+| Monitoring limits and maintenance for a robot | `air hardware plan robot.manifest.json` |
+| Start a manifest for a robot class | `air hardware template robot.legged.quadruped` |
+| Hardware facts for a task, ranked and sourced | `air hardware context robot.manifest.json --text "left wheel overheating"` |
+| Domain briefing (D01–D19) for agents and people | `air hardware brief D02 D14` |
+| Pin a datasheet to a component | `air hardware attach robot.manifest.json wheel-left sheet.pdf` |
+| Export as W3C WoT Thing Model or JSON-LD | `air hardware export sensor.imu.mems_6axis` |
 
 ## Status and roadmap
 
@@ -377,6 +408,7 @@ src/agentic_robotics/
 ├── agents/        context selection · task agent · providers/ (OpenAI-compatible, Anthropic, router)
 ├── work/          sandboxes · work contracts · guarded tools · work agent · proposals
 ├── provenance/    tracing · ledger · project · traceability · explain · context pack · sources
+├── hardware/      device catalog: 100 robot classes · 648 device types · 122 protocols · manifest checks
 ├── integrations/  fake carrier and arm (reference adapters)
 └── testing/       pytest evidence plugin
 schemas/           published JSON Schemas for every contract

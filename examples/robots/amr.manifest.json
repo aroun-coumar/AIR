@@ -1,0 +1,468 @@
+{
+  "$schema": "ar.component_manifest/1.1",
+  "meta": {
+    "source": "examples",
+    "revision": 1
+  },
+  "robot_id": "amr-1",
+  "name": "Warehouse AMR (example)",
+  "hardware_revision": "example-A",
+  "robot_class": "robot.mobile.amr",
+  "description": "Differential-drive AMR with two safety scanners on a safety controller.",
+  "adapter": {
+    "kind": "unbound",
+    "profile": "description-only",
+    "config": {}
+  },
+  "nominal_capabilities": [
+    "mobility",
+    "navigation",
+    "docking",
+    "transport"
+  ],
+  "frames": [
+    "map",
+    "odom",
+    "base_link"
+  ],
+  "components": [
+    {
+      "component_id": "compute",
+      "kind": "Navigation computer",
+      "revision": "r1",
+      "type_id": "compute.som.gpu_jetson_class",
+      "properties": {
+        "cpu_cores": 8,
+        "ram": {
+          "value": 16,
+          "unit": "GB"
+        },
+        "compute": {
+          "value": 100,
+          "unit": "TOPS"
+        },
+        "tdp": {
+          "value": 25,
+          "unit": "W"
+        },
+        "operating_temperature_max": {
+          "value": 80,
+          "unit": "degC"
+        }
+      },
+      "relations": [
+        {
+          "kind": "powered_by",
+          "target": "battery"
+        }
+      ],
+      "interfaces": [
+        {
+          "name": "eth0",
+          "kind": "net.ethernet"
+        },
+        {
+          "name": "ros",
+          "kind": "middleware.ros2"
+        }
+      ]
+    },
+    {
+      "component_id": "safety-plc",
+      "kind": "Safety controller",
+      "revision": "r1",
+      "type_id": "compute.safety_plc",
+      "properties": {
+        "sil": "SIL 2 (IEC 61508)",
+        "performance_level": "PL d, Cat. 3 (ISO 13849-1)"
+      }
+    },
+    {
+      "component_id": "chassis",
+      "kind": "Differential-drive chassis",
+      "revision": "r1",
+      "type_id": "mechanical.chassis.wheeled",
+      "properties": {
+        "kinematics": "differential",
+        "payload": {
+          "value": 300,
+          "unit": "kg"
+        }
+      }
+    },
+    {
+      "component_id": "caster-front",
+      "kind": "Front caster",
+      "revision": "r1",
+      "type_id": "actuator.other.wheel_caster",
+      "properties": {
+        "diameter": {
+          "value": 100,
+          "unit": "mm"
+        },
+        "max_load": {
+          "value": 250,
+          "unit": "kg"
+        },
+        "type": "swivel"
+      },
+      "parent": "chassis"
+    },
+    {
+      "component_id": "caster-rear",
+      "kind": "Rear caster",
+      "revision": "r1",
+      "type_id": "actuator.other.wheel_caster",
+      "properties": {
+        "diameter": {
+          "value": 100,
+          "unit": "mm"
+        },
+        "max_load": {
+          "value": 250,
+          "unit": "kg"
+        },
+        "type": "swivel"
+      },
+      "parent": "chassis"
+    },
+    {
+      "component_id": "scanner-front",
+      "kind": "Front safety scanner",
+      "revision": "r1",
+      "type_id": "sensor.lidar.safety_scanner",
+      "properties": {
+        "protective_field_range": {
+          "value": 5.5,
+          "unit": "m"
+        },
+        "field_of_view": {
+          "value": 275,
+          "unit": "deg"
+        },
+        "response_time": {
+          "value": 62,
+          "unit": "ms"
+        },
+        "min_object_resolution": {
+          "value": 70,
+          "unit": "mm"
+        },
+        "performance_level": "d"
+      },
+      "relations": [
+        {
+          "kind": "protects",
+          "target": "chassis"
+        }
+      ],
+      "parent": "safety-plc",
+      "interfaces": [
+        {
+          "name": "ossd",
+          "kind": "electrical.digital_io"
+        }
+      ]
+    },
+    {
+      "component_id": "scanner-rear",
+      "kind": "Rear safety scanner",
+      "revision": "r1",
+      "type_id": "sensor.lidar.safety_scanner",
+      "properties": {
+        "protective_field_range": {
+          "value": 5.5,
+          "unit": "m"
+        },
+        "field_of_view": {
+          "value": 275,
+          "unit": "deg"
+        },
+        "response_time": {
+          "value": 62,
+          "unit": "ms"
+        },
+        "min_object_resolution": {
+          "value": 70,
+          "unit": "mm"
+        },
+        "performance_level": "d"
+      },
+      "relations": [
+        {
+          "kind": "protects",
+          "target": "chassis"
+        }
+      ],
+      "parent": "safety-plc",
+      "interfaces": [
+        {
+          "name": "ossd",
+          "kind": "electrical.digital_io"
+        }
+      ]
+    },
+    {
+      "component_id": "bumper",
+      "kind": "Front bumper edge",
+      "revision": "r1",
+      "type_id": "sensor.bumper.safety_edge",
+      "properties": {
+        "technology": "conductive_contact",
+        "activation_force": {
+          "value": 150,
+          "unit": "N"
+        },
+        "overtravel": {
+          "value": 20,
+          "unit": "mm"
+        },
+        "response_time": {
+          "value": 10,
+          "unit": "ms"
+        }
+      },
+      "parent": "safety-plc"
+    },
+    {
+      "component_id": "imu",
+      "kind": "Chassis IMU",
+      "revision": "r1",
+      "type_id": "sensor.imu.mems_6axis",
+      "properties": {
+        "accel_range": {
+          "value": 4,
+          "unit": "g0"
+        },
+        "gyro_range": {
+          "value": 500,
+          "unit": "deg/s"
+        },
+        "output_data_rate": {
+          "value": 200,
+          "unit": "Hz"
+        }
+      },
+      "parent": "compute"
+    },
+    {
+      "component_id": "battery",
+      "kind": "Traction battery",
+      "revision": "r1",
+      "type_id": "power.battery.lfp_pack",
+      "properties": {
+        "nominal_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "capacity": {
+          "value": 40,
+          "unit": "Ah"
+        },
+        "max_discharge_current": {
+          "value": 80,
+          "unit": "A"
+        }
+      }
+    },
+    {
+      "component_id": "bms",
+      "kind": "Battery management",
+      "revision": "r1",
+      "type_id": "power.bms",
+      "properties": {
+        "series_cells_supported": 16,
+        "max_continuous_current": {
+          "value": 80,
+          "unit": "A"
+        },
+        "balancing": "active"
+      },
+      "parent": "battery"
+    },
+    {
+      "component_id": "estop",
+      "kind": "Emergency stop",
+      "revision": "r1",
+      "type_id": "safety.emergency_stop_button",
+      "properties": {
+        "nc_contacts": 2,
+        "latching": true
+      },
+      "parent": "safety-plc"
+    },
+    {
+      "component_id": "status",
+      "kind": "Intent light bar",
+      "revision": "r1",
+      "type_id": "hmi.led_status_bar",
+      "properties": {}
+    },
+    {
+      "component_id": "wheel-left",
+      "kind": "Drive wheel hub motor",
+      "revision": "r1",
+      "type_id": "actuator.motor.hub_motor",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 400,
+          "unit": "W"
+        },
+        "rated_torque": {
+          "value": 15,
+          "unit": "N*m"
+        },
+        "wheel_diameter": {
+          "value": 200,
+          "unit": "mm"
+        }
+      },
+      "parent": "chassis"
+    },
+    {
+      "component_id": "tyre-left",
+      "kind": "Drive wheel tread",
+      "revision": "r1",
+      "type_id": "actuator.other.wheel_drive",
+      "properties": {
+        "diameter": {
+          "value": 200,
+          "unit": "mm"
+        },
+        "max_load": {
+          "value": 200,
+          "unit": "kg"
+        },
+        "tread": "polyurethane"
+      },
+      "parent": "wheel-left"
+    },
+    {
+      "component_id": "encoder-left",
+      "kind": "Wheel encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_incremental",
+      "properties": {
+        "counts_per_revolution": 4096,
+        "output_driver": "ttl_rs422"
+      },
+      "parent": "wheel-left",
+      "interfaces": [
+        {
+          "name": "abz",
+          "kind": "electrical.quadrature"
+        }
+      ]
+    },
+    {
+      "component_id": "drive-left",
+      "kind": "Wheel drive",
+      "revision": "r1",
+      "type_id": "drive.integrated_motor_controller",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 15,
+          "unit": "A"
+        }
+      },
+      "parent": "wheel-left",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.classic"
+        }
+      ]
+    },
+    {
+      "component_id": "wheel-right",
+      "kind": "Drive wheel hub motor",
+      "revision": "r1",
+      "type_id": "actuator.motor.hub_motor",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "rated_power": {
+          "value": 400,
+          "unit": "W"
+        },
+        "rated_torque": {
+          "value": 15,
+          "unit": "N*m"
+        },
+        "wheel_diameter": {
+          "value": 200,
+          "unit": "mm"
+        }
+      },
+      "parent": "chassis"
+    },
+    {
+      "component_id": "tyre-right",
+      "kind": "Drive wheel tread",
+      "revision": "r1",
+      "type_id": "actuator.other.wheel_drive",
+      "properties": {
+        "diameter": {
+          "value": 200,
+          "unit": "mm"
+        },
+        "max_load": {
+          "value": 200,
+          "unit": "kg"
+        },
+        "tread": "polyurethane"
+      },
+      "parent": "wheel-right"
+    },
+    {
+      "component_id": "encoder-right",
+      "kind": "Wheel encoder",
+      "revision": "r1",
+      "type_id": "sensor.encoder.magnetic_incremental",
+      "properties": {
+        "counts_per_revolution": 4096,
+        "output_driver": "ttl_rs422"
+      },
+      "parent": "wheel-right",
+      "interfaces": [
+        {
+          "name": "abz",
+          "kind": "electrical.quadrature"
+        }
+      ]
+    },
+    {
+      "component_id": "drive-right",
+      "kind": "Wheel drive",
+      "revision": "r1",
+      "type_id": "drive.integrated_motor_controller",
+      "properties": {
+        "rated_voltage": {
+          "value": 48,
+          "unit": "V"
+        },
+        "continuous_current": {
+          "value": 15,
+          "unit": "A"
+        }
+      },
+      "parent": "wheel-right",
+      "interfaces": [
+        {
+          "name": "can",
+          "kind": "can.classic"
+        }
+      ]
+    }
+  ]
+}

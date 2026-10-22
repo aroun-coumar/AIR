@@ -1,0 +1,3674 @@
+{
+ "domains": [
+  {
+   "domain_id": "D01",
+   "name": "Mechanical and mechatronics",
+   "summary": "Structure, kinematics and drivetrain of the robot: links, joints, gearboxes, screws, belts, brakes, bearings, wheels, end effectors and the fluid-power actuators that move them. Typical failures are overload and fatigue of gears and bearings, loss of preload or backlash growth that degrades accuracy, belt and cable wear, seal leakage, and gravity-loaded axes dropping when a brake or counterbalance fails.",
+   "scope": [
+    "mechanical.*",
+    "transmission.*",
+    "actuator.*",
+    "end_effector.*"
+   ],
+   "vocabulary": [
+    {
+     "term": "Backlash",
+     "definition": "Angular or linear free play at the output of a transmission when the input is held and the load direction reverses."
+    },
+    {
+     "term": "Lost motion",
+     "definition": "Total output hysteresis of a gearbox at a small reversing torque (typically about 3 % of rated), combining backlash and elastic windup; the usual precision-gearbox accuracy figure."
+    },
+    {
+     "term": "Torsional stiffness",
+     "definition": "Output torque per unit angular deflection of a transmission (N*m/rad); together with load inertia it sets the first structural resonance of a joint."
+    },
+    {
+     "term": "Repeatability (pose)",
+     "definition": "Spread of attained positions when the same commanded pose is approached repeatedly from the same direction, as measured per ISO 9283; distinct from absolute accuracy."
+    },
+    {
+     "term": "Payload",
+     "definition": "Mass the robot can handle at rated speed and acceleration, always qualified by the centre-of-gravity offset and inertia it assumes."
+    },
+    {
+     "term": "Basic rating life (L10)",
+     "definition": "Life in revolutions or hours that 90 % of a population of identical bearings or screws reaches under a given load, per ISO 281 for rolling bearings."
+    },
+    {
+     "term": "Ratcheting torque",
+     "definition": "Output torque at which a strain-wave gear's flexspline teeth skip over the circular spline; exceeding it damages the gear and loses position."
+    },
+    {
+     "term": "Preload",
+     "definition": "Deliberate internal load in a bearing, ball nut or guide that removes clearance and raises stiffness at the cost of friction and heat."
+    },
+    {
+     "term": "Critical speed",
+     "definition": "Rotational speed of a screw shaft at which bending resonance occurs; depends on length, diameter and end support and limits screw speed."
+    },
+    {
+     "term": "Counterbalance",
+     "definition": "Spring, gas spring or mass that offsets gravity load on an axis so motors and brakes carry less static torque; its failure can make an axis fall."
+    },
+    {
+     "term": "Tool centre point (TCP)",
+     "definition": "Reference point on the end effector whose pose the controller plans and reports; a wrong TCP definition shifts every taught point."
+    }
+   ],
+   "standards": [
+    "ISO 8373",
+    "ISO 9283",
+    "ISO 9409-1",
+    "ISO 281",
+    "ISO 6336-1",
+    "ISO 12100",
+    "ISO 10218-1",
+    "ISO 4413",
+    "ISO 4414"
+   ],
+   "invariants": [
+    "Keep peak and repeated-peak joint torques below the transmission's rated limits (and below ratcheting torque for strain-wave gears), including torques from emergency stops and collisions, not only nominal motion.",
+    "Never release the brake of a gravity-loaded axis unless the drive is enabled and holding torque or the axis is mechanically supported or counterbalanced.",
+    "Re-identify payload mass, centre of gravity and TCP whenever the end effector or tooling changes; do not reuse dynamics parameters from another tool.",
+    "Operate screws below their critical speed and buckling load for the actual unsupported length and end fixity.",
+    "Depressurise hydraulic and pneumatic circuits, including accumulators, before any disassembly, and verify pressure is zero by gauge rather than by valve state.",
+    "Do not exceed the gripper's rated payload and gripping force for the friction coefficient and accelerations of the actual motion; account for loss of grip force on air or power loss.",
+    "Track backlash and lost-motion growth against the accuracy budget; schedule replacement before the budget is consumed rather than compensating indefinitely in software."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D01.gear_wear",
+     "name": "Gear or transmission wear",
+     "description": "Tooth wear, pitting or flexspline fatigue that increases backlash, noise and vibration and eventually fractures.",
+     "detect_via": [
+      "vibration_rms",
+      "position_error",
+      "motor_current",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D01.bearing_failure",
+     "name": "Bearing degradation",
+     "description": "Spalling, contamination or loss of lubrication in rolling bearings causing heat, noise and play.",
+     "detect_via": [
+      "bearing_temperature",
+      "vibration_rms",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D01.backlash_growth",
+     "name": "Backlash and lost-motion growth",
+     "description": "Gradual loss of preload or wear increases free play and degrades path accuracy and control stability.",
+     "detect_via": [
+      "position_error",
+      "following_error",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D01.belt_failure",
+     "name": "Belt or cable degradation",
+     "description": "Timing belt stretch, tooth jump or cable fraying in capstan and tendon drives, leading to position loss or a dropped axis.",
+     "detect_via": [
+      "belt_tension",
+      "slip_events",
+      "cable_tension",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D01.axis_drop",
+     "name": "Gravity-axis drop",
+     "description": "A vertical or gravity-loaded axis falls because a holding brake, counterbalance or self-locking element fails or is released unpowered.",
+     "detect_via": [
+      "brake_released",
+      "position_error",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D01.fluid_leak",
+     "name": "Hydraulic or pneumatic leakage",
+     "description": "Seal or fitting leakage causing loss of force, drift under load, contamination of the workspace or high-pressure fluid injection hazard.",
+     "detect_via": [
+      "supply_pressure",
+      "case_drain_flow",
+      "air_consumption",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D01.structural_fatigue",
+     "name": "Structural fatigue or loosening",
+     "description": "Cracks in links, airframes or chassis, and loss of bolt preload from vibration, eventually causing misalignment or fracture.",
+     "detect_via": [
+      "vibration",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D01.grip_loss",
+     "name": "Loss of grip",
+     "description": "Gripper or vacuum cup releases or lets the part slip because of worn pads, leaks, low supply pressure or excessive acceleration.",
+     "detect_via": [
+      "vacuum_level",
+      "part_present",
+      "jaw_closed_sensor",
+      "contact_force"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D01.lubrication_service",
+     "description": "Inspect and relubricate gearboxes, screws and guides per the manufacturer's schedule; check for grease leakage at seals.",
+     "basis": "hours",
+     "interval": 5000
+    },
+    {
+     "check_id": "D01.backlash_measurement",
+     "description": "Measure joint backlash or lost motion and compare with the accuracy budget and the previous measurement.",
+     "basis": "calendar_days",
+     "interval": 180
+    },
+    {
+     "check_id": "D01.fastener_and_structure_inspection",
+     "description": "Visually inspect structure, welds and airframe for cracks; verify torque marks on critical fasteners.",
+     "basis": "calendar_days",
+     "interval": 90
+    },
+    {
+     "check_id": "D01.belt_tension_check",
+     "description": "Measure belt tension and inspect teeth and cables for wear or fraying.",
+     "basis": "hours",
+     "interval": 2000
+    },
+    {
+     "check_id": "D01.gripper_force_check",
+     "description": "Verify gripping force or vacuum hold against the rated value with a test load.",
+     "basis": "cycles",
+     "interval": 1000000
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D01.joint_position_feedback",
+     "level": "warning",
+     "kind": "requires_relation",
+     "when": [
+      "actuator.module.harmonic_joint",
+      "actuator.module.qdd_joint",
+      "actuator.module.cycloidal_joint",
+      "actuator.module.series_elastic",
+      "actuator.module.variable_stiffness"
+     ],
+     "any_of": [
+      "sensor.encoder.*",
+      "sensor.joint_position.*",
+      "sensor.torque.joint"
+     ],
+     "relation": "any",
+     "message": "Joint module has no position feedback component related to it",
+     "rationale": "Without a described encoder the joint's position, homing and safe-position behaviour cannot be verified from the manifest.",
+     "standards": []
+    },
+    {
+     "rule_id": "D01.wheel_attached",
+     "level": "warning",
+     "kind": "requires_relation",
+     "when": [
+      "actuator.other.wheel_caster",
+      "actuator.other.wheel_mecanum",
+      "actuator.other.wheel_omni",
+      "actuator.other.track"
+     ],
+     "any_of": [
+      "mechanical.chassis.*",
+      "mechanical.suspension.*",
+      "mechanical.wheel_hub_mount",
+      "actuator.motor.*",
+      "actuator.other.wheel_drive"
+     ],
+     "relation": "any",
+     "message": "Wheel or track is not attached to a chassis, suspension or drive motor",
+     "rationale": "Load paths and kinematics cannot be checked when a running gear element has no mounting in the manifest.",
+     "standards": []
+    },
+    {
+     "rule_id": "D01.uav_airframe",
+     "level": "warning",
+     "kind": "requires_component",
+     "when": [
+      "actuator.other.uav_propulsion_unit"
+     ],
+     "any_of": [
+      "mechanical.airframe.*"
+     ],
+     "message": "UAV propulsion units are present but no airframe is described",
+     "rationale": "Arm stiffness, propeller clearance and mass budget depend on the airframe, which must be part of the configuration.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D02",
+   "name": "Power and energy",
+   "summary": "Energy storage, conversion, distribution and protection on and around the robot: battery packs and BMS, chargers and docks, DC-DC converters, PDUs, fuses, contactors, precharge, fuel cells and tethers. Typical failures are lithium thermal runaway, over-discharge and cell imbalance, brownouts that reset compute mid-motion, inrush damage from missing precharge, and unprotected wiring overheating under fault current.",
+   "scope": [
+    "power.*",
+    "infra.dock.*",
+    "infra.charging.*",
+    "electrical.dc",
+    "drive.braking_chopper"
+   ],
+   "vocabulary": [
+    {
+     "term": "C-rate",
+     "definition": "Charge or discharge current expressed as a multiple of rated capacity; 1C on a 20 Ah pack is 20 A."
+    },
+    {
+     "term": "State of charge (SoC)",
+     "definition": "Remaining charge as a percentage of current full capacity, estimated by the BMS or fuel gauge from coulomb counting and voltage models."
+    },
+    {
+     "term": "State of health (SoH)",
+     "definition": "Present usable capacity (or resistance) relative to the new-cell value; packs are commonly retired near 70-80 % capacity."
+    },
+    {
+     "term": "CC-CV charging",
+     "definition": "Lithium charge profile: constant current until the cell reaches its charge voltage limit, then constant voltage until current tapers to a termination threshold."
+    },
+    {
+     "term": "Cell balancing",
+     "definition": "Equalising cell voltages within a series string, passively by bleeding or actively by transferring charge, so no cell is over- or under-charged."
+    },
+    {
+     "term": "Thermal runaway",
+     "definition": "Self-heating chain reaction in a cell after internal short, overcharge or overheating that releases flammable gas and can propagate to neighbouring cells."
+    },
+    {
+     "term": "Precharge",
+     "definition": "Charging a DC bus's input capacitance through a resistor before closing the main contactor, limiting inrush current that would weld contacts."
+    },
+    {
+     "term": "Brownout",
+     "definition": "Supply voltage dipping below the regulation or reset threshold of downstream electronics, e.g. during motor acceleration on a sagging battery."
+    },
+    {
+     "term": "Regenerative energy",
+     "definition": "Energy returned to the DC bus when motors decelerate or lower loads; it raises bus voltage unless absorbed by the battery or dumped in a braking resistor."
+    },
+    {
+     "term": "Breaking capacity",
+     "definition": "Highest prospective fault current a fuse or breaker can interrupt safely at its rated voltage."
+    },
+    {
+     "term": "Depth of discharge (DoD)",
+     "definition": "Fraction of capacity removed in a cycle; deeper cycles reduce cycle life."
+    }
+   ],
+   "standards": [
+    "IEC 62133-2",
+    "IEC 62619",
+    "UN 38.3",
+    "UL 2271",
+    "UL 1642",
+    "IEC 60204-1",
+    "IEC 62368-1",
+    "IEC 62485-2",
+    "IEC 61851-1",
+    "UL 9540A"
+   ],
+   "invariants": [
+    "Never discharge a lithium cell below its cutoff voltage or charge it above its charge voltage limit; the BMS, not application software, must enforce both.",
+    "Do not charge lithium cells below the manufacturer's minimum charge temperature (commonly 0 degC for graphite anodes) or discharge above the maximum temperature; heat the pack or wait.",
+    "Size every conductor and connector for the protective device upstream of it, and every protective device's breaking capacity for the pack's prospective short-circuit current.",
+    "Precharge capacitive DC buses before closing a main contactor, and verify the bus has reached the expected fraction of pack voltage before closing.",
+    "Provide a path for regenerative energy (battery acceptance within its charge-current limit, or a braking resistor) so bus voltage stays below the drives' overvoltage trip.",
+    "Keep logic and safety supplies on a rail that survives motor-induced sag (separate converter, hold-up or ideal-diode OR-ing) so controllers do not reset mid-motion.",
+    "Treat a swollen, damaged or over-temperature lithium pack as a fire hazard: isolate it, do not charge it, and store it in a fire-resistant location.",
+    "Transport lithium cells and packs only in designs that have passed UN 38.3 testing, at the state of charge the applicable transport rules allow."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D02.thermal_runaway",
+     "name": "Thermal runaway",
+     "description": "Cell self-heating after abuse or an internal defect leading to venting, fire and propagation through the pack.",
+     "detect_via": [
+      "pack_temperature",
+      "cell_voltage_min",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D02.over_discharge",
+     "name": "Over-discharge",
+     "description": "Cells driven below cutoff, causing copper dissolution, capacity loss and later internal shorts on recharge.",
+     "detect_via": [
+      "cell_voltage_min",
+      "state_of_charge",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D02.cell_imbalance",
+     "name": "Cell imbalance",
+     "description": "Divergence of cell voltages in a series string that limits usable capacity and stresses the weakest cell.",
+     "detect_via": [
+      "cell_voltage_delta",
+      "cell_voltage_max",
+      "cell_voltage_min"
+     ]
+    },
+    {
+     "failure_id": "D02.capacity_fade",
+     "name": "Capacity fade and resistance growth",
+     "description": "Ageing reduces capacity and raises internal resistance, shortening missions and increasing voltage sag under load.",
+     "detect_via": [
+      "state_of_health",
+      "cycle_count",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D02.brownout",
+     "name": "Brownout reset",
+     "description": "Supply dips under peak load reset controllers or corrupt storage during motion.",
+     "detect_via": [
+      "bus_voltage",
+      "supply_voltage",
+      "reset_cause",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D02.bus_overvoltage",
+     "name": "DC bus overvoltage",
+     "description": "Regenerative energy with no sink raises bus voltage until drives trip or components are damaged.",
+     "detect_via": [
+      "dc_link_voltage",
+      "dc_bus_regen_power",
+      "braking_resistor_load",
+      "fault_code"
+     ]
+    },
+    {
+     "failure_id": "D02.connector_overheating",
+     "name": "Connector or contact overheating",
+     "description": "High-resistance crimps, worn dock contacts or welded contactors heat under current and can start fires.",
+     "detect_via": [
+      "contact_temperature",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D02.charging_fault",
+     "name": "Charging fault",
+     "description": "Wrong charge profile, failed dock contact or charger fault leaves the robot uncharged or overcharges cells.",
+     "detect_via": [
+      "charging_state",
+      "charge_state",
+      "charger_temperature",
+      "fault_code"
+     ]
+    },
+    {
+     "failure_id": "D02.insulation_fault",
+     "name": "Insulation fault",
+     "description": "Degraded insulation between a high-voltage bus and chassis creating shock or leakage hazards.",
+     "detect_via": [
+      "insulation_resistance",
+      "leakage_current",
+      "inspection"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D02.capacity_test",
+     "description": "Run a controlled full discharge (or BMS-reported capacity estimate) and compare with rated capacity to update state of health.",
+     "basis": "calendar_days",
+     "interval": 180
+    },
+    {
+     "check_id": "D02.pack_inspection",
+     "description": "Inspect packs for swelling, damage, corrosion and loose terminals; check enclosure seals.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D02.contact_inspection",
+     "description": "Inspect and clean charging contacts and high-current connectors; measure contact resistance or temperature rise.",
+     "basis": "calendar_days",
+     "interval": 90
+    },
+    {
+     "check_id": "D02.protection_test",
+     "description": "Verify BMS cutoffs, fuses and contactor opening (including welded-contact detection) by test or via BMS self-test logs.",
+     "basis": "calendar_days",
+     "interval": 365
+    },
+    {
+     "check_id": "D02.insulation_resistance_test",
+     "description": "Measure insulation resistance of high-voltage buses to chassis where present.",
+     "basis": "calendar_days",
+     "interval": 365
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D02.bms_for_rechargeable_pack",
+     "level": "error",
+     "kind": "requires_component",
+     "when": [
+      "power.battery.li_ion_nmc_pack",
+      "power.battery.lfp_pack",
+      "power.battery.lto_pack",
+      "power.battery.solid_state",
+      "power.battery.sodium_ion",
+      "power.battery.cell_18650",
+      "power.battery.cell_21700",
+      "power.battery.cell_pouch",
+      "power.battery.cell_prismatic"
+     ],
+     "any_of": [
+      "power.bms"
+     ],
+     "message": "Lithium-ion or sodium-ion packs and cells need a battery management system",
+     "rationale": "Without cell-level voltage, current and temperature protection, over-charge, over-discharge or over-temperature can lead to thermal runaway.",
+     "standards": [
+      "IEC 62619",
+      "IEC 62133-2"
+     ]
+    },
+    {
+     "rule_id": "D02.battery_overcurrent_protection",
+     "level": "warning",
+     "kind": "requires_component",
+     "when": [
+      "power.battery.li_ion_nmc_pack",
+      "power.battery.lfp_pack",
+      "power.battery.lto_pack",
+      "power.battery.solid_state",
+      "power.battery.sodium_ion",
+      "power.battery.nimh_pack",
+      "power.battery.sla_agm",
+      "power.battery.lead_acid_flooded"
+     ],
+     "any_of": [
+      "power.fuse",
+      "power.circuit_breaker",
+      "power.efuse",
+      "power.bms",
+      "power.disconnect_switch",
+      "power.contactor"
+     ],
+     "message": "Battery has no overcurrent protection or disconnect device",
+     "rationale": "Battery short-circuit currents can reach kiloamperes and overheat wiring unless a fuse, breaker or BMS-controlled switch interrupts them.",
+     "standards": [
+      "IEC 60204-1"
+     ]
+    },
+    {
+     "rule_id": "D02.precharge_for_contactor",
+     "level": "warning",
+     "kind": "requires_component",
+     "when": [
+      "power.contactor"
+     ],
+     "any_of": [
+      "power.precharge",
+      "power.bms"
+     ],
+     "message": "Main contactor present without a precharge circuit",
+     "rationale": "Closing a contactor onto discharged drive bus capacitance causes inrush current that can weld contacts and stress capacitors.",
+     "standards": []
+    },
+    {
+     "rule_id": "D02.hydrogen_leak_detection",
+     "level": "warning",
+     "kind": "requires_component",
+     "when": [
+      "power.fuel_cell.pem",
+      "power.hydrogen_tank"
+     ],
+     "any_of": [
+      "sensor.environment.combustible_gas",
+      "iot.sensor.gas_detector",
+      "iot.sensor.hydrogen_battery_room"
+     ],
+     "message": "Hydrogen storage or fuel cell without hydrogen or combustible-gas detection",
+     "rationale": "Hydrogen is flammable over a wide concentration range and leaks are invisible, so detection is needed to shut off supply.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D03",
+   "name": "Electronics and PCB",
+   "summary": "Board-level electronics of controllers, drives, sensors and power stages: component selection, power integrity, isolation, layout and assembly quality. Typical failures are overstressed or derated-out-of-spec components, inadequate creepage and clearance at high voltage, solder-joint fatigue from vibration and thermal cycling, ESD damage and counterfeit or obsolete parts.",
+   "scope": [
+    "compute.mcu.*",
+    "compute.som.*",
+    "compute.carrier_board",
+    "compute.pmic",
+    "compute.watchdog_supervisor",
+    "power.dc_dc.*",
+    "power.ldo",
+    "power.efuse",
+    "power.ideal_diode",
+    "comms.can.transceiver",
+    "comms.can.isolated_transceiver",
+    "comms.serial.rs485_transceiver",
+    "sensor.current.*",
+    "sensor.voltage.isolated",
+    "bus.i2c",
+    "bus.spi",
+    "bus.qspi",
+    "bus.i3c",
+    "bus.one_wire"
+   ],
+   "vocabulary": [
+    {
+     "term": "Derating",
+     "definition": "Operating a component below its rated voltage, current, power or temperature by a margin to increase reliability."
+    },
+    {
+     "term": "Creepage",
+     "definition": "Shortest distance between two conductors along the surface of insulation; set by working voltage, pollution degree and material group per IEC 60664-1."
+    },
+    {
+     "term": "Clearance",
+     "definition": "Shortest distance between two conductors through air; set by impulse withstand voltage and altitude."
+    },
+    {
+     "term": "Power integrity",
+     "definition": "Keeping supply rails within tolerance under transient load, including decoupling, plane impedance and regulator stability."
+    },
+    {
+     "term": "Ground bounce",
+     "definition": "Transient voltage on a ground reference caused by fast current changes through shared return inductance."
+    },
+    {
+     "term": "Galvanic isolation",
+     "definition": "Separation of circuits with no DC path, using transformers, optocouplers or capacitive isolators, rated by working and test voltage."
+    },
+    {
+     "term": "Brown-out detector",
+     "definition": "Supervisor circuit that holds a processor in reset while its supply is below a safe threshold."
+    },
+    {
+     "term": "Single-event upset",
+     "definition": "Bit flip in memory or logic caused by a particle strike; relevant at altitude, in space and near radiation sources."
+    },
+    {
+     "term": "MSL (moisture sensitivity level)",
+     "definition": "Rating of how long a packaged component may be exposed to ambient humidity before reflow without baking."
+    }
+   ],
+   "standards": [
+    "IPC-2221",
+    "IPC-2152",
+    "IPC-A-610",
+    "IPC J-STD-001",
+    "IPC-6012",
+    "IEC 60664-1",
+    "AEC-Q100"
+   ],
+   "invariants": [
+    "Derate semiconductors and capacitors for the worst-case combination of voltage, current, temperature and ripple seen in the application, not the datasheet typical.",
+    "Maintain creepage and clearance for the working voltage, pollution degree and altitude of the deployment; do not rely on solder mask as insulation.",
+    "Hold every processor in reset with a supervisor or brown-out detector until its rails are stable, and define safe pin states during reset.",
+    "Protect every connector-exposed line against ESD and reverse or over-voltage appropriate to how it is handled in the field.",
+    "Isolate or level-shift communication interfaces that cross between separately grounded subsystems (for example drive power stage and logic).",
+    "Record the hardware revision and bill-of-materials version of each board so a component change can be traced to field behaviour."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D03.component_overstress",
+     "name": "Electrical overstress",
+     "description": "Voltage spikes, inrush or overcurrent exceed absolute maximum ratings and degrade or destroy components.",
+     "detect_via": [
+      "fault_code",
+      "supply_voltage",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D03.solder_fatigue",
+     "name": "Solder joint fatigue",
+     "description": "Thermal cycling and vibration crack solder joints, causing intermittent faults that correlate with temperature or motion.",
+     "detect_via": [
+      "comm_errors",
+      "reset_cause",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D03.esd_damage",
+     "name": "ESD damage",
+     "description": "Electrostatic discharge through unprotected connectors latent-damages or kills interface ICs.",
+     "detect_via": [
+      "comm_errors",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D03.capacitor_ageing",
+     "name": "Capacitor ageing",
+     "description": "Electrolytic capacitor dry-out raises ESR and ripple, leading to regulator instability and drive bus faults.",
+     "detect_via": [
+      "output_voltage",
+      "board_temperature",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D03.isolation_breakdown",
+     "name": "Isolation breakdown",
+     "description": "Contamination or insufficient spacing lets high voltage track to low-voltage circuits.",
+     "detect_via": [
+      "insulation_resistance",
+      "leakage_current",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D03.power_rail_instability",
+     "name": "Power rail instability",
+     "description": "Insufficient decoupling or unstable regulators cause rail noise, spurious resets and corrupted ADC readings.",
+     "detect_via": [
+      "supply_voltage",
+      "reset_cause",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D03.corrosion",
+     "name": "Corrosion and dendrite growth",
+     "description": "Humidity, condensation and flux residue cause corrosion and leakage paths on boards.",
+     "detect_via": [
+      "leak_detected",
+      "inspection"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D03.board_inspection",
+     "description": "Inspect boards from fielded units for corrosion, discolouration, cracked joints and swollen capacitors.",
+     "basis": "calendar_days",
+     "interval": 365
+    },
+    {
+     "check_id": "D03.rail_measurement",
+     "description": "Measure supply rails and ripple under peak load and compare with design limits after hardware changes.",
+     "basis": "condition"
+    },
+    {
+     "check_id": "D03.obsolescence_review",
+     "description": "Review bill of materials for end-of-life notices and single-source parts.",
+     "basis": "calendar_days",
+     "interval": 180
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D03.isolation_rating_stated",
+     "level": "warning",
+     "kind": "requires_property",
+     "when": [
+      "power.dc_dc.isolated"
+     ],
+     "property": "isolation_voltage",
+     "message": "Isolated converter does not state its isolation voltage",
+     "rationale": "An isolation barrier can only be credited for shock protection or ground separation if its rated isolation voltage is known.",
+     "standards": [
+      "IEC 60664-1"
+     ]
+    }
+   ]
+  },
+  {
+   "domain_id": "D04",
+   "name": "EMC and thermal",
+   "summary": "Electromagnetic compatibility and heat management of the robot: emissions from motor drives and switching converters, immunity of sensors and buses to noise and ESD, and removal of heat from motors, power stages, compute and batteries. Typical failures are bus errors and sensor glitches near drives, radio desense, throttled or shut-down compute, overheated windings and clogged filters or failed fans.",
+   "scope": [
+    "thermal.*",
+    "sensor.temperature.*",
+    "drive.vfd",
+    "power.ac_dc"
+   ],
+   "vocabulary": [
+    {
+     "term": "Conducted emission",
+     "definition": "Unwanted high-frequency current that leaves equipment on its power or signal cables, typically measured 150 kHz to 30 MHz."
+    },
+    {
+     "term": "Radiated emission",
+     "definition": "Unwanted electromagnetic field radiated by equipment and cables, typically measured from 30 MHz upward."
+    },
+    {
+     "term": "Common-mode current",
+     "definition": "Current flowing in the same direction on all conductors of a cable and returning through stray capacitance; the dominant cause of cable radiation from PWM drives."
+    },
+    {
+     "term": "dv/dt",
+     "definition": "Voltage slew rate of a switching node; fast PWM edges couple noise through motor-cable and winding capacitance and stress insulation."
+    },
+    {
+     "term": "Shield termination",
+     "definition": "Bonding a cable shield to chassis, ideally 360 degrees at the connector, so shield currents return without entering the electronics."
+    },
+    {
+     "term": "Thermal resistance",
+     "definition": "Temperature rise per watt between two points (K/W), e.g. junction to case or heat sink to ambient."
+    },
+    {
+     "term": "Thermal throttling",
+     "definition": "Automatic reduction of processor clock or power when a temperature limit is reached, lowering compute throughput."
+    },
+    {
+     "term": "Insulation class",
+     "definition": "Temperature class of motor winding insulation (e.g. class F at 155 degC, class H at 180 degC hot-spot) that bounds winding temperature."
+    },
+    {
+     "term": "Duty cycle (thermal)",
+     "definition": "Fraction of time a motor or drive runs at a given load; continuous ratings assume a stated duty and ambient."
+    },
+    {
+     "term": "Derating curve",
+     "definition": "Allowed output versus ambient temperature or altitude published for converters, drives and motors."
+    }
+   ],
+   "standards": [
+    "IEC 61000-6-2",
+    "IEC 61000-6-4",
+    "IEC 61000-6-7",
+    "IEC 61000-4-2",
+    "IEC 61000-4-3",
+    "IEC 61000-4-4",
+    "IEC 61000-4-5",
+    "CISPR 11",
+    "CISPR 32",
+    "IEC 61800-3",
+    "IEC 60034-1"
+   ],
+   "invariants": [
+    "Route motor phase cables shielded and separated from encoder, sensor and bus cables, and bond shields to chassis at the drive and motor ends unless the drive maker specifies otherwise.",
+    "Keep PWM switching frequencies and harmonics away from sensor bandwidths and radio bands, or filter them, when sensors or radios sit near drives.",
+    "Size cooling for the worst-case ambient, duty cycle and altitude of the deployment, and apply the manufacturer's derating curve rather than nameplate ratings.",
+    "Monitor winding, power-stage and processor temperatures and reduce load before the device-specific limit, never after a thermal trip.",
+    "Do not block air inlets or remove filters to gain airflow; a clogged filter must be detected and serviced.",
+    "Re-test EMC immunity after changes to cabling, enclosures, drives or radios; do not assume a passed configuration covers a modified one."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D04.emi_bus_errors",
+     "name": "Noise-induced bus errors",
+     "description": "Drive switching noise couples into CAN, RS-485, encoder or Ethernet links causing CRC errors, bus-off or position glitches.",
+     "detect_via": [
+      "crc_error_count",
+      "rx_error_counter",
+      "bus_off",
+      "comm_errors",
+      "quadrature_errors"
+     ]
+    },
+    {
+     "failure_id": "D04.radio_desense",
+     "name": "Radio desensitisation",
+     "description": "Onboard emissions raise the noise floor at GNSS, Wi-Fi or RC receivers, reducing range and fix quality.",
+     "detect_via": [
+      "noise_floor",
+      "cn0_mean",
+      "rssi",
+      "snr"
+     ]
+    },
+    {
+     "failure_id": "D04.esd_upset",
+     "name": "ESD upset",
+     "description": "Discharge from people or charged surfaces resets electronics or corrupts state without permanent damage.",
+     "detect_via": [
+      "reset_cause",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D04.compute_throttling",
+     "name": "Compute thermal throttling",
+     "description": "Processor reaches its thermal limit and lowers clocks, increasing perception and planning latency.",
+     "detect_via": [
+      "cpu_temperature",
+      "gpu_temperature",
+      "throttling_active",
+      "latency"
+     ]
+    },
+    {
+     "failure_id": "D04.motor_overheating",
+     "name": "Motor or drive overheating",
+     "description": "Winding or power-stage temperature exceeds limits from sustained overload, blocked airflow or high ambient, degrading insulation or demagnetising magnets.",
+     "detect_via": [
+      "winding_temperature",
+      "heatsink_temperature",
+      "drive_temperature",
+      "i2t_utilisation"
+     ]
+    },
+    {
+     "failure_id": "D04.fan_failure",
+     "name": "Fan or pump failure",
+     "description": "Fan bearing wear, stall or coolant pump failure removes forced cooling.",
+     "detect_via": [
+      "fan_speed",
+      "fan_stalled",
+      "coolant_flow"
+     ]
+    },
+    {
+     "failure_id": "D04.condensation",
+     "name": "Condensation",
+     "description": "Moisture condenses inside enclosures when equipment colder than the dew point enters warm humid air, causing leakage and corrosion.",
+     "detect_via": [
+      "internal_temperature",
+      "leak_detected",
+      "inspection"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D04.filter_and_fan_service",
+     "description": "Inspect and clean or replace air filters and check fan operation and speed.",
+     "basis": "calendar_days",
+     "interval": 90
+    },
+    {
+     "check_id": "D04.thermal_soak_test",
+     "description": "Run a worst-case duty cycle at maximum rated ambient and record steady-state temperatures of motors, drives, batteries and compute.",
+     "basis": "condition"
+    },
+    {
+     "check_id": "D04.shield_bonding_inspection",
+     "description": "Inspect cable shield terminations and chassis bonds for corrosion and looseness.",
+     "basis": "calendar_days",
+     "interval": 365
+    },
+    {
+     "check_id": "D04.emc_regression",
+     "description": "Repeat EMC pre-compliance or bus-error-rate tests after hardware, cabling or firmware changes affecting switching.",
+     "basis": "condition"
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D04.compute_temperature_range",
+     "level": "warning",
+     "kind": "requires_property",
+     "when": [
+      "compute.som.*",
+      "compute.sbc",
+      "compute.ipc",
+      "compute.companion_computer"
+     ],
+     "property": "operating_temperature_max",
+     "message": "Compute module does not state its maximum operating temperature",
+     "rationale": "Enclosed robot compute often runs near its thermal limit, and without a stated limit cooling and throttling margins cannot be checked.",
+     "standards": []
+    },
+    {
+     "rule_id": "D04.vfd_emc_filter",
+     "level": "warning",
+     "kind": "requires_property",
+     "when": [
+      "drive.vfd"
+     ],
+     "property": "emc_filter",
+     "message": "Variable-frequency drive does not state its EMC filter category",
+     "rationale": "Frequency inverters are strong conducted-emission sources, and the filter category determines where they may be installed without extra filtering.",
+     "standards": [
+      "IEC 61800-3"
+     ]
+    },
+    {
+     "rule_id": "D04.liquid_cooling_target",
+     "level": "warning",
+     "kind": "requires_relation",
+     "when": [
+      "thermal.liquid_cooling_loop",
+      "thermal.cold_plate"
+     ],
+     "any_of": [
+      "compute.*",
+      "power.*",
+      "drive.*",
+      "actuator.*",
+      "sensor.*",
+      "thermal.*"
+     ],
+     "relation": "cools",
+     "message": "Liquid cooling is present but does not say what it cools",
+     "rationale": "Coolant loss must be traced to the components that will overheat so they can be derated or shut down.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D05",
+   "name": "Sensors and perception hardware",
+   "summary": "Physical sensors that measure the robot and its surroundings: encoders, IMUs, GNSS, lidar, radar, cameras, depth sensors, force-torque, tactile, proximity and environmental sensors. Typical failures are lost or drifting calibration, contaminated optics, timing misalignment between sensors, interference and multipath, saturation, and silent degradation that still produces plausible-looking data.",
+   "scope": [
+    "sensor.*",
+    "iot.camera.*",
+    "electrical.quadrature",
+    "electrical.ssi",
+    "electrical.biss_c",
+    "electrical.endat",
+    "electrical.hiperface_dsl",
+    "electrical.resolver",
+    "bus.mipi_csi2",
+    "bus.gmsl"
+   ],
+   "vocabulary": [
+    {
+     "term": "Intrinsic calibration",
+     "definition": "Sensor-internal model parameters such as camera focal length, principal point and distortion, or IMU scale factors and biases."
+    },
+    {
+     "term": "Extrinsic calibration",
+     "definition": "Rigid transform from a sensor's frame to a robot frame (e.g. base_link); errors directly displace every measurement."
+    },
+    {
+     "term": "Time synchronisation",
+     "definition": "Aligning sensor timestamps to a common clock (hardware trigger, PTP or PPS) so fused measurements refer to the same instant."
+    },
+    {
+     "term": "Bias instability",
+     "definition": "Minimum of the Allan deviation of a gyroscope or accelerometer bias; sets how fast dead-reckoning heading drifts."
+    },
+    {
+     "term": "Rolling shutter",
+     "definition": "Image sensor readout row by row, which skews images of fast motion; global shutter exposes all pixels simultaneously."
+    },
+    {
+     "term": "Multipath",
+     "definition": "Reception of reflected signals in GNSS, radar, ultrasonic or lidar that produces ranging errors or ghost targets."
+    },
+    {
+     "term": "Resolution versus accuracy",
+     "definition": "Resolution is the smallest reported increment; accuracy is closeness to truth. A 24-bit encoder can still be inaccurate if misaligned."
+    },
+    {
+     "term": "Field of view (FoV)",
+     "definition": "Angular extent a sensor observes; together with range and mounting it defines blind zones around the robot."
+    },
+    {
+     "term": "Return intensity",
+     "definition": "Strength of the reflected lidar signal; low-reflectivity or specular surfaces may produce no return."
+    },
+    {
+     "term": "NETD",
+     "definition": "Noise-equivalent temperature difference of a thermal camera, the smallest temperature contrast it can resolve."
+    }
+   ],
+   "standards": [
+    "EMVA 1288",
+    "IEC 60825-1",
+    "IEC 62471",
+    "IEEE 1588"
+   ],
+   "invariants": [
+    "Record intrinsic and extrinsic calibration with a date and the robot configuration it belongs to; re-calibrate after any mechanical change to a sensor mount.",
+    "Timestamp sensor data at acquisition with a clock synchronised to the fusion clock; never timestamp on arrival when the transport latency is variable.",
+    "Treat a sensor reading as invalid when its self-reported status, update rate or plausibility check fails; do not substitute the last good value without marking it stale.",
+    "Verify the combined field of view of perception sensors covers the robot's motion envelope at its maximum speed, and document blind zones.",
+    "Respect the laser class and eye-safety conditions of lidar and structured-light projectors, including when sensors are modified or windows replaced.",
+    "Keep optical windows clean and monitor contamination; a dirty window reduces range without necessarily raising an error."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D05.calibration_drift",
+     "name": "Calibration drift",
+     "description": "Extrinsic or intrinsic parameters no longer match the hardware after impacts, temperature change or remounting.",
+     "detect_via": [
+      "calibration_age",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D05.optical_contamination",
+     "name": "Optical contamination",
+     "description": "Dust, water or scratches on lenses and windows reduce range, contrast or produce false detections.",
+     "detect_via": [
+      "window_contamination",
+      "contamination_warning",
+      "return_point_ratio",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D05.dropped_frames",
+     "name": "Dropped frames or scans",
+     "description": "Bandwidth, compute or link problems cause missing frames and irregular update rates.",
+     "detect_via": [
+      "dropped_frames",
+      "frame_rate_actual",
+      "update_rate_actual"
+     ]
+    },
+    {
+     "failure_id": "D05.gnss_degradation",
+     "name": "GNSS degradation",
+     "description": "Multipath, obstruction, jamming or spoofing reduces fix quality or yields wrong positions.",
+     "detect_via": [
+      "fix_type",
+      "hdop",
+      "satellites_used",
+      "cn0_mean",
+      "jamming_indicator",
+      "correction_age"
+     ]
+    },
+    {
+     "failure_id": "D05.imu_bias_drift",
+     "name": "IMU bias drift and saturation",
+     "description": "Temperature-dependent bias drift or range saturation during impacts corrupts orientation estimates.",
+     "detect_via": [
+      "saturation_events",
+      "sensor_temperature",
+      "zero_offset"
+     ]
+    },
+    {
+     "failure_id": "D05.encoder_fault",
+     "name": "Encoder fault",
+     "description": "Signal loss, contamination, multiturn battery depletion or misalignment gives wrong position.",
+     "detect_via": [
+      "encoder_discrepancy",
+      "quadrature_errors",
+      "multiturn_error",
+      "battery_voltage",
+      "signal_amplitude"
+     ]
+    },
+    {
+     "failure_id": "D05.interference",
+     "name": "Mutual interference",
+     "description": "Lidar, ultrasonic, radar or ToF sensors from the same or other robots interfere, creating ghost points.",
+     "detect_via": [
+      "interference_detected",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D05.timestamp_skew",
+     "name": "Timestamp skew",
+     "description": "Unsynchronised clocks shift sensor data in time, causing fusion errors that grow with speed.",
+     "detect_via": [
+      "time_offset",
+      "log"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D05.extrinsic_calibration_verification",
+     "description": "Verify sensor-to-base extrinsics against a calibration target or cross-sensor consistency check.",
+     "basis": "calendar_days",
+     "interval": 90
+    },
+    {
+     "check_id": "D05.window_cleaning",
+     "description": "Clean and inspect lidar, camera and ToF windows; replace scratched covers.",
+     "basis": "calendar_days",
+     "interval": 7
+    },
+    {
+     "check_id": "D05.force_torque_zero_check",
+     "description": "Check force-torque and load-cell zero offset with no load and re-tare or recalibrate if outside tolerance.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D05.encoder_battery_replacement",
+     "description": "Replace batteries of battery-backed multiturn encoders before end of life while the axis is powered.",
+     "basis": "calendar_days",
+     "interval": 730
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D05.camera_host",
+     "level": "warning",
+     "kind": "requires_relation",
+     "when": [
+      "sensor.camera.rgb_rolling_shutter",
+      "sensor.camera.global_shutter",
+      "sensor.camera.stereo_passive",
+      "sensor.camera.structured_light",
+      "sensor.camera.active_stereo",
+      "sensor.camera.tof_depth",
+      "sensor.camera.event",
+      "sensor.camera.thermal_lwir",
+      "sensor.camera.gmsl_serial",
+      "sensor.camera.machine_vision_usb3",
+      "sensor.camera.fisheye_360"
+     ],
+     "any_of": [
+      "compute.*",
+      "end_effector.*",
+      "mechanical.*",
+      "comms.ethernet.*"
+     ],
+     "relation": "any",
+     "message": "Camera is not connected to a host computer or mounting",
+     "rationale": "A camera without a host or mount in the manifest has unknown data path, bandwidth and extrinsic frame.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D06",
+   "name": "Peripherals",
+   "summary": "Devices attached to the main compute over local buses: storage, accelerators, USB and MIPI cameras, displays, readers, hubs and clocks. Typical failures are storage wear-out and corruption on power loss, USB bandwidth or power budget exhaustion, enumeration and hot-plug instability under vibration, and peripherals changing identity or order between boots.",
+   "scope": [
+    "compute.storage.*",
+    "compute.accelerator.*",
+    "compute.rtc",
+    "comms.usb.*",
+    "iot.reader.*",
+    "bus.usb",
+    "bus.pcie",
+    "bus.sdio",
+    "bus.hdmi",
+    "bus.displayport"
+   ],
+   "vocabulary": [
+    {
+     "term": "Enumeration",
+     "definition": "Host discovery and configuration of a USB or PCIe device; repeated re-enumeration indicates power or signal problems."
+    },
+    {
+     "term": "Bandwidth budget",
+     "definition": "Sum of peripheral data rates on a shared controller or hub compared with its usable throughput, including protocol overhead."
+    },
+    {
+     "term": "TBW (terabytes written)",
+     "definition": "Rated write endurance of flash storage; logging-heavy robots can exhaust it within the product life."
+    },
+    {
+     "term": "Write amplification",
+     "definition": "Ratio of physical flash writes to host writes caused by erase-block management; small random writes increase it."
+    },
+    {
+     "term": "Power-loss protection",
+     "definition": "Hold-up capacitance and firmware in an SSD that commits in-flight writes when power is lost."
+    },
+    {
+     "term": "Persistent device naming",
+     "definition": "Binding a peripheral to a stable name by serial number or physical port rather than enumeration order."
+    },
+    {
+     "term": "VBUS budget",
+     "definition": "Current available on USB power lines per port and hub; cameras and radios can exceed it at peak."
+    },
+    {
+     "term": "UVC",
+     "definition": "USB Video Class, the standard USB camera device class supported by generic host drivers."
+    }
+   ],
+   "standards": [
+    "USB 3.2 Specification",
+    "USB Power Delivery Specification",
+    "PCI Express Base Specification",
+    "JEDEC JESD218"
+   ],
+   "invariants": [
+    "Bind peripherals by stable identity (serial number, physical path) and fail at start-up if an expected device is missing; never rely on enumeration order.",
+    "Budget bandwidth and supply current per USB controller and hub for the peak configuration, and keep high-rate cameras on separate controllers where possible.",
+    "Use storage rated for the write load and temperature of the deployment, and estimate time to TBW exhaustion from measured write rate.",
+    "Protect file systems against sudden power loss: power-loss-protected storage, journalled or read-only root, and a controlled shutdown on low battery.",
+    "Secure connectors against vibration with locking or strain-relieved cabling; consumer USB connectors are not vibration-rated.",
+    "Monitor storage health and free space and stop non-essential logging before the storage needed for operation is exhausted."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D06.storage_wearout",
+     "name": "Storage wear-out",
+     "description": "Flash endurance is consumed by logging, leading to bad blocks, read-only mode or data loss.",
+     "detect_via": [
+      "storage_wear",
+      "bad_blocks",
+      "media_errors"
+     ]
+    },
+    {
+     "failure_id": "D06.storage_full",
+     "name": "Storage full",
+     "description": "Logs or maps fill storage and crash services that need to write.",
+     "detect_via": [
+      "storage_free"
+     ]
+    },
+    {
+     "failure_id": "D06.filesystem_corruption",
+     "name": "File-system corruption on power loss",
+     "description": "Unclean power-off corrupts files or the root file system, preventing boot.",
+     "detect_via": [
+      "media_errors",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D06.usb_reenumeration",
+     "name": "USB disconnects and re-enumeration",
+     "description": "Marginal power, EMI or vibration cause devices to drop and reappear, often under a new name.",
+     "detect_via": [
+      "connection_state",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D06.bandwidth_exhaustion",
+     "name": "Bus bandwidth exhaustion",
+     "description": "Too many high-rate devices on one controller drop frames or fail to start streaming.",
+     "detect_via": [
+      "dropped_frames",
+      "frame_rate_actual"
+     ]
+    },
+    {
+     "failure_id": "D06.rtc_drift",
+     "name": "RTC loss or drift",
+     "description": "Real-time clock battery depletion or drift gives wrong time at boot, breaking certificates and log ordering.",
+     "detect_via": [
+      "time_offset",
+      "log"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D06.storage_health_review",
+     "description": "Read storage SMART or wear indicators and compare with the projected end of life.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D06.power_loss_test",
+     "description": "Cut power during heavy writes on a test unit and verify the system boots and data is consistent.",
+     "basis": "condition"
+    },
+    {
+     "check_id": "D06.connector_retention_check",
+     "description": "Inspect peripheral connectors and strain reliefs for looseness and wear.",
+     "basis": "calendar_days",
+     "interval": 180
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D06.ssd_power_loss_protection",
+     "level": "warning",
+     "kind": "requires_property",
+     "when": [
+      "compute.storage.nvme_ssd",
+      "compute.storage.sata_ssd"
+     ],
+     "property": "power_loss_protection",
+     "message": "SSD does not state whether it has power-loss protection",
+     "rationale": "Battery robots lose power abruptly, and drives without power-loss protection can corrupt data or metadata in flight.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D07",
+   "name": "Networks and fieldbus",
+   "summary": "Wired and wireless communication inside the robot, between robots and with site systems: CAN, EtherCAT and other fieldbuses, Ethernet and TSN, serial links, Wi-Fi, cellular, LPWAN and radio links. Typical failures are bus overload and error frames, wrong termination or topology, timing jitter that breaks cyclic control, roaming gaps and interference on wireless links, and address or configuration conflicts.",
+   "scope": [
+    "comms.*",
+    "can.*",
+    "fieldbus.*",
+    "net.*",
+    "bus.rs485",
+    "bus.rs232",
+    "bus.uart",
+    "bus.lin",
+    "bus.flexray"
+   ],
+   "vocabulary": [
+    {
+     "term": "Bus load",
+     "definition": "Fraction of available bus time used by traffic; CAN networks are commonly kept well below saturation to bound worst-case latency."
+    },
+    {
+     "term": "Cycle time",
+     "definition": "Period of cyclic process-data exchange on a real-time fieldbus such as EtherCAT or PROFINET IRT."
+    },
+    {
+     "term": "Jitter",
+     "definition": "Variation of message arrival or cycle start time around its nominal value."
+    },
+    {
+     "term": "Termination",
+     "definition": "Resistors at the ends of a differential bus (120 Ohm for CAN and RS-485) that prevent reflections."
+    },
+    {
+     "term": "Bus-off",
+     "definition": "CAN controller state entered when the transmit error counter exceeds 255; the node stops transmitting until recovery."
+    },
+    {
+     "term": "Distributed clocks",
+     "definition": "EtherCAT mechanism that synchronises slave clocks to sub-microsecond precision for coordinated sampling and actuation."
+    },
+    {
+     "term": "PTP / gPTP",
+     "definition": "IEEE 1588 Precision Time Protocol and its IEEE 802.1AS profile, which synchronise clocks over Ethernet."
+    },
+    {
+     "term": "Roaming",
+     "definition": "Wi-Fi client handover between access points; slow roaming causes connectivity gaps for moving robots."
+    },
+    {
+     "term": "Black channel",
+     "definition": "Safety-communication principle where the safety layer detects all transmission errors itself so the underlying network need not be safety-rated."
+    },
+    {
+     "term": "VLAN",
+     "definition": "IEEE 802.1Q logical segmentation of an Ethernet network, used to separate control, safety and IT traffic."
+    }
+   ],
+   "standards": [
+    "IEC 61158",
+    "IEC 61784-2",
+    "IEC 61784-3",
+    "ISO 11898-1",
+    "ISO 11898-2",
+    "IEEE 802.3",
+    "IEEE 802.1Q",
+    "IEEE 802.1AS",
+    "IEEE 1588",
+    "IEEE 802.11",
+    "IEC 61131-9",
+    "TIA-485-A"
+   ],
+   "invariants": [
+    "Terminate differential buses exactly at both physical ends and keep stubs within the protocol's limit for the chosen bit rate.",
+    "Keep real-time control traffic on a network segment that cannot be saturated by camera, logging or IT traffic; use separate interfaces, VLAN priority or TSN.",
+    "Detect loss of a cyclic link within the control loop's tolerance and bring the affected axes to a defined stop; never hold the last command indefinitely.",
+    "Treat wireless links as lossy and intermittent: every command sent over them needs a timeout and a defined behaviour on loss.",
+    "Assign unique node ids and addresses from a recorded plan and verify them at start-up against the expected topology.",
+    "Carry safety signals over a safety protocol (black channel) or hard-wired safety I/O, never over a standard protocol alone."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D07.bus_overload",
+     "name": "Bus overload",
+     "description": "Traffic exceeds capacity so low-priority frames are delayed or dropped and cycle deadlines are missed.",
+     "detect_via": [
+      "bus_load",
+      "latency"
+     ]
+    },
+    {
+     "failure_id": "D07.error_frames",
+     "name": "Error frames and bus-off",
+     "description": "Bad termination, wiring faults or EMI generate error frames until nodes go error-passive or bus-off.",
+     "detect_via": [
+      "rx_error_counter",
+      "tx_error_counter",
+      "bus_off",
+      "crc_error_count"
+     ]
+    },
+    {
+     "failure_id": "D07.link_loss",
+     "name": "Link loss",
+     "description": "Physical link drops from cable damage, connector wear or switch failure.",
+     "detect_via": [
+      "link_up",
+      "port_status",
+      "last_seen"
+     ]
+    },
+    {
+     "failure_id": "D07.wireless_degradation",
+     "name": "Wireless degradation",
+     "description": "Interference, coverage gaps, congestion or slow roaming cause packet loss and latency spikes.",
+     "detect_via": [
+      "rssi",
+      "snr",
+      "packet_loss",
+      "latency",
+      "roam_count",
+      "channel_utilization"
+     ]
+    },
+    {
+     "failure_id": "D07.address_conflict",
+     "name": "Address or configuration conflict",
+     "description": "Duplicate node ids, IP addresses or mismatched bit rates prevent communication or misroute commands.",
+     "detect_via": [
+      "comm_errors",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D07.sync_loss",
+     "name": "Clock synchronisation loss",
+     "description": "PTP or distributed-clock sync fails, desynchronising sampling and actuation across nodes.",
+     "detect_via": [
+      "time_offset",
+      "log"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D07.bus_health_review",
+     "description": "Review error counters, bus load and dropped-frame statistics per bus and segment.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D07.cable_and_connector_inspection",
+     "description": "Inspect bus cables in moving dress packs and cable carriers for wear, and check connector locking.",
+     "basis": "calendar_days",
+     "interval": 180
+    },
+    {
+     "check_id": "D07.wireless_site_survey",
+     "description": "Measure signal strength, roaming behaviour and latency along robot routes after site or AP changes.",
+     "basis": "condition"
+    },
+    {
+     "check_id": "D07.topology_verification",
+     "description": "Compare the discovered bus topology and node ids with the recorded configuration at commissioning and after hardware swaps.",
+     "basis": "condition"
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D07.drive_command_interface",
+     "level": "warning",
+     "kind": "requires_interface",
+     "when": [
+      "drive.servo_industrial",
+      "drive.multi_axis",
+      "drive.foc_servo_lv",
+      "drive.integrated_motor_controller"
+     ],
+     "any_of": [
+      "fieldbus.ethercat",
+      "fieldbus.profinet",
+      "fieldbus.ethernet_ip",
+      "fieldbus.sercos3",
+      "fieldbus.powerlink",
+      "fieldbus.cc_link_ie",
+      "fieldbus.modbus_rtu",
+      "fieldbus.modbus_tcp",
+      "can.classic",
+      "can.fd",
+      "can.canopen",
+      "can.cyphal",
+      "can.dronecan",
+      "bus.rs485",
+      "bus.uart",
+      "bus.usb",
+      "electrical.step_dir",
+      "electrical.pwm",
+      "electrical.analog_0_10v"
+     ],
+     "message": "Motor drive declares no command interface",
+     "rationale": "Without a declared command interface the control path, cycle time and loss-of-communication behaviour of the axis cannot be checked.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D08",
+   "name": "Firmware",
+   "summary": "Software running on microcontrollers, drives, BMS, flight controllers and smart sensors: bootloaders, real-time loops, fault handling and field update. Typical failures are missed deadlines and stack overflows, watchdog misconfiguration, bricked devices after interrupted updates, version mismatches between firmware and host software, and undefined behaviour after resets.",
+   "scope": [
+    "compute.mcu.*",
+    "compute.flight_controller",
+    "compute.watchdog_supervisor",
+    "compute.storage.spi_nor",
+    "middleware.micro_ros"
+   ],
+   "vocabulary": [
+    {
+     "term": "Bootloader",
+     "definition": "First code executed after reset that verifies and starts the application image and handles updates."
+    },
+    {
+     "term": "A/B update",
+     "definition": "Two application slots where a new image is written to the inactive slot and activated only after verification, allowing rollback."
+    },
+    {
+     "term": "Watchdog",
+     "definition": "Timer that resets the processor unless serviced; a windowed watchdog also faults if serviced too early."
+    },
+    {
+     "term": "Worst-case execution time (WCET)",
+     "definition": "Upper bound on a task's execution time, needed to prove control deadlines are met."
+    },
+    {
+     "term": "Stack high-water mark",
+     "definition": "Deepest stack usage observed for a task, used to size stacks with margin."
+    },
+    {
+     "term": "Reset cause",
+     "definition": "Hardware register recording why the last reset happened (power-on, brown-out, watchdog, software, pin)."
+    },
+    {
+     "term": "MPU",
+     "definition": "Memory protection unit that confines tasks to permitted memory regions on microcontrollers."
+    },
+    {
+     "term": "Image signing",
+     "definition": "Cryptographic signature over a firmware image that the bootloader verifies before execution."
+    },
+    {
+     "term": "Safe state",
+     "definition": "Defined output state (e.g. PWM off, brake engaged) the firmware enters on fault, reset or loss of communication."
+    }
+   ],
+   "standards": [
+    "IEC 61508-3",
+    "MISRA C:2012",
+    "SEI CERT C",
+    "IETF RFC 9019",
+    "NIST SP 800-193"
+   ],
+   "invariants": [
+    "Define outputs during reset and boot so actuators are de-energised or braked until the application explicitly enables them.",
+    "Enable a hardware watchdog serviced only from the main control path after its health checks pass, never from a timer interrupt alone.",
+    "Make firmware updates atomic with verified images and rollback; a power loss at any point must leave a bootable image.",
+    "Report firmware version, build id and configuration hash to the host, and refuse to operate with an incompatible host protocol version.",
+    "Log the reset cause on every boot and treat repeated watchdog or brown-out resets as a fault, not as normal operation.",
+    "Bound the execution time of control-loop code and measure deadline overruns in the field; do not allocate memory dynamically in real-time paths."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D08.deadline_miss",
+     "name": "Control deadline miss",
+     "description": "Task overruns delay control updates, degrading or destabilising loops.",
+     "detect_via": [
+      "cpu_load",
+      "update_rate_actual",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D08.stack_overflow",
+     "name": "Stack overflow or memory corruption",
+     "description": "Undersized stacks or pointer errors corrupt memory and cause erratic behaviour or hard faults.",
+     "detect_via": [
+      "stack_high_water_mark",
+      "reset_cause",
+      "fault_code"
+     ]
+    },
+    {
+     "failure_id": "D08.watchdog_reset",
+     "name": "Watchdog reset loop",
+     "description": "Firmware hangs or starves the watchdog repeatedly and resets, possibly mid-motion.",
+     "detect_via": [
+      "reset_cause",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D08.bricked_update",
+     "name": "Failed update",
+     "description": "Interrupted or corrupted update leaves the device unbootable or on an unknown version.",
+     "detect_via": [
+      "log",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D08.version_mismatch",
+     "name": "Firmware/host version mismatch",
+     "description": "Host software assumes a protocol or parameter layout that the device firmware does not implement.",
+     "detect_via": [
+      "log",
+      "fault_code"
+     ]
+    },
+    {
+     "failure_id": "D08.parameter_corruption",
+     "name": "Parameter or calibration corruption",
+     "description": "Non-volatile configuration is lost or corrupted, reverting to defaults or invalid values.",
+     "detect_via": [
+      "fault_code",
+      "log",
+      "test"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D08.version_inventory",
+     "description": "Collect firmware versions of all devices and compare with the approved configuration baseline.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D08.reset_log_review",
+     "description": "Review reset causes and fault logs across the fleet for watchdog, brown-out and hard-fault resets.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D08.update_rollback_test",
+     "description": "Test update with interrupted power and verify rollback on a bench unit before releasing new firmware.",
+     "basis": "condition"
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D08.flight_firmware_stated",
+     "level": "warning",
+     "kind": "requires_property",
+     "when": [
+      "compute.flight_controller"
+     ],
+     "property": "firmware",
+     "message": "Flight controller does not state its firmware",
+     "rationale": "Flight behaviour, failsafes and parameters depend on the firmware stack and version, which must be recorded to reproduce or audit a flight.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D09",
+   "name": "Drivers",
+   "summary": "Host-side software that talks to devices: kernel and user-space drivers for buses, cameras, lidars, motor drives and sensors, and the adapters that map them onto AIR's device protocol. Typical failures are wrong units or frames in driver output, blocking calls that stall control, silent reconnection with stale configuration, and driver-device version mismatch.",
+   "scope": [
+    "drive.*",
+    "comms.can.usb_adapter",
+    "comms.serial.device_server",
+    "app.dynamixel_protocol2",
+    "can.canopen"
+   ],
+   "vocabulary": [
+    {
+     "term": "Device driver",
+     "definition": "Software that exposes a device's functions to the operating system or application through a defined interface."
+    },
+    {
+     "term": "SocketCAN",
+     "definition": "Linux network-socket interface for CAN controllers."
+    },
+    {
+     "term": "V4L2",
+     "definition": "Video4Linux2, the Linux kernel API for cameras and video capture devices."
+    },
+    {
+     "term": "IIO",
+     "definition": "Linux Industrial I/O subsystem for ADCs, IMUs and similar sensors."
+    },
+    {
+     "term": "Device profile",
+     "definition": "Standardised object dictionary or behaviour for a device class, e.g. CiA 402 for drives."
+    },
+    {
+     "term": "Polling versus interrupt-driven",
+     "definition": "Whether the driver periodically queries the device or reacts to device-raised events; affects latency and CPU load."
+    },
+    {
+     "term": "Backpressure",
+     "definition": "Behaviour when consumers cannot keep up with a device's data rate: dropping, buffering or blocking."
+    },
+    {
+     "term": "Hot-plug handling",
+     "definition": "Driver behaviour when a device disappears and reappears, including re-applying configuration."
+    }
+   ],
+   "standards": [
+    "CiA 402",
+    "IEC 61800-7"
+   ],
+   "invariants": [
+    "Convert device data to SI units and the documented frame convention at the driver boundary, and state the source unit in metadata.",
+    "Never block a control thread on device I/O; use timeouts on every read and write and report a timeout as a fault.",
+    "Re-apply and verify full device configuration after any reconnection; do not assume a device kept its settings.",
+    "Verify device identity and firmware version at open and refuse incompatible versions rather than guessing.",
+    "Expose device fault and status bits to the caller unchanged instead of masking them inside the driver.",
+    "Report physical outcomes the driver could not confirm as unknown, not as success."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D09.unit_or_frame_error",
+     "name": "Unit or frame convention error",
+     "description": "Driver reports values in the wrong unit, sign or axis convention, corrupting downstream control.",
+     "detect_via": [
+      "test",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D09.blocking_io",
+     "name": "Blocking I/O stall",
+     "description": "A device call blocks without a timeout and stalls the calling loop.",
+     "detect_via": [
+      "latency",
+      "update_rate_actual",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D09.stale_configuration",
+     "name": "Stale configuration after reconnect",
+     "description": "Device resets or reconnects and runs with default settings while the driver assumes its configuration.",
+     "detect_via": [
+      "connection_state",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D09.buffer_overflow",
+     "name": "Buffer overflow and data loss",
+     "description": "Driver queues overflow under load and silently drop data.",
+     "detect_via": [
+      "dropped_frames",
+      "packet_loss",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D09.masked_fault",
+     "name": "Masked device fault",
+     "description": "Driver hides device error codes so faults surface later as unexplained behaviour.",
+     "detect_via": [
+      "fault_code",
+      "error_flags",
+      "log"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D09.driver_conformance_test",
+     "description": "Run the adapter conformance suite against real or simulated devices after driver or firmware changes.",
+     "basis": "condition"
+    },
+    {
+     "check_id": "D09.reconnect_test",
+     "description": "Unplug and reconnect each device during operation and verify fault reporting and configuration re-application.",
+     "basis": "condition"
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D09.smart_servo_protocol",
+     "level": "warning",
+     "kind": "requires_interface",
+     "when": [
+      "actuator.module.smart_serial_servo"
+     ],
+     "any_of": [
+      "app.dynamixel_protocol2",
+      "bus.uart",
+      "bus.rs485",
+      "can.classic",
+      "can.fd"
+     ],
+     "message": "Smart serial servo declares no bus or protocol",
+     "rationale": "A driver cannot be selected or its baud rate and ids checked without the servo's bus and protocol.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D10",
+   "name": "OS, BSP and board bring-up",
+   "summary": "Operating system, board support package and boot chain of the robot's compute: bootloader, kernel, device tree, real-time configuration, file systems and update mechanism. Typical failures are unbootable images after updates, missing or misconfigured kernel drivers, real-time latency spikes, clock and time errors, and configuration drift between units.",
+   "scope": [
+    "compute.sbc",
+    "compute.som.*",
+    "compute.carrier_board",
+    "compute.ipc",
+    "compute.companion_computer",
+    "compute.storage.emmc",
+    "compute.tpm",
+    "compute.rtc",
+    "compute.pmic"
+   ],
+   "vocabulary": [
+    {
+     "term": "BSP",
+     "definition": "Board support package: bootloader, kernel, device tree and drivers adapted to a specific board."
+    },
+    {
+     "term": "Device tree",
+     "definition": "Data structure describing non-discoverable hardware (buses, pins, peripherals) to the kernel."
+    },
+    {
+     "term": "PREEMPT_RT",
+     "definition": "Linux kernel real-time preemption configuration that reduces worst-case scheduling latency."
+    },
+    {
+     "term": "Scheduling latency",
+     "definition": "Delay between a thread becoming runnable and actually running; bounded latency is needed for control loops on a general-purpose OS."
+    },
+    {
+     "term": "Secure boot",
+     "definition": "Boot chain where each stage verifies the signature of the next before executing it."
+    },
+    {
+     "term": "Read-only root file system",
+     "definition": "Root partition mounted read-only with writable state elsewhere, reducing corruption and drift."
+    },
+    {
+     "term": "Image-based update",
+     "definition": "Replacing the whole system image atomically (often A/B) rather than updating packages individually."
+    },
+    {
+     "term": "CPU isolation",
+     "definition": "Reserving cores for real-time threads (isolcpus, cgroups, IRQ affinity) so other load does not interfere."
+    }
+   ],
+   "standards": [
+    "Devicetree Specification",
+    "UEFI Specification",
+    "IEEE 1003.1",
+    "Arm EBBR"
+   ],
+   "invariants": [
+    "Build system images reproducibly from a recorded manifest and record the image version on each robot.",
+    "Update the OS atomically with a verified fallback image; a failed boot must return to the last known-good image automatically.",
+    "Measure scheduling latency under worst-case load on the target hardware before assigning control loops to a general-purpose OS.",
+    "Synchronise system time from a trusted source before relying on it for logs, certificates or sensor fusion, and detect time jumps.",
+    "Disable unused services, interfaces and debug consoles in production images.",
+    "Keep the device tree and kernel configuration under version control with the hardware revision they apply to."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D10.boot_failure",
+     "name": "Boot failure",
+     "description": "Bad image, corrupted storage or wrong device tree prevents boot.",
+     "detect_via": [
+      "last_seen",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D10.latency_spike",
+     "name": "Real-time latency spike",
+     "description": "Interrupt storms, power management or competing load delay real-time threads beyond their deadline.",
+     "detect_via": [
+      "latency",
+      "cpu_load",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D10.time_error",
+     "name": "System time error",
+     "description": "Missing RTC or failed time sync gives wrong timestamps and invalidates certificates.",
+     "detect_via": [
+      "time_offset",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D10.configuration_drift",
+     "name": "Configuration drift",
+     "description": "Manual changes make units differ from the recorded image, so fixes and tests do not transfer.",
+     "detect_via": [
+      "log",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D10.resource_exhaustion",
+     "name": "Memory or CPU exhaustion",
+     "description": "Leaks or runaway processes exhaust memory, triggering the OOM killer on critical services.",
+     "detect_via": [
+      "memory_usage",
+      "cpu_load",
+      "log"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D10.image_version_audit",
+     "description": "Compare installed OS image versions and configuration hashes with the release baseline.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D10.latency_benchmark",
+     "description": "Run a scheduling-latency benchmark under stress on each hardware and image revision.",
+     "basis": "condition"
+    },
+    {
+     "check_id": "D10.security_patch_review",
+     "description": "Review kernel and package vulnerabilities and schedule patched images.",
+     "basis": "calendar_days",
+     "interval": 30
+    }
+   ],
+   "rules": []
+  },
+  {
+   "domain_id": "D11",
+   "name": "Middleware",
+   "summary": "Communication and composition layer between robot software components: ROS 2 and DDS, Zenoh, micro-ROS, shared-memory transports and the conventions for topics, frames and QoS. Typical failures are QoS mismatches that silently drop data, discovery storms on large networks, clock and frame inconsistencies, and unbounded latency under load.",
+   "scope": [
+    "middleware.*",
+    "app.someip",
+    "app.grpc"
+   ],
+   "vocabulary": [
+    {
+     "term": "QoS profile",
+     "definition": "Set of DDS quality-of-service policies (reliability, durability, history, depth, deadline, liveliness) that publishers and subscribers must match."
+    },
+    {
+     "term": "Discovery",
+     "definition": "Process by which DDS or Zenoh participants find each other; multicast discovery can flood large or Wi-Fi networks."
+    },
+    {
+     "term": "Domain id",
+     "definition": "DDS partition number; participants only communicate within the same domain."
+    },
+    {
+     "term": "TF tree",
+     "definition": "ROS tree of coordinate frames and timestamped transforms used to relate sensor and robot frames."
+    },
+    {
+     "term": "Lifecycle node",
+     "definition": "ROS 2 node with managed states (unconfigured, inactive, active, finalized) for deterministic startup and shutdown."
+    },
+    {
+     "term": "Zero-copy transport",
+     "definition": "Shared-memory delivery that passes data without serialisation copies, e.g. iceoryx."
+    },
+    {
+     "term": "Liveliness",
+     "definition": "QoS mechanism to detect that a publisher has stopped asserting it is alive."
+    },
+    {
+     "term": "SROS2",
+     "definition": "ROS 2 security tooling that configures DDS Security for authentication, encryption and access control."
+    }
+   ],
+   "standards": [
+    "OMG DDS 1.4",
+    "OMG DDSI-RTPS 2.5",
+    "OMG DDS Security 1.1",
+    "ROS REP 103",
+    "ROS REP 105"
+   ],
+   "invariants": [
+    "Declare QoS explicitly for every safety- or control-relevant topic and verify publisher-subscriber compatibility at startup.",
+    "Use SI units and the REP 103 and REP 105 frame conventions on public topics, and publish every sensor's frame in the TF tree.",
+    "Detect stale data by deadline or liveliness QoS or by timestamp age, and treat it as missing rather than current.",
+    "Bound discovery traffic on wireless links (unicast peers, discovery servers or routers) instead of default multicast.",
+    "Enable authentication and access control (e.g. SROS2) for any middleware traffic leaving the robot.",
+    "Keep middleware out of hard real-time loops unless its latency has been measured under worst-case load on the target."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D11.qos_mismatch",
+     "name": "QoS mismatch",
+     "description": "Incompatible reliability or durability settings prevent delivery without an obvious error.",
+     "detect_via": [
+      "log",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D11.discovery_storm",
+     "name": "Discovery storm",
+     "description": "Many participants on multicast flood the network, increasing latency or breaking Wi-Fi.",
+     "detect_via": [
+      "channel_utilization",
+      "packet_loss",
+      "latency"
+     ]
+    },
+    {
+     "failure_id": "D11.stale_data",
+     "name": "Stale data consumed as current",
+     "description": "Subscribers act on old messages after a publisher stalls.",
+     "detect_via": [
+      "latency",
+      "last_seen",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D11.tf_error",
+     "name": "Transform tree error",
+     "description": "Missing, duplicated or time-mismatched transforms place data in the wrong frame.",
+     "detect_via": [
+      "log",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D11.latency_growth",
+     "name": "Latency growth under load",
+     "description": "Serialisation, large messages or queue build-up add latency to control-relevant topics.",
+     "detect_via": [
+      "latency",
+      "cpu_load"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D11.topic_latency_measurement",
+     "description": "Measure end-to-end latency and rate of control- and safety-relevant topics under representative load.",
+     "basis": "condition"
+    },
+    {
+     "check_id": "D11.interface_compatibility_check",
+     "description": "Verify message definitions, QoS and frames against the recorded interface contract after software updates.",
+     "basis": "condition"
+    }
+   ],
+   "rules": []
+  },
+  {
+   "domain_id": "D12",
+   "name": "Control",
+   "summary": "Closed-loop control of actuators and motion: current, velocity and position loops, trajectory generation, force and impedance control, whole-body and flight control. Typical failures are instability from wrong gains or unmodelled resonance, saturation and integrator windup, excessive following error, oscillation at contact, and loss of feedback leaving loops open.",
+   "scope": [
+    "drive.*",
+    "compute.motion_controller",
+    "compute.robot_controller",
+    "compute.flight_controller",
+    "actuator.motor.*",
+    "actuator.module.*",
+    "electrical.three_phase",
+    "electrical.step_dir",
+    "electrical.pwm"
+   ],
+   "vocabulary": [
+    {
+     "term": "Cascaded control",
+     "definition": "Nested current, velocity and position loops where each inner loop is several times faster than the next outer loop."
+    },
+    {
+     "term": "Bandwidth",
+     "definition": "Frequency up to which a closed loop tracks its reference; limited by sampling, actuator dynamics and resonances."
+    },
+    {
+     "term": "Phase margin",
+     "definition": "Additional phase lag at the gain crossover frequency that would make a loop unstable; a measure of robustness."
+    },
+    {
+     "term": "Following error",
+     "definition": "Difference between commanded and measured position during motion; large values indicate overload, collision or tuning faults."
+    },
+    {
+     "term": "Integrator windup",
+     "definition": "Accumulation of integral action while the actuator is saturated, causing overshoot when saturation ends."
+    },
+    {
+     "term": "Feedforward",
+     "definition": "Command terms computed from the reference (velocity, acceleration, gravity, friction) that reduce reliance on feedback."
+    },
+    {
+     "term": "Field-oriented control (FOC)",
+     "definition": "Control of a permanent-magnet motor's current in a rotor-fixed frame to produce torque efficiently."
+    },
+    {
+     "term": "Impedance control",
+     "definition": "Control that regulates the relationship between motion and contact force, behaving like a programmable spring-damper."
+    },
+    {
+     "term": "Jerk limit",
+     "definition": "Bound on the rate of change of acceleration in trajectory generation, reducing excitation of structural modes."
+    },
+    {
+     "term": "CiA 402 state machine",
+     "definition": "Standard drive power state machine (Switch on disabled, Ready to switch on, Switched on, Operation enabled, Fault)."
+    }
+   ],
+   "standards": [
+    "IEC 61800-7",
+    "CiA 402",
+    "IEC 61131-3",
+    "ISO 9283"
+   ],
+   "invariants": [
+    "Enable an axis only after its feedback is valid, its commutation is established and its limits are loaded; disable it on feedback loss.",
+    "Limit commanded position, velocity, acceleration, jerk and torque to the hardware's rated envelope in the controller, independent of the planner.",
+    "Trip on following error above a configured threshold rather than continuing to push against an obstruction.",
+    "Apply anti-windup to every integrator that can saturate, including when the drive is disabled or in torque limit.",
+    "Re-verify loop stability after any change in payload, gearing, stiffness or sampling rate; do not carry gains across hardware variants.",
+    "Ramp down to a stop on loss of command stream within the configured timeout; never hold the last velocity command indefinitely."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D12.instability",
+     "name": "Loop instability or oscillation",
+     "description": "Excessive gain, delay or resonance makes a loop oscillate or diverge.",
+     "detect_via": [
+      "position_error",
+      "vibration_rms",
+      "phase_current",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D12.following_error",
+     "name": "Excessive following error",
+     "description": "Actual motion lags or deviates from the commanded trajectory because of overload, collision or poor tuning.",
+     "detect_via": [
+      "following_error",
+      "position_following_error",
+      "tracking_error"
+     ]
+    },
+    {
+     "failure_id": "D12.saturation",
+     "name": "Actuator saturation and windup",
+     "description": "Commands exceed actuator limits so the loop loses authority and overshoots when it recovers.",
+     "detect_via": [
+      "i2t_utilisation",
+      "motor_current",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D12.feedback_loss",
+     "name": "Feedback loss",
+     "description": "Encoder or estimator failure leaves a loop running open or on wrong data.",
+     "detect_via": [
+      "encoder_discrepancy",
+      "fault_code",
+      "position_estimate"
+     ]
+    },
+    {
+     "failure_id": "D12.commutation_fault",
+     "name": "Commutation fault",
+     "description": "Wrong rotor angle offset or phase order produces reduced torque, runaway or stall.",
+     "detect_via": [
+      "phase_current",
+      "rotor_position",
+      "fault_code"
+     ]
+    },
+    {
+     "failure_id": "D12.contact_chatter",
+     "name": "Contact instability",
+     "description": "Force or impedance control oscillates against stiff environments.",
+     "detect_via": [
+      "contact_force",
+      "vibration",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D12.wheel_slip",
+     "name": "Traction loss",
+     "description": "Wheel or track slip makes odometry and velocity control wrong.",
+     "detect_via": [
+      "wheel_slip",
+      "velocity",
+      "test"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D12.tuning_verification",
+     "description": "Run step or frequency-response tests per axis and compare bandwidth, overshoot and margins with the recorded baseline.",
+     "basis": "condition"
+    },
+    {
+     "check_id": "D12.following_error_review",
+     "description": "Review following-error statistics per axis to detect mechanical degradation or tuning drift.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D12.limit_verification",
+     "description": "Verify software position, velocity and torque limits against the configuration after any parameter change.",
+     "basis": "condition"
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D12.motor_has_drive",
+     "level": "warning",
+     "kind": "requires_relation",
+     "when": [
+      "actuator.motor.bldc_inrunner",
+      "actuator.motor.bldc_outrunner",
+      "actuator.motor.pmsm",
+      "actuator.motor.frameless_torque",
+      "actuator.motor.ac_servo",
+      "actuator.motor.direct_drive_torque",
+      "actuator.motor.linear_iron_core",
+      "actuator.motor.linear_ironless",
+      "actuator.motor.stepper_hybrid",
+      "actuator.motor.stepper_closed_loop",
+      "actuator.motor.hub_motor",
+      "actuator.motor.synchronous_reluctance",
+      "actuator.motor.switched_reluctance",
+      "actuator.motor.ac_induction",
+      "actuator.motor.spindle"
+     ],
+     "any_of": [
+      "drive.*",
+      "actuator.module.*",
+      "actuator.other.uav_propulsion_unit"
+     ],
+     "relation": "any",
+     "message": "Motor is not related to a drive or integrated actuator module",
+     "rationale": "These motors need electronic commutation or frequency control, and the drive's limits and fault behaviour must be known to verify the axis.",
+     "standards": []
+    },
+    {
+     "rule_id": "D12.direct_motor_feedback",
+     "level": "warning",
+     "kind": "requires_relation",
+     "when": [
+      "actuator.motor.frameless_torque",
+      "actuator.motor.direct_drive_torque",
+      "actuator.motor.linear_iron_core",
+      "actuator.motor.linear_ironless"
+     ],
+     "any_of": [
+      "sensor.encoder.*",
+      "sensor.linear_position.*",
+      "actuator.module.*"
+     ],
+     "relation": "any",
+     "message": "Frameless, direct-drive or linear motor has no position feedback described",
+     "rationale": "These motor kits have no built-in encoder, and servo control and commutation need an external position sensor.",
+     "standards": []
+    },
+    {
+     "rule_id": "D12.uav_flight_controller",
+     "level": "warning",
+     "kind": "requires_component",
+     "when": [
+      "actuator.other.uav_propulsion_unit"
+     ],
+     "any_of": [
+      "compute.flight_controller"
+     ],
+     "message": "UAV propulsion units are present but no flight controller is described",
+     "rationale": "Multirotor and VTOL vehicles are unstable without closed-loop attitude control, and its failsafes must be part of the configuration.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D13",
+   "name": "Autonomy and applications",
+   "summary": "Perception, localisation, planning, task execution and the application logic that turns robot capabilities into work: navigation, manipulation tasks, missions and agent-proposed plans. Typical failures are localisation loss, perception misses and false positives, planning into unsafe or infeasible states, unhandled edge cases in the operating domain, and task outcomes reported as done without verification.",
+   "scope": [
+    "compute.accelerator.*",
+    "sensor.guidance.*",
+    "infra.marker.*"
+   ],
+   "vocabulary": [
+    {
+     "term": "Operational design domain (ODD)",
+     "definition": "Conditions (environment, speeds, lighting, weather, traffic) under which an autonomous function is designed to operate."
+    },
+    {
+     "term": "Localisation",
+     "definition": "Estimating the robot's pose in a map or world frame, with an uncertainty that must be monitored."
+    },
+    {
+     "term": "SLAM",
+     "definition": "Simultaneous localisation and mapping: building a map while estimating pose within it."
+    },
+    {
+     "term": "Costmap",
+     "definition": "Grid representation of obstacle and traversal cost used by planners."
+    },
+    {
+     "term": "Behaviour tree",
+     "definition": "Hierarchical task-execution structure of sequences, fallbacks and conditions with explicit success and failure."
+    },
+    {
+     "term": "Recovery behaviour",
+     "definition": "Predefined action when a task or navigation step fails, such as clearing costmaps, backing up or requesting help."
+    },
+    {
+     "term": "Postcondition verification",
+     "definition": "Checking with observations that a task achieved its intended physical effect before reporting success."
+    },
+    {
+     "term": "Out-of-distribution input",
+     "definition": "Sensor input unlike the data a learned model was trained or validated on, where its outputs are unreliable."
+    }
+   ],
+   "standards": [
+    "ISO 3691-4",
+    "ANSI/RIA R15.08-1",
+    "ISO 13482",
+    "UL 3300",
+    "UL 4600",
+    "ISO 21448"
+   ],
+   "invariants": [
+    "Report a task as completed only when observations confirm its postcondition; a command acknowledgement is not completion.",
+    "Monitor localisation confidence and stop or slow to a safe mode when it falls below the threshold validated for the current speed.",
+    "Operate autonomous functions only inside their documented operational design domain, and detect when conditions leave it.",
+    "Route every plan step proposed by a model or agent through admission and authority checks; model output never grants permission.",
+    "Treat learned-perception outputs as uncertain: fuse with independent sensing for safety-relevant decisions and never use them as the sole safety function.",
+    "Define recovery behaviour and a bounded retry policy for every task step; when the physical outcome is unknown, reconcile before retrying."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D13.localisation_loss",
+     "name": "Localisation loss",
+     "description": "Pose estimate diverges or becomes ambiguous because of map changes, feature-poor areas or sensor faults.",
+     "detect_via": [
+      "position_estimate",
+      "log",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D13.perception_miss",
+     "name": "Perception miss or false detection",
+     "description": "Obstacles, people or objects are missed or hallucinated, especially transparent, dark or out-of-distribution ones.",
+     "detect_via": [
+      "log",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D13.planning_deadlock",
+     "name": "Planning deadlock or oscillation",
+     "description": "Planner cannot find a path, or robots block each other in narrow passages.",
+     "detect_via": [
+      "log",
+      "velocity"
+     ]
+    },
+    {
+     "failure_id": "D13.unverified_completion",
+     "name": "Unverified completion",
+     "description": "Task reported done although the physical effect did not occur (missed pick, wrong location).",
+     "detect_via": [
+      "part_present",
+      "log",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D13.odd_exit",
+     "name": "Operational design domain exit",
+     "description": "Lighting, weather, crowd density or terrain move outside validated conditions while the robot continues.",
+     "detect_via": [
+      "wind_speed",
+      "rainfall",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D13.map_staleness",
+     "name": "Stale map",
+     "description": "Map no longer matches the site after layout changes, degrading localisation and planning.",
+     "detect_via": [
+      "log",
+      "inspection"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D13.scenario_regression",
+     "description": "Run the scenario and simulation regression suite before deploying new autonomy software or models.",
+     "basis": "condition"
+    },
+    {
+     "check_id": "D13.map_review",
+     "description": "Compare maps with the current site layout and re-map changed areas.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D13.intervention_review",
+     "description": "Review operator interventions, recoveries and unverified outcomes for recurring causes.",
+     "basis": "calendar_days",
+     "interval": 7
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D13.rtk_correction_link",
+     "level": "warning",
+     "kind": "requires_component",
+     "when": [
+      "sensor.gnss.rtk"
+     ],
+     "any_of": [
+      "comms.gnss.ntrip_modem",
+      "comms.cellular.*",
+      "comms.radio.*",
+      "comms.wifi.*",
+      "comms.lora.*",
+      "comms.satellite.terminal"
+     ],
+     "message": "RTK GNSS receiver without a correction data link",
+     "rationale": "RTK accuracy requires a continuous correction stream, and without it the receiver falls back to metre-level accuracy that autonomy may not expect.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D14",
+   "name": "Functional safety",
+   "summary": "Safety functions that reduce risk to people: emergency stop, protective stops, safety-rated speed and separation monitoring, power and force limiting, guards, interlocks and their safety-rated logic and outputs. Typical failures are safety devices wired to non-safety logic, bypassed or muted protection, undetected common-cause or contact-welding faults, wrong safety distances, and unvalidated changes to safety configuration.",
+   "scope": [
+    "safety.*",
+    "compute.safety_plc",
+    "compute.mcu.safety_lockstep",
+    "sensor.lidar.safety_scanner",
+    "sensor.encoder.safety_rated",
+    "sensor.limit_switch.safety",
+    "sensor.bumper.safety_edge",
+    "transmission.brake_spring_applied",
+    "fieldbus.ethercat_fsoe",
+    "fieldbus.profisafe",
+    "fieldbus.cip_safety",
+    "fieldbus.opensafety"
+   ],
+   "vocabulary": [
+    {
+     "term": "Performance level (PL)",
+     "definition": "ISO 13849-1 measure (PL a to e) of a safety function's ability to perform under foreseeable conditions."
+    },
+    {
+     "term": "Safety integrity level (SIL)",
+     "definition": "IEC 61508 and IEC 62061 measure (SIL 1 to 3 for machinery) of the required risk reduction of a safety function."
+    },
+    {
+     "term": "Category",
+     "definition": "ISO 13849-1 designated architecture (B, 1, 2, 3, 4) describing fault tolerance and diagnostics."
+    },
+    {
+     "term": "Stop category 0/1/2",
+     "definition": "IEC 60204-1 stop types: 0 removes power immediately, 1 stops under control then removes power, 2 stops under control and keeps power."
+    },
+    {
+     "term": "STO (safe torque off)",
+     "definition": "IEC 61800-5-2 safety function that prevents the drive from producing torque."
+    },
+    {
+     "term": "OSSD",
+     "definition": "Output signal switching device: the redundant, self-tested safety outputs of protective electro-sensitive equipment."
+    },
+    {
+     "term": "Protective separation distance",
+     "definition": "Minimum distance between a person and a hazard at which a protective stop still prevents contact, accounting for speeds and stopping time."
+    },
+    {
+     "term": "Muting",
+     "definition": "Intended temporary automatic suspension of a protective function, e.g. to let material pass a light curtain."
+    },
+    {
+     "term": "Diagnostic coverage (DC)",
+     "definition": "Fraction of dangerous failures detected by diagnostics."
+    },
+    {
+     "term": "MTTFd",
+     "definition": "Mean time to dangerous failure of a channel, used in ISO 13849-1 PL calculation."
+    },
+    {
+     "term": "Power and force limiting (PFL)",
+     "definition": "Collaborative operation mode in which contact forces and pressures are limited to values in ISO/TS 15066."
+    }
+   ],
+   "standards": [
+    "ISO 13849-1",
+    "ISO 13849-2",
+    "IEC 62061",
+    "IEC 61508",
+    "IEC 60204-1",
+    "ISO 13850",
+    "ISO 10218-1",
+    "ISO 10218-2",
+    "ISO/TS 15066",
+    "IEC 61496-1",
+    "IEC 61496-3",
+    "IEC 61800-5-2",
+    "ISO 14119",
+    "ISO 13855",
+    "ISO 3691-4"
+   ],
+   "invariants": [
+    "Implement safety functions only with safety-rated components and logic whose PL or SIL meets the risk assessment; software in non-safety compute may request a stop but never be the only path.",
+    "Wire emergency stops and protective devices so a single fault cannot prevent the stop where the required category demands it, and make reset a deliberate separate action.",
+    "Never bypass, mute or reconfigure a safety function from agent or application software; changes go through the safety configuration process with validation.",
+    "Compute protective distances and field sizes from measured stopping times and maximum speeds, and re-measure after any change to load, speed or brakes.",
+    "Carry safety signals over hard-wired safety I/O or a certified safety protocol; standard Ethernet, ROS or Wi-Fi messages are not safety channels.",
+    "Validate every safety function by test after commissioning and after each change, and record the result as evidence.",
+    "Test holding brakes periodically for gravity-loaded axes and stop operation if the brake test fails."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D14.safety_bypass",
+     "name": "Safety function bypassed",
+     "description": "Protective devices are bridged, muted or disabled to keep production running.",
+     "detect_via": [
+      "safety_state",
+      "log",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D14.channel_discrepancy",
+     "name": "Channel discrepancy",
+     "description": "Redundant safety channels disagree because of wiring faults, welded contacts or sensor failure.",
+     "detect_via": [
+      "channel_discrepancy",
+      "fault_code"
+     ]
+    },
+    {
+     "failure_id": "D14.excessive_stopping_time",
+     "name": "Excessive stopping time or distance",
+     "description": "Brake wear, higher payload or speed increases stopping distance beyond the protective separation.",
+     "detect_via": [
+      "brake_temperature",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D14.wrong_field_set",
+     "name": "Wrong protective field active",
+     "description": "Safety scanner field switching selects a field too small for the current speed or zone.",
+     "detect_via": [
+      "active_field_set",
+      "velocity",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D14.estop_failure",
+     "name": "Emergency stop ineffective",
+     "description": "Mechanical, wiring or wireless-link failure prevents an e-stop from stopping hazardous motion.",
+     "detect_via": [
+      "pressed",
+      "safe_state_active",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D14.sto_failure",
+     "name": "STO or contactor failure",
+     "description": "Safe torque off or redundant contactors fail to remove torque on demand.",
+     "detect_via": [
+      "sto_state",
+      "fault_code",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D14.brake_failure",
+     "name": "Holding brake failure",
+     "description": "Worn or contaminated brakes fail to hold rated torque, letting axes drop.",
+     "detect_via": [
+      "brake_released",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D14.unvalidated_change",
+     "name": "Unvalidated safety configuration change",
+     "description": "Safety parameters or fields changed without re-validation and evidence.",
+     "detect_via": [
+      "log",
+      "inspection"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D14.estop_function_test",
+     "description": "Actuate every emergency stop device and verify the stop category and reset behaviour.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D14.protective_device_test",
+     "description": "Test safety scanners, light curtains, mats and edges with a test object at the field boundaries.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D14.stopping_time_measurement",
+     "description": "Measure stopping time and distance at maximum speed and payload and compare with the separation distance basis.",
+     "basis": "calendar_days",
+     "interval": 365
+    },
+    {
+     "check_id": "D14.brake_test",
+     "description": "Run the holding brake test on gravity-loaded axes at the interval set by the manufacturer or risk assessment (often at power-up or every few operating shifts).",
+     "basis": "condition"
+    },
+    {
+     "check_id": "D14.safety_configuration_audit",
+     "description": "Compare safety configuration checksums with the validated baseline.",
+     "basis": "calendar_days",
+     "interval": 90
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D14.protective_device_to_safety_logic",
+     "level": "error",
+     "kind": "requires_relation",
+     "when": [
+      "sensor.lidar.safety_scanner",
+      "safety.laser_scanner_system",
+      "safety.light_curtain",
+      "safety.mat",
+      "safety.edge",
+      "safety.bumper",
+      "sensor.bumper.safety_edge",
+      "safety.door_interlock",
+      "safety.guard_locking",
+      "sensor.limit_switch.safety",
+      "safety.pfl_skin"
+     ],
+     "any_of": [
+      "safety.controller",
+      "safety.relay",
+      "safety.safety_io_module",
+      "safety.sto_module",
+      "safety.safe_motion_unit",
+      "safety.contactor_redundant",
+      "compute.safety_plc",
+      "compute.mcu.safety_lockstep",
+      "compute.robot_controller",
+      "drive.servo_industrial",
+      "drive.multi_axis"
+     ],
+     "relation": "any",
+     "message": "Protective device is not connected to safety-rated logic or a safety input",
+     "rationale": "A protective device only reduces risk if its outputs reach safety-rated logic or an STO input, not just a standard computer.",
+     "standards": [
+      "ISO 13849-1",
+      "IEC 62061"
+     ]
+    },
+    {
+     "rule_id": "D14.estop_to_safety_logic",
+     "level": "warning",
+     "kind": "requires_relation",
+     "when": [
+      "safety.emergency_stop_button",
+      "safety.wireless_emergency_stop",
+      "safety.enabling_switch",
+      "safety.two_hand_control"
+     ],
+     "any_of": [
+      "safety.controller",
+      "safety.relay",
+      "safety.safety_io_module",
+      "safety.sto_module",
+      "safety.safe_motion_unit",
+      "safety.contactor_redundant",
+      "compute.safety_plc",
+      "compute.mcu.safety_lockstep",
+      "compute.robot_controller",
+      "hmi.teach_pendant",
+      "power.contactor",
+      "power.disconnect_switch",
+      "drive.*"
+     ],
+     "relation": "any",
+     "message": "Emergency stop or enabling device is not connected to safety logic, a contactor or a drive STO input",
+     "rationale": "An emergency stop wired only to a standard processor depends on software to stop, which ISO 13850 and IEC 60204-1 do not permit as the sole means.",
+     "standards": [
+      "ISO 13850",
+      "IEC 60204-1"
+     ]
+    },
+    {
+     "rule_id": "D14.scanner_safety_output",
+     "level": "warning",
+     "kind": "requires_interface",
+     "when": [
+      "sensor.lidar.safety_scanner",
+      "safety.light_curtain"
+     ],
+     "any_of": [
+      "electrical.digital_io",
+      "fieldbus.profisafe",
+      "fieldbus.cip_safety",
+      "fieldbus.ethercat_fsoe",
+      "fieldbus.opensafety"
+     ],
+     "message": "Safety scanner or light curtain declares no OSSD or safety-protocol interface",
+     "rationale": "Plain Ethernet or ROS output from a safety sensor is diagnostic data, and the protective stop must come from OSSDs or a safety protocol.",
+     "standards": [
+      "IEC 61496-1",
+      "IEC 61784-3"
+     ]
+    },
+    {
+     "rule_id": "D14.estop_present",
+     "level": "warning",
+     "kind": "requires_component",
+     "when": [
+      "actuator.module.harmonic_joint",
+      "actuator.module.cycloidal_joint",
+      "actuator.module.qdd_joint",
+      "drive.servo_industrial",
+      "drive.multi_axis",
+      "actuator.hydraulic.power_unit"
+     ],
+     "any_of": [
+      "safety.emergency_stop_button",
+      "safety.wireless_emergency_stop",
+      "hmi.teach_pendant"
+     ],
+     "message": "Powered machinery without an emergency stop device",
+     "rationale": "Machinery with hazardous motion needs an emergency stop function unless the risk assessment shows it would not reduce risk.",
+     "standards": [
+      "ISO 13850",
+      "IEC 60204-1"
+     ]
+    },
+    {
+     "rule_id": "D14.safety_rating_stated",
+     "level": "warning",
+     "kind": "requires_property",
+     "when": [
+      "safety.relay",
+      "safety.controller",
+      "safety.sto_module",
+      "safety.door_interlock",
+      "safety.guard_locking"
+     ],
+     "property": "performance_level",
+     "message": "Safety component does not state its performance level",
+     "rationale": "The achieved PL of a safety function cannot be checked against the required PL without the rating of each component.",
+     "standards": [
+      "ISO 13849-1"
+     ]
+    }
+   ]
+  },
+  {
+   "domain_id": "D15",
+   "name": "Cybersecurity",
+   "summary": "Protection of robots, their software supply chain and their connections against unauthorised access and manipulation: identity, secure boot and update, network segmentation, credentials, and remote access. Typical failures are default or shared credentials, unauthenticated fieldbus or middleware exposed to networks, unsigned firmware updates, exposed debug ports, and remote-control paths that bypass admission.",
+   "scope": [
+    "compute.tpm",
+    "compute.secure_element",
+    "compute.hsm",
+    "comms.security.*",
+    "net.tls",
+    "middleware.sros2"
+   ],
+   "vocabulary": [
+    {
+     "term": "Security level (SL)",
+     "definition": "IEC 62443 target level (SL 1 to 4) of protection against increasingly capable attackers."
+    },
+    {
+     "term": "Zone and conduit",
+     "definition": "IEC 62443 model grouping assets with common security requirements (zones) connected by controlled communication paths (conduits)."
+    },
+    {
+     "term": "Hardware root of trust",
+     "definition": "Immutable hardware (TPM, secure element, boot ROM) that anchors device identity and boot verification."
+    },
+    {
+     "term": "Secure boot",
+     "definition": "Boot chain in which every stage verifies the signature of the next, preventing execution of modified software."
+    },
+    {
+     "term": "Mutual TLS",
+     "definition": "TLS where both client and server authenticate with certificates."
+    },
+    {
+     "term": "SBOM",
+     "definition": "Software bill of materials listing components and versions, used to track vulnerabilities."
+    },
+    {
+     "term": "Least privilege",
+     "definition": "Granting each user, service and agent only the permissions needed for its task."
+    },
+    {
+     "term": "Attack surface",
+     "definition": "Set of interfaces, services and ports through which an attacker can interact with a system."
+    }
+   ],
+   "standards": [
+    "IEC 62443-3-3",
+    "IEC 62443-4-1",
+    "IEC 62443-4-2",
+    "ETSI EN 303 645",
+    "EN 18031-1",
+    "ISO/SAE 21434",
+    "NIST IR 8259A",
+    "Regulation (EU) 2024/2847"
+   ],
+   "invariants": [
+    "Give every robot a unique device identity and unique credentials; never ship default or shared passwords or keys.",
+    "Accept firmware and software updates only when their signatures verify against a trusted key, and protect against rollback to vulnerable versions.",
+    "Never expose fieldbus, CAN, DDS without security, or debug interfaces directly to untrusted networks; place them behind a firewall or gateway in their own zone.",
+    "Authenticate and authorise every remote command path, and route remote commands through the same admission as local ones.",
+    "Store secrets in a TPM, secure element or encrypted store, never in source code, images or logs.",
+    "Maintain an SBOM per release and act on vulnerabilities affecting it within a defined time."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D15.default_credentials",
+     "name": "Default or shared credentials",
+     "description": "Devices use factory passwords or fleet-wide keys, so one leak compromises all units.",
+     "detect_via": [
+      "inspection",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D15.exposed_service",
+     "name": "Exposed unauthenticated service",
+     "description": "Middleware, web UI, fieldbus gateway or debug port reachable without authentication.",
+     "detect_via": [
+      "test",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D15.unsigned_update",
+     "name": "Unsigned or unverified update",
+     "description": "Device accepts modified firmware or packages.",
+     "detect_via": [
+      "test",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D15.tampering",
+     "name": "Physical tampering",
+     "description": "Enclosure opened or storage removed to extract keys or install malware.",
+     "detect_via": [
+      "tamper",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D15.unpatched_vulnerability",
+     "name": "Unpatched vulnerability",
+     "description": "Known vulnerable component remains in deployed images.",
+     "detect_via": [
+      "log",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D15.rf_attack",
+     "name": "Radio jamming or spoofing",
+     "description": "Jamming or spoofing of GNSS, RC or Wi-Fi links disrupts control or navigation.",
+     "detect_via": [
+      "jamming_indicator",
+      "interference_detected",
+      "packet_loss"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D15.vulnerability_scan",
+     "description": "Scan the SBOM and network-exposed services of the current release for known vulnerabilities.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D15.credential_rotation",
+     "description": "Rotate service credentials and certificates and revoke those of decommissioned robots.",
+     "basis": "calendar_days",
+     "interval": 365
+    },
+    {
+     "check_id": "D15.penetration_test",
+     "description": "Penetration-test the robot and its remote-access paths after major releases.",
+     "basis": "condition"
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D15.wan_link_protection",
+     "level": "warning",
+     "kind": "requires_component",
+     "when": [
+      "comms.cellular.modem_lte",
+      "comms.cellular.modem_5g",
+      "comms.satellite.terminal"
+     ],
+     "any_of": [
+      "comms.security.firewall_router",
+      "compute.tpm",
+      "compute.secure_element",
+      "compute.hsm"
+     ],
+     "message": "Wide-area link without a firewall or hardware-protected device identity",
+     "rationale": "Cellular and satellite links put the robot on public networks, and network filtering and hardware-held credentials limit remote compromise.",
+     "standards": [
+      "IEC 62443-4-2"
+     ]
+    },
+    {
+     "rule_id": "D15.gateway_root_of_trust",
+     "level": "warning",
+     "kind": "requires_component",
+     "when": [
+      "iot.gateway.edge",
+      "compute.gateway",
+      "comms.gateway.protocol"
+     ],
+     "any_of": [
+      "compute.tpm",
+      "compute.secure_element",
+      "compute.hsm",
+      "comms.security.firewall_router"
+     ],
+     "message": "Gateway without a hardware root of trust or firewall",
+     "rationale": "Gateways bridge plant networks to IT or cloud networks and are high-value targets for credential theft and lateral movement.",
+     "standards": [
+      "IEC 62443-3-3"
+     ]
+    },
+    {
+     "rule_id": "D15.telemetry_radio_encryption",
+     "level": "warning",
+     "kind": "requires_property",
+     "when": [
+      "comms.radio.telemetry"
+     ],
+     "property": "encryption",
+     "message": "Telemetry radio does not state whether its link is encrypted",
+     "rationale": "Unencrypted command and telemetry links such as plain MAVLink can be read and injected by anyone in radio range.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D16",
+   "name": "IoT devices and edge",
+   "summary": "Connected sensors, actuators, meters, tags and gateways in the robot's environment and the edge compute that aggregates them, which robots read from or command (doors, lights, valves, trackers, environmental sensors). Typical failures are stale or missing reports from battery-powered nodes, ambiguous device identity and units, radio coverage gaps, and commands to building devices whose outcome is not confirmed.",
+   "scope": [
+    "iot.*",
+    "compute.gateway",
+    "compute.edge_server",
+    "app.mqtt",
+    "app.coap",
+    "app.lwm2m",
+    "app.matter",
+    "app.bacnet",
+    "app.knx",
+    "app.opcua",
+    "app.sparkplug_b",
+    "net.zigbee",
+    "net.thread",
+    "net.lorawan",
+    "net.nb_iot",
+    "net.lte_m",
+    "net.ble"
+   ],
+   "vocabulary": [
+    {
+     "term": "Reporting interval",
+     "definition": "Period at which a device sends readings; together with change thresholds it bounds data staleness."
+    },
+    {
+     "term": "Duty cycle (radio)",
+     "definition": "Fraction of time a device may transmit, limited by regulation in some sub-GHz bands and by battery budget."
+    },
+    {
+     "term": "Sleepy end device",
+     "definition": "Battery node that sleeps most of the time and is reachable only when it polls its parent."
+    },
+    {
+     "term": "Device twin / shadow",
+     "definition": "Server-side record of a device's last reported and desired state."
+    },
+    {
+     "term": "LwM2M object",
+     "definition": "OMA-registered data model for a device function (e.g. object 3303 temperature) with numeric resource ids."
+    },
+    {
+     "term": "Commissioning",
+     "definition": "Joining a device to a network with credentials and binding it to its location and function."
+    },
+    {
+     "term": "Edge gateway",
+     "definition": "Local computer that bridges field protocols to IP and cloud, buffers data and can run local logic."
+    },
+    {
+     "term": "Last will",
+     "definition": "MQTT message the broker publishes when a client disconnects unexpectedly, used for presence detection."
+    }
+   ],
+   "standards": [
+    "OMA LwM2M 1.2",
+    "IETF RFC 7252",
+    "OASIS MQTT 5.0",
+    "IEC 62541",
+    "ETSI EN 303 645",
+    "ISO/IEC 30141"
+   ],
+   "invariants": [
+    "Carry a timestamp and unit with every IoT reading and treat readings older than their reporting interval plus tolerance as stale.",
+    "Confirm the result of commands to building devices (door opened, light on) by an observed state change before acting on it.",
+    "Bind each device to a stable identity and physical location at commissioning; do not infer location from network address.",
+    "Budget battery life from the configured reporting interval and radio conditions, and alarm on low battery before data stops.",
+    "Buffer data at the edge during uplink outages and mark replayed data with its original timestamp.",
+    "Isolate IoT networks from robot control networks and accept only authenticated commands from them."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D16.stale_report",
+     "name": "Stale or missing reports",
+     "description": "Device stops reporting because of battery, radio or gateway failure while consumers keep using the last value.",
+     "detect_via": [
+      "last_seen",
+      "battery_level"
+     ]
+    },
+    {
+     "failure_id": "D16.battery_depletion",
+     "name": "Node battery depletion",
+     "description": "Battery-powered nodes drain faster than budgeted because of poor radio conditions or misconfiguration.",
+     "detect_via": [
+      "battery_level",
+      "battery_voltage"
+     ]
+    },
+    {
+     "failure_id": "D16.radio_coverage",
+     "name": "Radio coverage gap",
+     "description": "Nodes or tags drop off the network in shadowed or interfered areas.",
+     "detect_via": [
+      "rssi",
+      "link_quality",
+      "packet_loss"
+     ]
+    },
+    {
+     "failure_id": "D16.identity_confusion",
+     "name": "Device identity or location confusion",
+     "description": "Swapped or re-commissioned devices report under the wrong identity or location.",
+     "detect_via": [
+      "inspection",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D16.command_unconfirmed",
+     "name": "Unconfirmed actuation",
+     "description": "A command to a door, valve or lock is acknowledged by the network but the physical state never changes.",
+     "detect_via": [
+      "door_state",
+      "on_off",
+      "locked",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D16.gateway_failure",
+     "name": "Edge gateway failure",
+     "description": "Gateway crash, storage exhaustion or uplink loss interrupts many devices at once.",
+     "detect_via": [
+      "last_seen",
+      "storage_free",
+      "cpu_load"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D16.battery_review",
+     "description": "Review battery levels of battery-powered nodes and replace those projected to deplete before the next visit.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D16.device_inventory_reconciliation",
+     "description": "Reconcile commissioned device list with devices seen online, their locations and firmware versions.",
+     "basis": "calendar_days",
+     "interval": 90
+    },
+    {
+     "check_id": "D16.actuation_test",
+     "description": "Command each robot-relevant building device (doors, elevators, lights) and verify the observed outcome.",
+     "basis": "calendar_days",
+     "interval": 30
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D16.reporting_interval_stated",
+     "level": "warning",
+     "kind": "requires_property",
+     "when": [
+      "iot.sensor.temperature",
+      "iot.sensor.humidity",
+      "iot.sensor.co2",
+      "iot.sensor.air_quality",
+      "iot.sensor.particulate",
+      "iot.sensor.water_leak",
+      "iot.sensor.contact",
+      "iot.sensor.motion_pir",
+      "iot.sensor.presence_mmwave",
+      "iot.sensor.occupancy_counter",
+      "iot.sensor.vibration",
+      "iot.sensor.fill_level"
+     ],
+     "property": "reporting_interval",
+     "message": "IoT sensor does not state its reporting interval",
+     "rationale": "Consumers such as robots cannot tell a current reading from a stale one without knowing how often the sensor reports.",
+     "standards": []
+    }
+   ]
+  },
+  {
+   "domain_id": "D17",
+   "name": "Cloud and fleet backend",
+   "summary": "Off-robot services that manage fleets: task dispatch and traffic management, fleet interfaces such as VDA 5050 and Open-RMF, telemetry ingestion, logs, maps, software distribution and remote operations. Typical failures are commands applied to the wrong robot or a stale state, connectivity loss mid-mission, duplicate or reordered orders, and backend outages that stop on-site operations.",
+   "scope": [
+    "fleet.*",
+    "compute.edge_server",
+    "compute.workstation_gpu",
+    "app.amqp",
+    "app.http_rest",
+    "app.websocket",
+    "app.grpc",
+    "app.asset_administration_shell",
+    "app.wot_td"
+   ],
+   "vocabulary": [
+    {
+     "term": "Order",
+     "definition": "VDA 5050 message from master control to a vehicle describing nodes and edges to traverse and actions to perform."
+    },
+    {
+     "term": "Fleet adapter",
+     "definition": "Component that translates between a fleet manager (e.g. Open-RMF) and a vendor's robot API."
+    },
+    {
+     "term": "Idempotency key",
+     "definition": "Identifier that makes a repeated request apply at most once, needed for safe retries over unreliable links."
+    },
+    {
+     "term": "At-least-once delivery",
+     "definition": "Messaging guarantee where duplicates are possible, so consumers must deduplicate."
+    },
+    {
+     "term": "Telemetry retention",
+     "definition": "Policy for how long, at what resolution and where fleet data is stored."
+    },
+    {
+     "term": "Staged rollout",
+     "definition": "Deploying a new version to a small subset of robots first and widening only if metrics stay healthy."
+    },
+    {
+     "term": "Digital twin",
+     "definition": "Synchronised model of a robot or site state used for monitoring and planning."
+    },
+    {
+     "term": "Offline autonomy",
+     "definition": "Robot's ability to finish or safely pause its current task when the backend is unreachable."
+    }
+   ],
+   "standards": [
+    "VDA 5050",
+    "MassRobotics AMR Interoperability Standard",
+    "ISO/IEC 27001",
+    "IEC 62443-3-3"
+   ],
+   "invariants": [
+    "Make every command idempotent and addressed to a specific robot and state version; reject commands based on stale state.",
+    "Design robots to reach a safe state and keep local safety independent of backend connectivity.",
+    "Treat a robot's reported task state as a claim until confirmed by observation, and reconcile unknown outcomes before reissuing work.",
+    "Roll out software in stages with automatic halt on regression, and keep the previous version deployable.",
+    "Authenticate robots and operators separately, and log every remote command with who issued it and why.",
+    "Keep on-site operation possible during cloud outages for functions that sites depend on, or document that dependency."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D17.connectivity_loss",
+     "name": "Backend connectivity loss",
+     "description": "Robots lose the backend mid-mission and stall or act on outdated plans.",
+     "detect_via": [
+      "last_seen",
+      "connection_state",
+      "latency"
+     ]
+    },
+    {
+     "failure_id": "D17.duplicate_command",
+     "name": "Duplicate or reordered command",
+     "description": "Retries or queue redelivery apply an order twice or out of sequence.",
+     "detect_via": [
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D17.wrong_target",
+     "name": "Command to wrong robot or stale state",
+     "description": "Identity mix-ups or stale twins cause commands to apply to the wrong robot or situation.",
+     "detect_via": [
+      "log",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D17.bad_rollout",
+     "name": "Faulty fleet rollout",
+     "description": "A new software or map version degrades many robots at once.",
+     "detect_via": [
+      "log",
+      "fault_code"
+     ]
+    },
+    {
+     "failure_id": "D17.data_loss",
+     "name": "Telemetry or log loss",
+     "description": "Ingestion backlog or retention misconfiguration loses data needed for incident analysis.",
+     "detect_via": [
+      "log",
+      "storage_free"
+     ]
+    },
+    {
+     "failure_id": "D17.traffic_deadlock",
+     "name": "Fleet traffic deadlock",
+     "description": "Traffic management allocates conflicting paths or resources so robots block each other.",
+     "detect_via": [
+      "log",
+      "velocity"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D17.disconnect_drill",
+     "description": "Disconnect the backend during representative missions and verify robots reach the documented safe behaviour.",
+     "basis": "calendar_days",
+     "interval": 180
+    },
+    {
+     "check_id": "D17.backup_restore_test",
+     "description": "Restore fleet configuration, maps and credentials from backup into a test environment.",
+     "basis": "calendar_days",
+     "interval": 180
+    },
+    {
+     "check_id": "D17.access_review",
+     "description": "Review operator and service accounts and remote-command permissions.",
+     "basis": "calendar_days",
+     "interval": 90
+    }
+   ],
+   "rules": []
+  },
+  {
+   "domain_id": "D18",
+   "name": "HMI and external interfaces",
+   "summary": "How people and external systems interact with the robot: teach pendants, displays, stack lights, voice, joysticks, RC transmitters, teleoperation and XR, and machine-to-site interfaces such as doors, elevators and call stations. Typical failures are ambiguous or unnoticed status indication, unintended activation of controls, teleoperation latency or loss, mode confusion, and site interfaces left in an unsafe state after a robot fault.",
+   "scope": [
+    "hmi.*",
+    "infra.elevator.*",
+    "infra.door.*",
+    "infra.access.robot_call_station",
+    "infra.gate.*",
+    "comms.video.*",
+    "comms.rc.receiver",
+    "net.rc_sbus",
+    "net.rc_crsf",
+    "net.rc_ppm",
+    "app.webrtc"
+   ],
+   "vocabulary": [
+    {
+     "term": "Indicator colour coding",
+     "definition": "Standardised meanings of indicator colours (e.g. red emergency, yellow abnormal, green normal, blue mandatory action) per IEC 60073 and IEC 60204-1."
+    },
+    {
+     "term": "Mode confusion",
+     "definition": "Operator believes the robot is in a different operating mode or autonomy level than it is."
+    },
+    {
+     "term": "Glass-to-glass latency",
+     "definition": "Delay from an event in front of the camera to its display at the operator; bounds safe teleoperation speed."
+    },
+    {
+     "term": "Deadman / enabling device",
+     "definition": "Control that must be held in a middle position for motion to be allowed, releasing or clenching stops motion."
+    },
+    {
+     "term": "Failsafe (RC)",
+     "definition": "Receiver behaviour on loss of transmitter signal: hold, preset outputs or no pulses, configured per channel."
+    },
+    {
+     "term": "Hold-to-run",
+     "definition": "Control requiring continuous actuation for motion to continue."
+    },
+    {
+     "term": "Situation awareness",
+     "definition": "Operator's perception of the robot's state, surroundings and likely future, which displays must support."
+    },
+    {
+     "term": "Elevator interface",
+     "definition": "Electrical or networked interface through which a robot calls, holds and releases a lift car."
+    }
+   ],
+   "standards": [
+    "IEC 60073",
+    "IEC 61310-1",
+    "IEC 60204-1",
+    "ISO 9241-110",
+    "ISO 13850",
+    "ISO 7010"
+   ],
+   "invariants": [
+    "Show the current operating mode, autonomy level and safety state unambiguously and in the same place on every HMI.",
+    "Use indicator colours and signals with their standard meanings, and do not rely on colour alone.",
+    "Guard controls that start motion against unintended activation, and require a hold-to-run or enabling device in manual modes where the standards require it.",
+    "Measure teleoperation latency and bound robot speed to what the operator can safely stop at that latency; stop on link loss.",
+    "Configure RC and teleoperation failsafes to stop or land, never to hold the last command.",
+    "Leave site interfaces (doors, elevators, gates) in a safe and released state when a robot faults or times out while using them."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D18.mode_confusion",
+     "name": "Mode confusion",
+     "description": "Operator acts on a wrong belief about the robot's mode or control authority.",
+     "detect_via": [
+      "log",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D18.unintended_activation",
+     "name": "Unintended activation",
+     "description": "Accidental touches, dropped pendants or stuck buttons start or modify motion.",
+     "detect_via": [
+      "pressed",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D18.teleop_latency",
+     "name": "Teleoperation latency or link loss",
+     "description": "Video or command delay makes remote control unsafe, or the link drops during motion.",
+     "detect_via": [
+      "latency",
+      "packet_loss",
+      "frame_rate"
+     ]
+    },
+    {
+     "failure_id": "D18.indicator_failure",
+     "name": "Status indication failure",
+     "description": "Failed lamps, mismatched displays or muted audio leave people unaware of robot state.",
+     "detect_via": [
+      "fault",
+      "test"
+     ]
+    },
+    {
+     "failure_id": "D18.site_interface_stuck",
+     "name": "Site interface left in unsafe state",
+     "description": "Doors, gates or elevator cars remain held or open after a robot fault.",
+     "detect_via": [
+      "door_state",
+      "session_state",
+      "log"
+     ]
+    },
+    {
+     "failure_id": "D18.rc_failsafe_misconfigured",
+     "name": "RC failsafe misconfigured",
+     "description": "On signal loss the receiver holds last outputs, so the vehicle continues uncontrolled.",
+     "detect_via": [
+      "test",
+      "log"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D18.indicator_test",
+     "description": "Lamp-test stack lights, status bars and audible signals and verify mode display against the actual mode.",
+     "basis": "calendar_days",
+     "interval": 30
+    },
+    {
+     "check_id": "D18.failsafe_test",
+     "description": "Switch off the RC transmitter or cut the teleoperation link and verify the configured failsafe behaviour.",
+     "basis": "calendar_days",
+     "interval": 90
+    },
+    {
+     "check_id": "D18.site_interface_test",
+     "description": "Exercise door, gate and elevator interfaces including fault and timeout release.",
+     "basis": "calendar_days",
+     "interval": 30
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D18.teleop_estop",
+     "level": "warning",
+     "kind": "requires_component",
+     "when": [
+      "hmi.joystick",
+      "hmi.gamepad",
+      "hmi.haptic_master"
+     ],
+     "any_of": [
+      "safety.emergency_stop_button",
+      "safety.wireless_emergency_stop",
+      "hmi.teach_pendant"
+     ],
+     "message": "Manual or teleoperation input device without an emergency stop device",
+     "rationale": "An operator controlling motion by joystick or gamepad needs an independent means to stop the robot if the input device or link misbehaves.",
+     "standards": [
+      "ISO 13850",
+      "IEC 60204-1"
+     ]
+    }
+   ]
+  },
+  {
+   "domain_id": "D19",
+   "name": "Environment and world",
+   "summary": "The physical world the robot operates in and is exposed to: ambient temperature, humidity, water, dust, vibration, weather, terrain, lighting, explosive or corrosive atmospheres, and the site infrastructure and markers around it. Typical failures are ingress of water and dust, operation outside temperature or weather limits, terrain and floor conditions beyond traction or stability limits, and site changes that invalidate maps or markers.",
+   "scope": [
+    "infra.*",
+    "sensor.environment.*",
+    "sensor.wind.*",
+    "sensor.rain",
+    "sensor.light.*",
+    "sensor.water_quality.*",
+    "sensor.marine.*",
+    "iot.sensor.*",
+    "iot.agri.*",
+    "mechanical.enclosure",
+    "mechanical.seal"
+   ],
+   "vocabulary": [
+    {
+     "term": "IP code",
+     "definition": "IEC 60529 rating of enclosure protection against solids (first digit) and water (second digit), e.g. IP54, IP67."
+    },
+    {
+     "term": "Operating temperature range",
+     "definition": "Ambient temperatures over which a device meets its specification; storage range is usually wider."
+    },
+    {
+     "term": "Dew point",
+     "definition": "Temperature at which air becomes saturated and moisture condenses on colder surfaces."
+    },
+    {
+     "term": "Hazardous area zone",
+     "definition": "Classification of locations by likelihood of explosive atmosphere (gas zones 0, 1, 2; dust zones 20, 21, 22)."
+    },
+    {
+     "term": "Depth rating",
+     "definition": "Maximum water depth (pressure) a subsea component withstands in operation."
+    },
+    {
+     "term": "Floor flatness",
+     "definition": "Deviation of floor surface from a plane, which affects AMR stability, payload and localisation."
+    },
+    {
+     "term": "Ingress",
+     "definition": "Entry of water, dust or foreign material into an enclosure."
+    },
+    {
+     "term": "Ambient light interference",
+     "definition": "Sunlight or artificial light that saturates cameras, ToF and lidar receivers."
+    }
+   ],
+   "standards": [
+    "IEC 60529",
+    "IEC 60068-2-6",
+    "IEC 60068-2-27",
+    "IEC 60721-3-1",
+    "ISO 20653",
+    "IEC 60079-0",
+    "Directive 2014/34/EU"
+   ],
+   "invariants": [
+    "Operate equipment only within its rated ambient temperature, humidity, IP and altitude limits, and stop or return to shelter when weather leaves the validated range.",
+    "Use only equipment certified for the hazardous-area zone where explosive atmospheres can occur; a standard robot must not enter such zones.",
+    "Check slopes, steps, floor flatness and surface friction of routes against the robot's stability and traction limits before deployment.",
+    "Re-verify ingress protection after any enclosure opening, cable change or seal replacement.",
+    "Account for sunlight, rain, fog and dust in perception performance and reduce speed or stop when sensor performance degrades.",
+    "Record site changes that affect maps, markers, anchors or reflectors and update them before robots rely on them."
+   ],
+   "failure_taxonomy": [
+    {
+     "failure_id": "D19.water_ingress",
+     "name": "Water or dust ingress",
+     "description": "Seals, glands or vents fail and water or dust enters enclosures, causing corrosion, shorts and sensor failure.",
+     "detect_via": [
+      "water_ingress",
+      "leak_detected",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D19.temperature_excursion",
+     "name": "Ambient temperature excursion",
+     "description": "Operation in heat or cold beyond ratings reduces battery capacity, throttles compute or freezes mechanisms.",
+     "detect_via": [
+      "internal_temperature",
+      "temperature",
+      "pack_temperature"
+     ]
+    },
+    {
+     "failure_id": "D19.adverse_weather",
+     "name": "Adverse weather",
+     "description": "Wind, rain, snow or fog exceed flight or driving limits or degrade sensors.",
+     "detect_via": [
+      "wind_speed",
+      "wind_gust",
+      "rainfall"
+     ]
+    },
+    {
+     "failure_id": "D19.terrain_limit",
+     "name": "Terrain or floor beyond limits",
+     "description": "Slopes, holes, steps, slippery or uneven floors cause tip-over, loss of traction or getting stuck.",
+     "detect_via": [
+      "wheel_slip",
+      "velocity",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D19.hazardous_atmosphere",
+     "name": "Hazardous atmosphere",
+     "description": "Flammable gas, oxygen deficiency or toxic gas presents ignition or exposure risk.",
+     "detect_via": [
+      "lel",
+      "co2",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D19.site_change",
+     "name": "Site change",
+     "description": "Moved racks, removed markers or new obstacles invalidate maps and guidance.",
+     "detect_via": [
+      "log",
+      "inspection"
+     ]
+    },
+    {
+     "failure_id": "D19.pressure_overload",
+     "name": "Depth or pressure overload",
+     "description": "Subsea components exceed their depth rating and implode or leak.",
+     "detect_via": [
+      "depth",
+      "leak_detected"
+     ]
+    }
+   ],
+   "checks": [
+    {
+     "check_id": "D19.seal_inspection",
+     "description": "Inspect enclosure seals, glands, vents and covers and replace hardened or damaged seals.",
+     "basis": "calendar_days",
+     "interval": 180
+    },
+    {
+     "check_id": "D19.route_survey",
+     "description": "Survey routes for floor damage, slope changes, obstacles and missing markers.",
+     "basis": "calendar_days",
+     "interval": 90
+    },
+    {
+     "check_id": "D19.environment_sensor_calibration",
+     "description": "Calibrate or bump-test gas and environmental sensors used for operating decisions.",
+     "basis": "calendar_days",
+     "interval": 180
+    }
+   ],
+   "rules": [
+    {
+     "rule_id": "D19.subsea_depth_rating",
+     "level": "warning",
+     "kind": "requires_property",
+     "when": [
+      "sensor.marine.dvl",
+      "sensor.marine.depth_pressure",
+      "actuator.other.marine_thruster",
+      "actuator.other.buoyancy_engine"
+     ],
+     "property": "depth_rating",
+     "message": "Subsea component does not state its depth rating",
+     "rationale": "The vehicle's operating depth is limited by its weakest pressure-rated component, which cannot be checked without each rating.",
+     "standards": []
+    }
+   ]
+  }
+ ]
+}

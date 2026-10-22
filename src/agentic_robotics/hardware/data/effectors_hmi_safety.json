@@ -1,0 +1,8991 @@
+{
+ "device_types": [
+  {
+   "type_id": "end_effector.gripper.parallel.electric",
+   "name": "Electric parallel gripper",
+   "category": "end_effector",
+   "description": "Two-jaw gripper with jaws moving linearly in parallel, driven by a servo or stepper motor with position and force control.",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "aliases": [
+    "servo gripper",
+    "electric two-finger gripper"
+   ],
+   "properties": [
+    {
+     "name": "gripping_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true,
+     "description": "Rated gripping force (sum over jaws unless stated)"
+    },
+    {
+     "name": "stroke_per_jaw",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true,
+     "description": "Recommended workpiece mass"
+    },
+    {
+     "name": "repeatability",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "closing_time",
+     "kind": "quantity",
+     "unit": "ms"
+    },
+    {
+     "name": "mass",
+     "kind": "quantity",
+     "unit": "kg"
+    },
+    {
+     "name": "mounting_flange",
+     "kind": "string",
+     "description": "Mechanical interface, e.g. ISO 9409-1-50-4-M6"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    },
+    {
+     "name": "rated_voltage",
+     "kind": "quantity",
+     "unit": "V",
+     "required": true
+    },
+    {
+     "name": "max_current",
+     "kind": "quantity",
+     "unit": "A"
+    },
+    {
+     "name": "self_locking",
+     "kind": "bool",
+     "description": "Holds grip on power loss"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link",
+    "bus.rs485",
+    "fieldbus.modbus_rtu",
+    "can.canopen",
+    "fieldbus.ethercat"
+   ],
+   "provides": [
+    "grasping",
+    "manipulation",
+    "force_control"
+   ],
+   "telemetry": [
+    {
+     "name": "jaw_position",
+     "unit": "mm"
+    },
+    {
+     "name": "grip_force",
+     "unit": "N"
+    },
+    {
+     "name": "object_detected",
+     "description": "Bool: part gripped within expected jaw window"
+    },
+    {
+     "name": "cycle_count",
+     "unit": "cycles"
+    },
+    {
+     "name": "motor_temperature",
+     "unit": "degC"
+    },
+    {
+     "name": "motor_current",
+     "unit": "A"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "finger pads / jaw inserts",
+     "basis": "condition",
+     "action": "replace when worn or contaminated"
+    },
+    {
+     "item": "guide rails",
+     "basis": "cycles",
+     "interval": 5000000,
+     "action": "inspect play, re-lubricate per vendor"
+    }
+   ],
+   "failure_modes": [
+    "dropped part on power loss without self-locking",
+    "jaw guide wear increasing play",
+    "encoder or motor fault",
+    "force calibration drift"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 9409-1"
+    }
+   ]
+  },
+  {
+   "type_id": "end_effector.gripper.parallel.pneumatic",
+   "name": "Pneumatic parallel gripper",
+   "category": "end_effector",
+   "description": "Two- or three-jaw gripper actuated by a pneumatic piston via wedge-hook or rack; force set by supply pressure.",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "aliases": [
+    "air gripper"
+   ],
+   "properties": [
+    {
+     "name": "gripping_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true,
+     "description": "Rated gripping force (sum over jaws unless stated)"
+    },
+    {
+     "name": "stroke_per_jaw",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true,
+     "description": "Recommended workpiece mass"
+    },
+    {
+     "name": "repeatability",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "closing_time",
+     "kind": "quantity",
+     "unit": "ms"
+    },
+    {
+     "name": "mass",
+     "kind": "quantity",
+     "unit": "kg"
+    },
+    {
+     "name": "mounting_flange",
+     "kind": "string",
+     "description": "Mechanical interface, e.g. ISO 9409-1-50-4-M6"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    },
+    {
+     "name": "operating_pressure",
+     "kind": "quantity",
+     "unit": "bar",
+     "required": true
+    },
+    {
+     "name": "action",
+     "kind": "enum",
+     "values": [
+      "double_acting",
+      "single_acting_spring_open",
+      "single_acting_spring_close"
+     ]
+    },
+    {
+     "name": "grip_retention_spring",
+     "kind": "bool",
+     "description": "Spring keeps force on air loss"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "grasping",
+    "manipulation"
+   ],
+   "telemetry": [
+    {
+     "name": "jaw_open_sensor",
+     "description": "Magnetic/inductive end-position switch"
+    },
+    {
+     "name": "jaw_closed_sensor"
+    },
+    {
+     "name": "supply_pressure",
+     "unit": "bar"
+    },
+    {
+     "name": "cycle_count",
+     "unit": "cycles"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "finger pads / jaw inserts",
+     "basis": "condition",
+     "action": "replace when worn or contaminated"
+    },
+    {
+     "item": "piston seals",
+     "basis": "cycles",
+     "interval": 10000000,
+     "action": "replace seal kit per vendor rating"
+    },
+    {
+     "item": "compressed air quality",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check filter/dryer (ISO 8573-1 class per vendor)"
+    }
+   ],
+   "failure_modes": [
+    "air loss dropping part",
+    "seal leak reducing force",
+    "position sensor misadjustment",
+    "contamination from oily air"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 9409-1"
+    },
+    {
+     "name": "ISO 8573-1"
+    },
+    {
+     "name": "ISO 4414"
+    }
+   ]
+  },
+  {
+   "type_id": "end_effector.gripper.angular",
+   "name": "Angular gripper",
+   "category": "end_effector",
+   "description": "Jaws pivot about a fixed axis (typically up to 180 deg opening), clearing the part so the robot can approach from above.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "angular jaw gripper",
+    "radial gripper"
+   ],
+   "properties": [
+    {
+     "name": "gripping_torque",
+     "kind": "quantity",
+     "unit": "N*m",
+     "required": true
+    },
+    {
+     "name": "opening_angle",
+     "kind": "quantity",
+     "unit": "deg",
+     "required": true
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "operating_pressure",
+     "kind": "quantity",
+     "unit": "bar"
+    },
+    {
+     "name": "closing_time",
+     "kind": "quantity",
+     "unit": "ms"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "grasping"
+   ],
+   "telemetry": [
+    {
+     "name": "jaw_open_sensor"
+    },
+    {
+     "name": "jaw_closed_sensor"
+    },
+    {
+     "name": "cycle_count",
+     "unit": "cycles"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "finger pads / jaw inserts",
+     "basis": "condition",
+     "action": "replace when worn or contaminated"
+    },
+    {
+     "item": "pivot bearings",
+     "basis": "cycles",
+     "interval": 5000000,
+     "action": "inspect play"
+    }
+   ],
+   "failure_modes": [
+    "pivot wear",
+    "air loss",
+    "part slip at angle"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.gripper.three_finger_adaptive",
+   "name": "Three-finger adaptive gripper",
+   "category": "end_effector",
+   "description": "Underactuated gripper with three articulated fingers that conform to part shape; modes for pinch, wide and encompassing grasps.",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "aliases": [
+    "adaptive gripper"
+   ],
+   "properties": [
+    {
+     "name": "gripping_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "max_opening",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "closing_time",
+     "kind": "quantity",
+     "unit": "ms"
+    },
+    {
+     "name": "grasp_mode",
+     "kind": "enum",
+     "values": [
+      "pinch",
+      "wide",
+      "scissor",
+      "basic"
+     ]
+    },
+    {
+     "name": "rated_voltage",
+     "kind": "quantity",
+     "unit": "V"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [
+    "bus.rs485",
+    "fieldbus.modbus_rtu",
+    "fieldbus.modbus_tcp",
+    "fieldbus.ethernet_ip",
+    "middleware.ros2"
+   ],
+   "provides": [
+    "grasping",
+    "manipulation"
+   ],
+   "telemetry": [
+    {
+     "name": "finger_position",
+     "description": "Per-finger normalized position 0-255 or percent"
+    },
+    {
+     "name": "object_detected"
+    },
+    {
+     "name": "motor_current",
+     "unit": "A"
+    },
+    {
+     "name": "fault_code"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "finger pads / jaw inserts",
+     "basis": "condition",
+     "action": "replace when worn or contaminated"
+    },
+    {
+     "item": "finger linkages",
+     "basis": "condition",
+     "action": "inspect pins and springs"
+    }
+   ],
+   "failure_modes": [
+    "linkage spring fatigue",
+    "uneven finger closure",
+    "communication timeout"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.hand.dexterous",
+   "name": "Dexterous multi-finger hand",
+   "category": "end_effector",
+   "description": "Anthropomorphic hand with many actively driven DOF (typically 12-24) and tactile or joint torque sensing for in-hand manipulation.",
+   "domains": [
+    "D01",
+    "D05",
+    "D12"
+   ],
+   "aliases": [
+    "robot hand",
+    "humanoid hand"
+   ],
+   "properties": [
+    {
+     "name": "actuated_dof",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "finger_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "fingertip_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg"
+    },
+    {
+     "name": "actuation",
+     "kind": "enum",
+     "values": [
+      "motor_in_finger",
+      "tendon_driven",
+      "hydraulic",
+      "pneumatic"
+     ]
+    },
+    {
+     "name": "tactile_sensing",
+     "kind": "bool"
+    },
+    {
+     "name": "mass",
+     "kind": "quantity",
+     "unit": "kg"
+    }
+   ],
+   "interfaces": [
+    "can.fd",
+    "fieldbus.ethercat",
+    "bus.rs485",
+    "bus.usb",
+    "middleware.ros2"
+   ],
+   "provides": [
+    "grasping",
+    "manipulation",
+    "force_control"
+   ],
+   "telemetry": [
+    {
+     "name": "joint_positions",
+     "unit": "rad"
+    },
+    {
+     "name": "joint_torques",
+     "unit": "N*m"
+    },
+    {
+     "name": "tactile_pressure",
+     "unit": "kPa"
+    },
+    {
+     "name": "actuator_temperature",
+     "unit": "degC"
+    },
+    {
+     "name": "tendon_tension",
+     "unit": "N"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "tendons",
+     "basis": "hours",
+     "action": "inspect fraying, re-tension per vendor"
+    },
+    {
+     "item": "skin / fingertip covers",
+     "basis": "condition",
+     "action": "replace when torn"
+    },
+    {
+     "item": "joint calibration",
+     "basis": "calendar_days",
+     "interval": 30,
+     "action": "re-zero joints"
+    }
+   ],
+   "failure_modes": [
+    "tendon breakage",
+    "actuator overheating in sustained grasp",
+    "tactile sensor drift",
+    "skin tear"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.humanoid.*",
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.hand.underactuated",
+   "name": "Underactuated hand",
+   "category": "end_effector",
+   "description": "Hand with fewer actuators than joints, using linkages, tendons or differentials so fingers wrap passively around objects.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "compliant hand",
+    "self-adaptive hand"
+   ],
+   "properties": [
+    {
+     "name": "actuator_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "joint_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "gripping_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "max_opening",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg"
+    }
+   ],
+   "interfaces": [
+    "bus.rs485",
+    "can.classic",
+    "electrical.pwm",
+    "bus.usb"
+   ],
+   "provides": [
+    "grasping"
+   ],
+   "telemetry": [
+    {
+     "name": "actuator_position"
+    },
+    {
+     "name": "actuator_current",
+     "unit": "A"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "tendons / linkages",
+     "basis": "condition",
+     "action": "inspect and replace"
+    },
+    {
+     "item": "finger pads / jaw inserts",
+     "basis": "condition",
+     "action": "replace when worn or contaminated"
+    }
+   ],
+   "failure_modes": [
+    "tendon slip",
+    "unstable precision grasp",
+    "spring fatigue"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.humanoid.*",
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.vacuum.cup",
+   "name": "Vacuum cup gripper",
+   "category": "end_effector",
+   "description": "One or more elastomer suction cups evacuated by an ejector (Venturi) or pump; the standard tool for flat, sealed-surface parts.",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "aliases": [
+    "suction cup gripper",
+    "vacuum gripper"
+   ],
+   "properties": [
+    {
+     "name": "cup_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "cup_diameter",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "cup_material",
+     "kind": "enum",
+     "values": [
+      "NBR",
+      "silicone",
+      "polyurethane",
+      "FKM",
+      "HT1",
+      "EPDM"
+     ]
+    },
+    {
+     "name": "cup_shape",
+     "kind": "enum",
+     "values": [
+      "flat",
+      "bellows_1_5",
+      "bellows_2_5",
+      "oval",
+      "deep"
+     ]
+    },
+    {
+     "name": "max_vacuum",
+     "kind": "quantity",
+     "unit": "kPa",
+     "required": true
+    },
+    {
+     "name": "holding_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "vacuum_source",
+     "kind": "enum",
+     "values": [
+      "ejector",
+      "pump",
+      "blower",
+      "electric_onboard"
+     ]
+    },
+    {
+     "name": "non_return_valve",
+     "kind": "bool"
+    },
+    {
+     "name": "operating_pressure",
+     "kind": "quantity",
+     "unit": "bar"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "grasping",
+    "manipulation"
+   ],
+   "telemetry": [
+    {
+     "name": "vacuum_level",
+     "unit": "kPa",
+     "description": "Relative vacuum (negative gauge pressure)"
+    },
+    {
+     "name": "part_present",
+     "description": "Vacuum switch threshold reached"
+    },
+    {
+     "name": "evacuation_time",
+     "unit": "ms"
+    },
+    {
+     "name": "air_consumption",
+     "unit": "L/min"
+    },
+    {
+     "name": "ejector_supply_pressure",
+     "unit": "bar"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "suction cups",
+     "basis": "cycles",
+     "interval": 1000000,
+     "action": "replace; typical life varies strongly with material and abrasion"
+    },
+    {
+     "item": "ejector silencer / filter",
+     "basis": "condition",
+     "action": "clean or replace when clogged"
+    }
+   ],
+   "failure_modes": [
+    "vacuum leak on porous or uneven parts",
+    "dropped part on air/power loss",
+    "cup wear or tear",
+    "clogged filter",
+    "part detection false positive"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*",
+    "robot.palletizer.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.vacuum.foam",
+   "name": "Vacuum foam (area) gripper",
+   "category": "end_effector",
+   "description": "Large-area gripper with a perforated plate and closed-cell foam seal, often with per-hole check valves, for boxes and mixed layers.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "area gripper",
+    "foam vacuum gripper"
+   ],
+   "properties": [
+    {
+     "name": "gripping_area",
+     "kind": "quantity",
+     "unit": "cm^2",
+     "required": true
+    },
+    {
+     "name": "max_vacuum",
+     "kind": "quantity",
+     "unit": "kPa",
+     "required": true
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "vacuum_source",
+     "kind": "enum",
+     "values": [
+      "ejector",
+      "pump",
+      "blower"
+     ]
+    },
+    {
+     "name": "valve_per_hole",
+     "kind": "bool"
+    },
+    {
+     "name": "zone_count",
+     "kind": "integer"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link",
+    "fieldbus.profinet"
+   ],
+   "provides": [
+    "grasping",
+    "lifting"
+   ],
+   "telemetry": [
+    {
+     "name": "vacuum_level",
+     "unit": "kPa",
+     "description": "Relative vacuum (negative gauge pressure)"
+    },
+    {
+     "name": "part_present",
+     "description": "Vacuum switch threshold reached"
+    },
+    {
+     "name": "evacuation_time",
+     "unit": "ms"
+    },
+    {
+     "name": "air_consumption",
+     "unit": "L/min"
+    },
+    {
+     "name": "zone_vacuum",
+     "unit": "kPa"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "foam seal",
+     "basis": "condition",
+     "action": "replace when compressed set or cut"
+    }
+   ],
+   "failure_modes": [
+    "foam wear causing leak",
+    "dropped box on partial coverage",
+    "valve sticking"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.palletizer.*",
+    "robot.manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.vacuum.bernoulli",
+   "name": "Bernoulli gripper",
+   "category": "end_effector",
+   "description": "Contact-light gripper using a radial air jet to create a low-pressure region, used for wafers, solar cells and fragile thin parts.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "non-contact gripper",
+    "air bearing gripper"
+   ],
+   "properties": [
+    {
+     "name": "lift_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "operating_pressure",
+     "kind": "quantity",
+     "unit": "bar",
+     "required": true
+    },
+    {
+     "name": "air_consumption",
+     "kind": "quantity",
+     "unit": "L/min"
+    },
+    {
+     "name": "diameter",
+     "kind": "quantity",
+     "unit": "mm"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "grasping"
+   ],
+   "telemetry": [
+    {
+     "name": "supply_pressure",
+     "unit": "bar"
+    },
+    {
+     "name": "part_present"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "nozzle",
+     "basis": "condition",
+     "action": "clean"
+    }
+   ],
+   "failure_modes": [
+    "part drift without lateral stops",
+    "supply pressure drop releasing part",
+    "particle generation"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.magnetic.electro_permanent",
+   "name": "Electro-permanent magnetic gripper",
+   "category": "end_effector",
+   "description": "Permanent magnet whose field is switched on/off by a short current pulse; holds ferrous parts with zero power and fails safe on power loss.",
+   "domains": [
+    "D01",
+    "D02"
+   ],
+   "aliases": [
+    "EPM gripper",
+    "magnetic gripper"
+   ],
+   "properties": [
+    {
+     "name": "holding_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true,
+     "description": "On thick mild steel; derate for thin, coated or rough parts"
+    },
+    {
+     "name": "min_part_thickness",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "rated_voltage",
+     "kind": "quantity",
+     "unit": "V",
+     "required": true
+    },
+    {
+     "name": "magnet_type",
+     "kind": "enum",
+     "values": [
+      "electro_permanent",
+      "electromagnet",
+      "permanent_switchable_pneumatic"
+     ]
+    },
+    {
+     "name": "switch_time",
+     "kind": "quantity",
+     "unit": "ms"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link",
+    "electrical.pwm"
+   ],
+   "provides": [
+    "grasping",
+    "lifting"
+   ],
+   "telemetry": [
+    {
+     "name": "magnet_state",
+     "description": "on/off as last commanded"
+    },
+    {
+     "name": "part_present"
+    },
+    {
+     "name": "coil_temperature",
+     "unit": "degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "pole face",
+     "basis": "condition",
+     "action": "clean, check flatness"
+    }
+   ],
+   "failure_modes": [
+    "reduced force on thin/air-gap parts",
+    "residual magnetism retaining part",
+    "electromagnet type drops part on power loss"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.needle",
+   "name": "Needle gripper",
+   "category": "end_effector",
+   "description": "Pneumatically extended angled needles that penetrate textiles, composites or foams to hold porous parts vacuum cannot.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "needle gripper"
+   ],
+   "properties": [
+    {
+     "name": "holding_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "needle_stroke",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "needle_diameter",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "needle_count",
+     "kind": "integer"
+    },
+    {
+     "name": "operating_pressure",
+     "kind": "quantity",
+     "unit": "bar"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "grasping"
+   ],
+   "telemetry": [
+    {
+     "name": "needle_extended"
+    },
+    {
+     "name": "cycle_count",
+     "unit": "cycles"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "needles",
+     "basis": "condition",
+     "action": "replace when bent or blunt"
+    }
+   ],
+   "failure_modes": [
+    "needle breakage",
+    "part damage",
+    "part not released"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.gripper.soft",
+   "name": "Soft finger gripper",
+   "category": "end_effector",
+   "description": "Elastomeric pneumatic fingers that bend under pressure/vacuum to grasp delicate, irregular items such as food.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "soft robotic gripper",
+    "pneumatic network gripper"
+   ],
+   "properties": [
+    {
+     "name": "finger_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "operating_pressure",
+     "kind": "quantity",
+     "unit": "kPa",
+     "required": true
+    },
+    {
+     "name": "gripping_force",
+     "kind": "quantity",
+     "unit": "N"
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "finger_material",
+     "kind": "enum",
+     "values": [
+      "silicone",
+      "TPU",
+      "food_grade_elastomer"
+     ]
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "grasping"
+   ],
+   "telemetry": [
+    {
+     "name": "finger_pressure",
+     "unit": "kPa"
+    },
+    {
+     "name": "cycle_count",
+     "unit": "cycles"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "soft fingers",
+     "basis": "condition",
+     "action": "replace on cuts or leaks"
+    }
+   ],
+   "failure_modes": [
+    "finger puncture or rupture",
+    "low precision placement",
+    "food hygiene contamination"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.gripper.electroadhesive",
+   "name": "Electroadhesive gripper",
+   "category": "end_effector",
+   "description": "Pads with interdigitated electrodes at kV potentials that induce electrostatic adhesion to fabrics, films and flat parts.",
+   "domains": [
+    "D01",
+    "D03"
+   ],
+   "aliases": [
+    "electroadhesion gripper"
+   ],
+   "properties": [
+    {
+     "name": "shear_holding_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "electrode_voltage",
+     "kind": "quantity",
+     "unit": "kV",
+     "required": true
+    },
+    {
+     "name": "pad_area",
+     "kind": "quantity",
+     "unit": "cm^2"
+    },
+    {
+     "name": "power",
+     "kind": "quantity",
+     "unit": "W"
+    },
+    {
+     "name": "release_time",
+     "kind": "quantity",
+     "unit": "ms"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "grasping"
+   ],
+   "telemetry": [
+    {
+     "name": "hv_enabled"
+    },
+    {
+     "name": "hv_current",
+     "unit": "uA"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "pad surface",
+     "basis": "condition",
+     "action": "clean, replace on dielectric damage"
+    }
+   ],
+   "failure_modes": [
+    "dielectric breakdown",
+    "humidity reducing adhesion",
+    "slow release due to residual charge"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.gripper.granular_jamming",
+   "name": "Granular jamming gripper",
+   "category": "end_effector",
+   "description": "Membrane filled with granular media that conforms to an object and stiffens when evacuated.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "jamming gripper",
+    "universal gripper"
+   ],
+   "properties": [
+    {
+     "name": "holding_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "max_vacuum",
+     "kind": "quantity",
+     "unit": "kPa"
+    },
+    {
+     "name": "membrane_diameter",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "granular_medium",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "grasping"
+   ],
+   "telemetry": [
+    {
+     "name": "vacuum_level",
+     "unit": "kPa"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "membrane",
+     "basis": "condition",
+     "action": "replace on puncture"
+    }
+   ],
+   "failure_modes": [
+    "membrane puncture",
+    "inconsistent grasp on flat parts"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.vacuum.bag_sack",
+   "name": "Sack and bag gripper",
+   "category": "end_effector",
+   "description": "Vacuum or clamp-type gripper for flexible sacks (cement, feed, grain), often combined with bottom forks for heavy bags.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "bag gripper",
+    "sack gripper"
+   ],
+   "properties": [
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "gripping_principle",
+     "kind": "enum",
+     "values": [
+      "vacuum_area",
+      "clamp_fingers",
+      "vacuum_with_forks"
+     ],
+     "required": true
+    },
+    {
+     "name": "max_vacuum",
+     "kind": "quantity",
+     "unit": "kPa"
+    },
+    {
+     "name": "cycles_per_minute",
+     "kind": "integer"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip"
+   ],
+   "provides": [
+    "grasping",
+    "lifting"
+   ],
+   "telemetry": [
+    {
+     "name": "vacuum_level",
+     "unit": "kPa",
+     "description": "Relative vacuum (negative gauge pressure)"
+    },
+    {
+     "name": "part_present",
+     "description": "Vacuum switch threshold reached"
+    },
+    {
+     "name": "clamp_closed"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "seal / foam",
+     "basis": "condition",
+     "action": "replace"
+    },
+    {
+     "item": "finger pivots",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "lubricate"
+    }
+   ],
+   "failure_modes": [
+    "bag tear and spill",
+    "dropped bag",
+    "dust clogging filters"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.palletizer.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.fork.pallet",
+   "name": "Fork/tine end effector",
+   "category": "end_effector",
+   "description": "Tines or forks to lift pallets, slip sheets or layers from below, used on palletizers and forklift-type robots.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "tine gripper",
+    "fork gripper"
+   ],
+   "properties": [
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "tine_length",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "tine_count",
+     "kind": "integer"
+    },
+    {
+     "name": "tine_spacing",
+     "kind": "quantity",
+     "unit": "mm"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.profinet"
+   ],
+   "provides": [
+    "lifting",
+    "transport"
+   ],
+   "telemetry": [
+    {
+     "name": "load_present"
+    },
+    {
+     "name": "tine_position",
+     "unit": "mm"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "tines",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "inspect for cracks and deformation"
+    }
+   ],
+   "failure_modes": [
+    "tine bending/cracking",
+    "load tipping",
+    "insufficient insertion"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.palletizer.*",
+    "robot.mobile.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.tool_changer.manual",
+   "name": "Manual tool changer",
+   "category": "end_effector",
+   "description": "Quick-change interface locked by hand (lever or bolt) with optional pass-through for air and electrical signals.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "quick changer"
+   ],
+   "properties": [
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "moment_capacity",
+     "kind": "quantity",
+     "unit": "N*m"
+    },
+    {
+     "name": "air_passthroughs",
+     "kind": "integer"
+    },
+    {
+     "name": "electrical_contacts",
+     "kind": "integer"
+    },
+    {
+     "name": "robot_flange",
+     "kind": "string",
+     "required": true,
+     "description": "e.g. ISO 9409-1-50-4-M6"
+    },
+    {
+     "name": "repeatability",
+     "kind": "quantity",
+     "unit": "mm"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "manipulation"
+   ],
+   "telemetry": [
+    {
+     "name": "locked",
+     "description": "Optional lock confirmation switch"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "locking mechanism",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect wear, verify locking"
+    }
+   ],
+   "failure_modes": [
+    "incomplete locking",
+    "contact wear in signal module"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 9409-1"
+    }
+   ]
+  },
+  {
+   "type_id": "end_effector.tool_changer.automatic",
+   "name": "Automatic tool changer",
+   "category": "end_effector",
+   "description": "Master/tool plate pair locked pneumatically or electrically by the robot, with signal, power, air and fieldbus modules; fail-safe locking keeps tool on air loss.",
+   "domains": [
+    "D01",
+    "D07"
+   ],
+   "aliases": [
+    "ATC",
+    "robotic tool changer"
+   ],
+   "properties": [
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "moment_capacity",
+     "kind": "quantity",
+     "unit": "N*m",
+     "required": true
+    },
+    {
+     "name": "repeatability",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "lock_actuation",
+     "kind": "enum",
+     "values": [
+      "pneumatic",
+      "electric"
+     ]
+    },
+    {
+     "name": "fail_safe_lock",
+     "kind": "bool",
+     "description": "Lock maintained on air/power loss"
+    },
+    {
+     "name": "air_passthroughs",
+     "kind": "integer"
+    },
+    {
+     "name": "utility_modules",
+     "kind": "string",
+     "description": "Electrical, fieldbus, coolant, high-current modules"
+    },
+    {
+     "name": "robot_flange",
+     "kind": "string",
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.ethercat",
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "manipulation"
+   ],
+   "telemetry": [
+    {
+     "name": "locked"
+    },
+    {
+     "name": "unlocked"
+    },
+    {
+     "name": "tool_present"
+    },
+    {
+     "name": "tool_id",
+     "description": "Tool identification code"
+    },
+    {
+     "name": "lock_cycles",
+     "unit": "cycles"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "locking mechanism and seals",
+     "basis": "cycles",
+     "interval": 1000000,
+     "action": "inspect and rebuild per vendor"
+    },
+    {
+     "item": "electrical contacts",
+     "basis": "cycles",
+     "action": "inspect pins for wear and arcing"
+    }
+   ],
+   "failure_modes": [
+    "tool dropped due to incomplete lock",
+    "unlock commanded outside tool stand",
+    "contact wear causing signal loss",
+    "tool ID mismatch"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 9409-1"
+    }
+   ]
+  },
+  {
+   "type_id": "end_effector.compliance.unit",
+   "name": "Compliance / float unit",
+   "category": "end_effector",
+   "description": "Passive or active compliance element (remote center compliance, XY float, axial float) that absorbs misalignment during insertion or contact tasks.",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "aliases": [
+    "RCC device",
+    "float unit",
+    "active contact flange"
+   ],
+   "properties": [
+    {
+     "name": "compliance_type",
+     "kind": "enum",
+     "values": [
+      "rcc",
+      "xy_float",
+      "axial_float",
+      "active_pneumatic"
+     ],
+     "required": true
+    },
+    {
+     "name": "lateral_compliance",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "angular_compliance",
+     "kind": "quantity",
+     "unit": "deg"
+    },
+    {
+     "name": "axial_stiffness",
+     "kind": "quantity",
+     "unit": "N/m"
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "lockable",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "electrical.analog_0_10v"
+   ],
+   "provides": [
+    "force_control"
+   ],
+   "telemetry": [
+    {
+     "name": "deflection",
+     "unit": "mm"
+    },
+    {
+     "name": "contact_force",
+     "unit": "N",
+     "description": "Active types only"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "elastomer elements",
+     "basis": "condition",
+     "action": "replace when hardened"
+    }
+   ],
+   "failure_modes": [
+    "elastomer aging changing stiffness",
+    "lock failure"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.collision_sensor",
+   "name": "Collision sensor / breakaway unit",
+   "category": "end_effector",
+   "description": "Spring-loaded or pneumatic overload clutch between flange and tool that deflects and opens a switch on collision, stopping the robot.",
+   "domains": [
+    "D01",
+    "D14"
+   ],
+   "aliases": [
+    "breakaway clutch",
+    "crash protection"
+   ],
+   "properties": [
+    {
+     "name": "trip_force",
+     "kind": "quantity",
+     "unit": "N"
+    },
+    {
+     "name": "trip_moment",
+     "kind": "quantity",
+     "unit": "N*m",
+     "required": true
+    },
+    {
+     "name": "deflection_angle",
+     "kind": "quantity",
+     "unit": "deg"
+    },
+    {
+     "name": "reset",
+     "kind": "enum",
+     "values": [
+      "automatic",
+      "manual"
+     ]
+    },
+    {
+     "name": "output",
+     "kind": "enum",
+     "values": [
+      "nc_contact",
+      "pnp",
+      "npn"
+     ]
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "tripped"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "trip function",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "test by manual deflection"
+    }
+   ],
+   "failure_modes": [
+    "switch failure masking collision",
+    "spring fatigue lowering trip point"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.screwdriver",
+   "name": "Screwdriver / nutrunner",
+   "category": "end_effector",
+   "description": "Torque-controlled electric spindle with transducer for automated screw driving and bolting, often with screw feeding.",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "aliases": [
+    "nutrunner",
+    "automatic screwdriver"
+   ],
+   "properties": [
+    {
+     "name": "torque_range_max",
+     "kind": "quantity",
+     "unit": "N*m",
+     "required": true
+    },
+    {
+     "name": "torque_range_min",
+     "kind": "quantity",
+     "unit": "N*m"
+    },
+    {
+     "name": "max_speed",
+     "kind": "quantity",
+     "unit": "rpm"
+    },
+    {
+     "name": "torque_accuracy",
+     "kind": "quantity",
+     "unit": "%"
+    },
+    {
+     "name": "transducerized",
+     "kind": "bool"
+    },
+    {
+     "name": "feeding",
+     "kind": "enum",
+     "values": [
+      "none",
+      "blow_feed",
+      "pick_up",
+      "magazine"
+     ]
+    }
+   ],
+   "interfaces": [
+    "fieldbus.ethernet_ip",
+    "fieldbus.profinet",
+    "fieldbus.ethercat",
+    "app.opcua",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "torque",
+    "rotation"
+   ],
+   "telemetry": [
+    {
+     "name": "final_torque",
+     "unit": "N*m"
+    },
+    {
+     "name": "final_angle",
+     "unit": "deg"
+    },
+    {
+     "name": "result",
+     "description": "OK/NOK per tightening"
+    },
+    {
+     "name": "spindle_temperature",
+     "unit": "degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "torque transducer",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "calibrate"
+    },
+    {
+     "item": "bits",
+     "basis": "cycles",
+     "action": "replace on wear"
+    }
+   ],
+   "failure_modes": [
+    "cross-threading",
+    "torque transducer drift",
+    "screw feed jam",
+    "bit wear"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.welding.torch_mig",
+   "name": "MIG/MAG welding torch",
+   "category": "end_effector",
+   "description": "Gas metal arc welding torch fed with wire and shielding gas, mounted with an anti-collision mount and powered by an arc welding source.",
+   "domains": [
+    "D01",
+    "D02"
+   ],
+   "aliases": [
+    "GMAW torch",
+    "MIG torch"
+   ],
+   "properties": [
+    {
+     "name": "rated_current",
+     "kind": "quantity",
+     "unit": "A",
+     "required": true
+    },
+    {
+     "name": "duty_cycle",
+     "kind": "quantity",
+     "unit": "%",
+     "required": true
+    },
+    {
+     "name": "cooling",
+     "kind": "enum",
+     "values": [
+      "gas",
+      "water"
+     ],
+     "required": true
+    },
+    {
+     "name": "wire_diameter",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "shielding_gas",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.ethernet_ip",
+    "fieldbus.profinet",
+    "fieldbus.ethercat"
+   ],
+   "provides": [
+    "welding"
+   ],
+   "telemetry": [
+    {
+     "name": "arc_current",
+     "unit": "A"
+    },
+    {
+     "name": "arc_voltage",
+     "unit": "V"
+    },
+    {
+     "name": "wire_feed_speed",
+     "description": "m/min"
+    },
+    {
+     "name": "gas_flow",
+     "unit": "L/min"
+    },
+    {
+     "name": "coolant_flow",
+     "unit": "L/min"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "contact tip",
+     "basis": "hours",
+     "action": "replace on wear or burn-back"
+    },
+    {
+     "item": "nozzle",
+     "basis": "condition",
+     "action": "clean spatter (reamer station)"
+    },
+    {
+     "item": "liner",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "replace"
+    }
+   ],
+   "failure_modes": [
+    "burn-back",
+    "spatter clogging nozzle",
+    "coolant loss overheating torch",
+    "TCP shift after collision"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 60974-1"
+    },
+    {
+     "name": "IEC 60974-7"
+    }
+   ]
+  },
+  {
+   "type_id": "end_effector.welding.torch_tig",
+   "name": "TIG welding torch",
+   "category": "end_effector",
+   "description": "Gas tungsten arc torch with non-consumable electrode, often with cold-wire feed, for precise welds.",
+   "domains": [
+    "D01",
+    "D02"
+   ],
+   "aliases": [
+    "GTAW torch"
+   ],
+   "properties": [
+    {
+     "name": "rated_current",
+     "kind": "quantity",
+     "unit": "A",
+     "required": true
+    },
+    {
+     "name": "duty_cycle",
+     "kind": "quantity",
+     "unit": "%"
+    },
+    {
+     "name": "cooling",
+     "kind": "enum",
+     "values": [
+      "gas",
+      "water"
+     ],
+     "required": true
+    },
+    {
+     "name": "electrode_diameter",
+     "kind": "quantity",
+     "unit": "mm"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.ethernet_ip",
+    "fieldbus.profinet"
+   ],
+   "provides": [
+    "welding"
+   ],
+   "telemetry": [
+    {
+     "name": "arc_current",
+     "unit": "A"
+    },
+    {
+     "name": "arc_voltage",
+     "unit": "V"
+    },
+    {
+     "name": "gas_flow",
+     "unit": "L/min"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "tungsten electrode",
+     "basis": "condition",
+     "action": "regrind or replace"
+    }
+   ],
+   "failure_modes": [
+    "electrode contamination",
+    "HF ignition interference with electronics",
+    "gas loss"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 60974-1"
+    },
+    {
+     "name": "IEC 60974-7"
+    }
+   ]
+  },
+  {
+   "type_id": "end_effector.welding.spot_gun",
+   "name": "Resistance spot welding gun",
+   "category": "end_effector",
+   "description": "C- or X-type gun clamping sheets between electrodes with servo or pneumatic force and passing high current through them.",
+   "domains": [
+    "D01",
+    "D02"
+   ],
+   "aliases": [
+    "spot welding gun",
+    "servo gun"
+   ],
+   "properties": [
+    {
+     "name": "electrode_force",
+     "kind": "quantity",
+     "unit": "kN",
+     "required": true
+    },
+    {
+     "name": "max_weld_current",
+     "kind": "quantity",
+     "unit": "A",
+     "required": true,
+     "description": "Secondary current, typically 5-20 kA"
+    },
+    {
+     "name": "gun_type",
+     "kind": "enum",
+     "values": [
+      "c_type",
+      "x_type"
+     ]
+    },
+    {
+     "name": "actuation",
+     "kind": "enum",
+     "values": [
+      "servo",
+      "pneumatic"
+     ]
+    },
+    {
+     "name": "throat_depth",
+     "kind": "quantity",
+     "unit": "mm"
+    }
+   ],
+   "interfaces": [
+    "fieldbus.ethercat",
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip",
+    "fieldbus.devicenet"
+   ],
+   "provides": [
+    "welding"
+   ],
+   "telemetry": [
+    {
+     "name": "weld_current",
+     "unit": "A"
+    },
+    {
+     "name": "electrode_force",
+     "unit": "kN"
+    },
+    {
+     "name": "tip_wear",
+     "unit": "mm"
+    },
+    {
+     "name": "coolant_flow",
+     "unit": "L/min"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "electrode caps",
+     "basis": "cycles",
+     "action": "tip dress / replace per weld count"
+    },
+    {
+     "item": "shunts",
+     "basis": "condition",
+     "action": "replace when frayed"
+    }
+   ],
+   "failure_modes": [
+    "electrode wear causing undersized nuggets",
+    "coolant leak",
+    "expulsion and spatter",
+    "pinch hazard"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.laser.head",
+   "name": "Laser welding/cutting head",
+   "category": "end_effector",
+   "description": "Fiber-delivered processing head with focusing optics, protective window, height sensing and optional scanner for laser welding or cutting.",
+   "domains": [
+    "D01",
+    "D04"
+   ],
+   "aliases": [
+    "laser optic",
+    "remote laser head"
+   ],
+   "properties": [
+    {
+     "name": "max_laser_power",
+     "kind": "quantity",
+     "unit": "kW",
+     "required": true
+    },
+    {
+     "name": "focal_length",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "spot_diameter",
+     "kind": "quantity",
+     "unit": "um"
+    },
+    {
+     "name": "wavelength",
+     "kind": "string",
+     "description": "e.g. 1070 nm"
+    },
+    {
+     "name": "function",
+     "kind": "enum",
+     "values": [
+      "welding",
+      "cutting",
+      "cladding",
+      "remote_welding"
+     ],
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.ethercat",
+    "fieldbus.profinet"
+   ],
+   "provides": [
+    "welding",
+    "cutting"
+   ],
+   "telemetry": [
+    {
+     "name": "protective_window_contamination"
+    },
+    {
+     "name": "head_temperature",
+     "unit": "degC"
+    },
+    {
+     "name": "standoff_distance",
+     "unit": "mm"
+    },
+    {
+     "name": "assist_gas_pressure",
+     "unit": "bar"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "protective window",
+     "basis": "condition",
+     "action": "replace when contaminated"
+    }
+   ],
+   "failure_modes": [
+    "window contamination and burn",
+    "back-reflection damage",
+    "stray laser radiation",
+    "standoff loss"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 60825-1"
+    },
+    {
+     "name": "ISO 11553-1"
+    }
+   ]
+  },
+  {
+   "type_id": "end_effector.plasma_cutter",
+   "name": "Plasma cutting torch",
+   "category": "end_effector",
+   "description": "Constricted-arc torch cutting conductive metals, fed by a plasma power source and gas console; with collision mount.",
+   "domains": [
+    "D01",
+    "D02"
+   ],
+   "aliases": [
+    "plasma torch"
+   ],
+   "properties": [
+    {
+     "name": "rated_current",
+     "kind": "quantity",
+     "unit": "A",
+     "required": true
+    },
+    {
+     "name": "max_cut_thickness",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "plasma_gas",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.ethercat"
+   ],
+   "provides": [
+    "cutting"
+   ],
+   "telemetry": [
+    {
+     "name": "arc_voltage",
+     "unit": "V"
+    },
+    {
+     "name": "arc_current",
+     "unit": "A"
+    },
+    {
+     "name": "gas_pressure",
+     "unit": "bar"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "electrode and nozzle",
+     "basis": "hours",
+     "action": "replace per arc-on hours / pierce count"
+    }
+   ],
+   "failure_modes": [
+    "consumable wear degrading cut",
+    "torch collision",
+    "fume and UV exposure"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.spray_gun",
+   "name": "Spray paint gun / rotary atomizer",
+   "category": "end_effector",
+   "description": "Air, airless, electrostatic or rotary bell atomizer for painting and coating; often in explosive atmospheres requiring ATEX-rated design.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "paint gun",
+    "rotary bell"
+   ],
+   "properties": [
+    {
+     "name": "atomization",
+     "kind": "enum",
+     "values": [
+      "air",
+      "airless",
+      "air_assisted_airless",
+      "electrostatic_bell",
+      "hvlp"
+     ],
+     "required": true
+    },
+    {
+     "name": "fluid_flow_max",
+     "kind": "number",
+     "description": "mL/min"
+    },
+    {
+     "name": "bell_speed",
+     "kind": "quantity",
+     "unit": "rpm"
+    },
+    {
+     "name": "electrostatic_voltage",
+     "kind": "quantity",
+     "unit": "kV"
+    },
+    {
+     "name": "ex_marking",
+     "kind": "string",
+     "description": "ATEX/IECEx marking if applicable"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip"
+   ],
+   "provides": [
+    "painting"
+   ],
+   "telemetry": [
+    {
+     "name": "fluid_flow",
+     "description": "mL/min"
+    },
+    {
+     "name": "atomizing_air_pressure",
+     "unit": "bar"
+    },
+    {
+     "name": "bell_speed",
+     "unit": "rpm"
+    },
+    {
+     "name": "hv_current",
+     "unit": "uA"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "nozzle / bell cup",
+     "basis": "condition",
+     "action": "clean, replace on damage"
+    },
+    {
+     "item": "color change flush",
+     "basis": "condition",
+     "action": "verify cleaning cycles"
+    }
+   ],
+   "failure_modes": [
+    "nozzle clog",
+    "ignition risk in hazardous zone",
+    "HV arcing",
+    "paint drips"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 60079-0"
+    }
+   ]
+  },
+  {
+   "type_id": "end_effector.dispenser",
+   "name": "Adhesive/sealant dispenser",
+   "category": "end_effector",
+   "description": "Volumetric or time-pressure dispensing valve applying glue, sealant or beads, with flow and bead monitoring.",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "aliases": [
+    "glue gun",
+    "bead applicator",
+    "dispensing valve"
+   ],
+   "properties": [
+    {
+     "name": "principle",
+     "kind": "enum",
+     "values": [
+      "time_pressure",
+      "progressive_cavity",
+      "piston_volumetric",
+      "jetting",
+      "gear_pump"
+     ],
+     "required": true
+    },
+    {
+     "name": "bead_width",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "material_pressure",
+     "kind": "quantity",
+     "unit": "bar"
+    },
+    {
+     "name": "heated",
+     "kind": "bool"
+    },
+    {
+     "name": "set_temperature",
+     "kind": "quantity",
+     "unit": "degC"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "electrical.analog_0_10v",
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip"
+   ],
+   "provides": [
+    "dispensing"
+   ],
+   "telemetry": [
+    {
+     "name": "material_pressure",
+     "unit": "bar"
+    },
+    {
+     "name": "dispensed_volume",
+     "unit": "mL"
+    },
+    {
+     "name": "nozzle_temperature",
+     "unit": "degC"
+    },
+    {
+     "name": "bead_ok",
+     "description": "Vision bead inspection result"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "nozzle",
+     "basis": "condition",
+     "action": "purge/replace"
+    },
+    {
+     "item": "seals",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "replace"
+    }
+   ],
+   "failure_modes": [
+    "material curing in nozzle",
+    "air bubbles causing gaps",
+    "drip at path end",
+    "temperature drift changing viscosity"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.spindle.polishing",
+   "name": "Polishing/sanding spindle",
+   "category": "end_effector",
+   "description": "Electric or pneumatic random-orbit or rotary spindle, typically with active force-controlled flange and automatic abrasive change.",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "aliases": [
+    "sander",
+    "orbital polisher"
+   ],
+   "properties": [
+    {
+     "name": "rated_power",
+     "kind": "quantity",
+     "unit": "W",
+     "required": true
+    },
+    {
+     "name": "max_speed",
+     "kind": "quantity",
+     "unit": "rpm",
+     "required": true
+    },
+    {
+     "name": "orbit_diameter",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "pad_diameter",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "contact_force_range",
+     "kind": "quantity",
+     "unit": "N"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "electrical.analog_0_10v",
+    "fieldbus.ethercat"
+   ],
+   "provides": [
+    "force_control",
+    "rotation"
+   ],
+   "telemetry": [
+    {
+     "name": "spindle_speed",
+     "unit": "rpm"
+    },
+    {
+     "name": "contact_force",
+     "unit": "N"
+    },
+    {
+     "name": "spindle_load",
+     "unit": "%"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "abrasive discs",
+     "basis": "condition",
+     "action": "replace"
+    },
+    {
+     "item": "spindle bearings",
+     "basis": "hours",
+     "action": "service per vendor"
+    }
+   ],
+   "failure_modes": [
+    "over-polishing due to force error",
+    "dust ingress",
+    "disc detachment"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.deburring_tool",
+   "name": "Deburring tool",
+   "category": "end_effector",
+   "description": "Radially or axially compliant spindle with burr or blade for edge deburring on robots tolerant to path deviation.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "compliant deburring spindle"
+   ],
+   "properties": [
+    {
+     "name": "max_speed",
+     "kind": "quantity",
+     "unit": "rpm",
+     "required": true
+    },
+    {
+     "name": "radial_compliance",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "compliance_force",
+     "kind": "quantity",
+     "unit": "N"
+    },
+    {
+     "name": "rated_power",
+     "kind": "quantity",
+     "unit": "W"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "electrical.analog_0_10v"
+   ],
+   "provides": [
+    "cutting"
+   ],
+   "telemetry": [
+    {
+     "name": "spindle_speed",
+     "unit": "rpm"
+    },
+    {
+     "name": "compliance_pressure",
+     "unit": "bar"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "cutters",
+     "basis": "condition",
+     "action": "replace when dull"
+    }
+   ],
+   "failure_modes": [
+    "cutter breakage",
+    "inconsistent edge from compliance drift"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.spindle.milling",
+   "name": "Drilling/milling spindle",
+   "category": "end_effector",
+   "description": "High-speed motor spindle with tool holder (ER collet, HSK, ISO taper) for robotic drilling, trimming and light machining.",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "aliases": [
+    "electro-spindle",
+    "router spindle"
+   ],
+   "properties": [
+    {
+     "name": "rated_power",
+     "kind": "quantity",
+     "unit": "kW",
+     "required": true
+    },
+    {
+     "name": "max_speed",
+     "kind": "quantity",
+     "unit": "rpm",
+     "required": true
+    },
+    {
+     "name": "tool_interface",
+     "kind": "string",
+     "description": "e.g. HSK-F63, ER32"
+    },
+    {
+     "name": "automatic_tool_change",
+     "kind": "bool"
+    },
+    {
+     "name": "cooling",
+     "kind": "enum",
+     "values": [
+      "air",
+      "liquid"
+     ]
+    }
+   ],
+   "interfaces": [
+    "electrical.three_phase",
+    "fieldbus.ethercat",
+    "fieldbus.profinet",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "cutting",
+    "rotation"
+   ],
+   "telemetry": [
+    {
+     "name": "spindle_speed",
+     "unit": "rpm"
+    },
+    {
+     "name": "spindle_load",
+     "unit": "%"
+    },
+    {
+     "name": "bearing_temperature",
+     "unit": "degC"
+    },
+    {
+     "name": "vibration",
+     "unit": "m/s^2"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "spindle bearings",
+     "basis": "hours",
+     "action": "monitor vibration; rebuild per vendor"
+    },
+    {
+     "item": "tool holder taper",
+     "basis": "condition",
+     "action": "clean"
+    }
+   ],
+   "failure_modes": [
+    "bearing failure",
+    "chatter due to robot compliance",
+    "tool breakage",
+    "chip ingress"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.ultrasonic_cutter",
+   "name": "Ultrasonic cutter",
+   "category": "end_effector",
+   "description": "Blade excited at ultrasonic frequency (typically 20-40 kHz) by a transducer/booster stack for cutting food, rubber, composites and films.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "ultrasonic knife"
+   ],
+   "properties": [
+    {
+     "name": "frequency",
+     "kind": "quantity",
+     "unit": "kHz",
+     "required": true
+    },
+    {
+     "name": "power",
+     "kind": "quantity",
+     "unit": "W",
+     "required": true
+    },
+    {
+     "name": "amplitude",
+     "kind": "quantity",
+     "unit": "um"
+    },
+    {
+     "name": "blade_length",
+     "kind": "quantity",
+     "unit": "mm"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "bus.rs485"
+   ],
+   "provides": [
+    "cutting"
+   ],
+   "telemetry": [
+    {
+     "name": "generator_power",
+     "unit": "W"
+    },
+    {
+     "name": "resonance_frequency",
+     "unit": "kHz"
+    },
+    {
+     "name": "overload"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "blade",
+     "basis": "condition",
+     "action": "replace when chipped or detuned"
+    }
+   ],
+   "failure_modes": [
+    "blade cracking",
+    "frequency detuning",
+    "transducer overheating"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.camera_on_tool",
+   "name": "Camera-on-tool module",
+   "category": "end_effector",
+   "description": "Wrist- or tool-mounted vision module (2D or 3D) used for eye-in-hand calibration, picking and inspection; the sensor itself is a sensor.camera.* type.",
+   "domains": [
+    "D05",
+    "D13"
+   ],
+   "aliases": [
+    "eye-in-hand camera",
+    "wrist camera"
+   ],
+   "properties": [
+    {
+     "name": "camera_type_id",
+     "kind": "string",
+     "required": true,
+     "description": "Referenced sensor.camera.* type"
+    },
+    {
+     "name": "hand_eye_calibration",
+     "kind": "string",
+     "description": "Calibration method/date"
+    },
+    {
+     "name": "integrated_lighting",
+     "kind": "bool"
+    },
+    {
+     "name": "mass",
+     "kind": "quantity",
+     "unit": "kg"
+    }
+   ],
+   "interfaces": [
+    "net.ethernet",
+    "net.poe",
+    "bus.usb"
+   ],
+   "provides": [
+    "imaging",
+    "object_detection"
+   ],
+   "telemetry": [
+    {
+     "name": "calibration_age",
+     "unit": "h"
+    },
+    {
+     "name": "frame_rate",
+     "unit": "fps"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "hand-eye calibration",
+     "basis": "condition",
+     "action": "re-calibrate after collision or tool change"
+    },
+    {
+     "item": "lens / window",
+     "basis": "condition",
+     "action": "clean"
+    }
+   ],
+   "failure_modes": [
+    "calibration loss after impact",
+    "cable fatigue at wrist",
+    "lens contamination"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.lab.pipette",
+   "name": "Pipette/syringe end effector",
+   "category": "end_effector",
+   "description": "Liquid-handling tool with air-displacement or positive-displacement channels, tip pick/eject and liquid-level detection for lab automation.",
+   "domains": [
+    "D01",
+    "D13"
+   ],
+   "aliases": [
+    "pipetting head",
+    "syringe pump tool"
+   ],
+   "properties": [
+    {
+     "name": "channel_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "volume_max",
+     "kind": "quantity",
+     "unit": "mL",
+     "required": true
+    },
+    {
+     "name": "volume_min",
+     "kind": "quantity",
+     "unit": "mL"
+    },
+    {
+     "name": "accuracy",
+     "kind": "quantity",
+     "unit": "%"
+    },
+    {
+     "name": "principle",
+     "kind": "enum",
+     "values": [
+      "air_displacement",
+      "positive_displacement",
+      "syringe"
+     ]
+    },
+    {
+     "name": "liquid_level_detection",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "bus.rs485",
+    "can.canopen",
+    "bus.usb",
+    "app.http_rest"
+   ],
+   "provides": [
+    "dispensing"
+   ],
+   "telemetry": [
+    {
+     "name": "aspirated_volume",
+     "unit": "mL"
+    },
+    {
+     "name": "tip_present"
+    },
+    {
+     "name": "clot_detected"
+    },
+    {
+     "name": "pressure",
+     "unit": "kPa"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "seals / O-rings",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "replace"
+    },
+    {
+     "item": "volume calibration",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "gravimetric verification"
+    }
+   ],
+   "failure_modes": [
+    "leaking seal causing volume error",
+    "tip not ejected",
+    "clot or bubble aspiration",
+    "cross-contamination"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.lab.*",
+    "robot.manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.surgical.wristed_instrument",
+   "name": "Wristed surgical instrument",
+   "category": "end_effector",
+   "description": "Cable-driven articulated instrument (graspers, needle drivers, scissors, energy) for robotically assisted surgery; life-limited and sterilized between uses.",
+   "domains": [
+    "D01",
+    "D14"
+   ],
+   "aliases": [
+    "robotic surgical instrument"
+   ],
+   "properties": [
+    {
+     "name": "shaft_diameter",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "articulated_dof",
+     "kind": "integer"
+    },
+    {
+     "name": "max_uses",
+     "kind": "integer",
+     "required": true,
+     "description": "Life limit in procedures"
+    },
+    {
+     "name": "energy",
+     "kind": "enum",
+     "values": [
+      "none",
+      "monopolar",
+      "bipolar",
+      "ultrasonic"
+     ]
+    },
+    {
+     "name": "sterilization_method",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "manipulation",
+    "cutting",
+    "grasping"
+   ],
+   "telemetry": [
+    {
+     "name": "uses_remaining"
+    },
+    {
+     "name": "cable_tension",
+     "unit": "N"
+    },
+    {
+     "name": "instrument_id"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "instrument",
+     "basis": "cycles",
+     "action": "retire at labeled use count; reprocess per IFU"
+    }
+   ],
+   "failure_modes": [
+    "cable fraying or breakage",
+    "insulation failure with energy",
+    "loss of wrist articulation"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.medical.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 80601-2-77"
+    }
+   ]
+  },
+  {
+   "type_id": "end_effector.agri.harvester",
+   "name": "Agricultural harvesting end effector",
+   "category": "end_effector",
+   "description": "Fruit- or vegetable-specific tool (suction tube, soft fingers, cutter or rotating detacher) combined with a camera for selective harvesting.",
+   "domains": [
+    "D01",
+    "D13",
+    "D19"
+   ],
+   "aliases": [
+    "harvesting gripper",
+    "picking head"
+   ],
+   "properties": [
+    {
+     "name": "detachment",
+     "kind": "enum",
+     "values": [
+      "cut",
+      "twist",
+      "pull",
+      "suction_tube",
+      "vibration"
+     ],
+     "required": true
+    },
+    {
+     "name": "crop",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "cycle_time",
+     "kind": "quantity",
+     "unit": "s"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [
+    "can.classic",
+    "electrical.digital_io",
+    "middleware.ros2"
+   ],
+   "provides": [
+    "grasping",
+    "cutting"
+   ],
+   "telemetry": [
+    {
+     "name": "pick_success"
+    },
+    {
+     "name": "vacuum_level",
+     "unit": "kPa"
+    },
+    {
+     "name": "cut_actuator_current",
+     "unit": "A"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "blades / fingers",
+     "basis": "condition",
+     "action": "clean, sanitize and replace"
+    },
+    {
+     "item": "seals",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "inspect for dust and sap"
+    }
+   ],
+   "failure_modes": [
+    "crop bruising",
+    "stem not severed",
+    "contamination from dirt and moisture"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.agricultural.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.cleaning.brush_head",
+   "name": "Cleaning brush head",
+   "category": "end_effector",
+   "description": "Rotating disc, roller or side brush for floor, panel or hull cleaning robots, driven by its own motor.",
+   "domains": [
+    "D01",
+    "D13"
+   ],
+   "aliases": [
+    "side brush",
+    "roller brush",
+    "main brush"
+   ],
+   "properties": [
+    {
+     "name": "brush_type",
+     "kind": "enum",
+     "values": [
+      "side",
+      "roller",
+      "disc",
+      "cylindrical"
+     ],
+     "required": true
+    },
+    {
+     "name": "diameter",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "max_speed",
+     "kind": "quantity",
+     "unit": "rpm"
+    },
+    {
+     "name": "motor_power",
+     "kind": "quantity",
+     "unit": "W"
+    }
+   ],
+   "interfaces": [
+    "electrical.pwm",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "cleaning",
+    "rotation"
+   ],
+   "telemetry": [
+    {
+     "name": "brush_current",
+     "unit": "A"
+    },
+    {
+     "name": "brush_speed",
+     "unit": "rpm"
+    },
+    {
+     "name": "entanglement_detected"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "brush",
+     "basis": "hours",
+     "interval": 300,
+     "action": "typical replacement for consumer robots; inspect bristles"
+    },
+    {
+     "item": "hair wrap",
+     "basis": "condition",
+     "action": "remove"
+    }
+   ],
+   "failure_modes": [
+    "entanglement and motor stall",
+    "bristle wear",
+    "debris jamming"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.cleaning.*",
+    "robot.service.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.cleaning.mop",
+   "name": "Mop module",
+   "category": "end_effector",
+   "description": "Wet cleaning module with pad, rotating mops or roller and water tank/pump, sometimes liftable over carpet.",
+   "domains": [
+    "D01",
+    "D13"
+   ],
+   "aliases": [
+    "mopping module"
+   ],
+   "properties": [
+    {
+     "name": "mop_type",
+     "kind": "enum",
+     "values": [
+      "static_pad",
+      "rotating_pads",
+      "roller",
+      "vibrating"
+     ],
+     "required": true
+    },
+    {
+     "name": "water_tank_volume",
+     "kind": "quantity",
+     "unit": "mL"
+    },
+    {
+     "name": "water_flow",
+     "kind": "number",
+     "description": "mL/min"
+    },
+    {
+     "name": "liftable",
+     "kind": "bool"
+    },
+    {
+     "name": "down_force",
+     "kind": "quantity",
+     "unit": "N"
+    }
+   ],
+   "interfaces": [
+    "electrical.pwm",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "cleaning"
+   ],
+   "telemetry": [
+    {
+     "name": "water_level"
+    },
+    {
+     "name": "pump_current",
+     "unit": "A"
+    },
+    {
+     "name": "mop_lifted"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "mop pads",
+     "basis": "condition",
+     "action": "wash; replace when worn"
+    },
+    {
+     "item": "water filter",
+     "basis": "calendar_days",
+     "interval": 30,
+     "action": "clean"
+    }
+   ],
+   "failure_modes": [
+    "clogged water outlet",
+    "odour/bacterial growth",
+    "leak onto floor"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.cleaning.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.uv_lamp_array",
+   "name": "UV-C disinfection lamp array",
+   "category": "end_effector",
+   "description": "Array of low-pressure mercury or UV-C LED sources (around 254 nm or 265-280 nm) on disinfection robots; requires interlocks against human exposure.",
+   "domains": [
+    "D01",
+    "D02",
+    "D14"
+   ],
+   "aliases": [
+    "UVC array",
+    "UV disinfection head"
+   ],
+   "properties": [
+    {
+     "name": "source",
+     "kind": "enum",
+     "values": [
+      "low_pressure_mercury",
+      "uvc_led",
+      "pulsed_xenon"
+     ],
+     "required": true
+    },
+    {
+     "name": "uv_output_power",
+     "kind": "quantity",
+     "unit": "W",
+     "required": true
+    },
+    {
+     "name": "peak_wavelength",
+     "kind": "string",
+     "description": "nm"
+    },
+    {
+     "name": "lamp_life",
+     "kind": "quantity",
+     "unit": "h"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "can.classic"
+   ],
+   "provides": [
+    "cleaning"
+   ],
+   "telemetry": [
+    {
+     "name": "lamp_on"
+    },
+    {
+     "name": "uv_irradiance",
+     "unit": "W/m^2"
+    },
+    {
+     "name": "lamp_hours",
+     "unit": "h"
+    },
+    {
+     "name": "human_presence_interlock"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "lamps",
+     "basis": "hours",
+     "action": "replace at rated life (UV output decays)"
+    },
+    {
+     "item": "presence interlock",
+     "basis": "calendar_days",
+     "interval": 30,
+     "action": "function test"
+    }
+   ],
+   "failure_modes": [
+    "UV exposure of humans if interlock fails",
+    "lamp breakage (mercury)",
+    "output degradation below effective dose"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.service.*",
+    "robot.mobile.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.gripper.vacuum_electric_onboard",
+   "name": "Electric vacuum gripper (onboard pump)",
+   "category": "end_effector",
+   "description": "Vacuum gripper with integrated electric pump, needing no compressed air; common on cobots and mobile manipulators.",
+   "domains": [
+    "D01",
+    "D02"
+   ],
+   "aliases": [
+    "electric vacuum gripper"
+   ],
+   "properties": [
+    {
+     "name": "cup_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "max_vacuum",
+     "kind": "quantity",
+     "unit": "kPa",
+     "required": true
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "rated_voltage",
+     "kind": "quantity",
+     "unit": "V",
+     "required": true
+    },
+    {
+     "name": "power",
+     "kind": "quantity",
+     "unit": "W"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link",
+    "bus.rs485",
+    "fieldbus.modbus_rtu"
+   ],
+   "provides": [
+    "grasping"
+   ],
+   "telemetry": [
+    {
+     "name": "vacuum_level",
+     "unit": "kPa",
+     "description": "Relative vacuum (negative gauge pressure)"
+    },
+    {
+     "name": "part_present",
+     "description": "Vacuum switch threshold reached"
+    },
+    {
+     "name": "evacuation_time",
+     "unit": "ms"
+    },
+    {
+     "name": "pump_current",
+     "unit": "A"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "cups and filters",
+     "basis": "condition",
+     "action": "replace"
+    }
+   ],
+   "failure_modes": [
+    "pump wear",
+    "leak causing drop",
+    "filter clog"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.gripper.dual",
+   "name": "Dual / multi-tool gripper head",
+   "category": "end_effector",
+   "description": "Head combining two or more grippers (e.g. load and unload jaws, or gripper plus vacuum) to reduce cycle time.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "double gripper",
+    "twin gripper"
+   ],
+   "properties": [
+    {
+     "name": "tool_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "swivel_angle",
+     "kind": "quantity",
+     "unit": "deg"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "grasping",
+    "manipulation"
+   ],
+   "telemetry": [
+    {
+     "name": "active_tool"
+    },
+    {
+     "name": "object_detected"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "finger pads / jaw inserts",
+     "basis": "condition",
+     "action": "replace when worn or contaminated"
+    }
+   ],
+   "failure_modes": [
+    "swivel misposition",
+    "wrong gripper active"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.gripper.tactile_fingertip",
+   "name": "Tactile sensing fingertip",
+   "category": "end_effector",
+   "description": "Replaceable fingertip with tactile array (resistive, capacitive, optical gel) providing contact pressure and slip detection.",
+   "domains": [
+    "D05"
+   ],
+   "aliases": [
+    "tactile pad",
+    "slip sensor"
+   ],
+   "properties": [
+    {
+     "name": "taxel_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "pressure_range",
+     "kind": "quantity",
+     "unit": "kPa"
+    },
+    {
+     "name": "sample_rate",
+     "kind": "quantity",
+     "unit": "Hz"
+    },
+    {
+     "name": "principle",
+     "kind": "enum",
+     "values": [
+      "resistive",
+      "capacitive",
+      "optical",
+      "magnetic",
+      "piezoelectric"
+     ],
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "bus.i2c",
+    "bus.spi",
+    "bus.usb",
+    "can.classic"
+   ],
+   "provides": [
+    "force_control"
+   ],
+   "telemetry": [
+    {
+     "name": "contact_pressure",
+     "unit": "kPa"
+    },
+    {
+     "name": "slip_detected"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "sensing skin",
+     "basis": "condition",
+     "action": "replace when worn"
+    }
+   ],
+   "failure_modes": [
+    "skin wear",
+    "taxel drift",
+    "crosstalk"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "end_effector.gripper.*",
+    "end_effector.hand.*"
+   ]
+  },
+  {
+   "type_id": "end_effector.gripper.mobile_tote",
+   "name": "Tote/bin handling gripper",
+   "category": "end_effector",
+   "description": "Hook, clamp or telescoping arm attachment for picking totes and bins in warehouse robots.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "tote handler",
+    "bin gripper"
+   ],
+   "properties": [
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "tote_standard",
+     "kind": "string",
+     "description": "Footprint, e.g. 600x400 mm"
+    }
+   ],
+   "interfaces": [
+    "can.canopen",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "lifting",
+    "transport"
+   ],
+   "telemetry": [
+    {
+     "name": "tote_present"
+    },
+    {
+     "name": "extension_position",
+     "unit": "mm"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "hooks / belts",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect"
+    }
+   ],
+   "failure_modes": [
+    "tote misalignment",
+    "tote dropped"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.mobile.*",
+    "infra.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.chassis.wheeled",
+   "name": "Wheeled chassis",
+   "category": "mechanical",
+   "description": "Structural base of a wheeled mobile robot carrying drive units, battery and payload; differential, Ackermann, skid-steer or omnidirectional.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "mobile base",
+    "drive platform"
+   ],
+   "properties": [
+    {
+     "name": "kinematics",
+     "kind": "enum",
+     "values": [
+      "differential",
+      "ackermann",
+      "skid_steer",
+      "omni_mecanum",
+      "omni_swerve",
+      "tricycle"
+     ],
+     "required": true
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "mass",
+     "kind": "quantity",
+     "unit": "kg"
+    },
+    {
+     "name": "wheelbase",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "track_width",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "ground_clearance",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "mobility",
+    "transport"
+   ],
+   "telemetry": [
+    {
+     "name": "chassis_tilt",
+     "unit": "deg"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "structure and fasteners",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for cracks and loosening"
+    }
+   ],
+   "failure_modes": [
+    "frame cracking from fatigue",
+    "overload deformation",
+    "fastener loosening by vibration"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.mobile.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.chassis.tracked",
+   "name": "Tracked chassis",
+   "category": "mechanical",
+   "description": "Crawler base with rubber or steel tracks, sprockets and road wheels for rough terrain, stairs or agriculture.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "crawler chassis"
+   ],
+   "properties": [
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "track_width",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "ground_pressure",
+     "kind": "quantity",
+     "unit": "kPa"
+    },
+    {
+     "name": "max_slope",
+     "kind": "quantity",
+     "unit": "deg"
+    },
+    {
+     "name": "track_material",
+     "kind": "enum",
+     "values": [
+      "rubber",
+      "steel",
+      "polyurethane"
+     ]
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "mobility",
+    "climbing"
+   ],
+   "telemetry": [
+    {
+     "name": "track_tension",
+     "unit": "N"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "tracks",
+     "basis": "condition",
+     "action": "check tension, replace when lugs worn"
+    },
+    {
+     "item": "road wheels / idlers",
+     "basis": "hours",
+     "interval": 500,
+     "action": "inspect bearings"
+    }
+   ],
+   "failure_modes": [
+    "track derailment",
+    "track tension loss",
+    "debris jamming sprockets"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.mobile.*",
+    "robot.field.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.suspension.rocker_bogie",
+   "name": "Rocker-bogie suspension",
+   "category": "mechanical",
+   "description": "Passive linkage suspension (as on planetary rovers) keeping all six wheels in contact over obstacles via a differential.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "rocker bogie"
+   ],
+   "properties": [
+    {
+     "name": "max_obstacle_height",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "wheel_count",
+     "kind": "integer"
+    },
+    {
+     "name": "differential",
+     "kind": "enum",
+     "values": [
+      "gear",
+      "bar"
+     ]
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "mobility"
+   ],
+   "telemetry": [
+    {
+     "name": "rocker_angle",
+     "unit": "deg"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "pivots",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect and lubricate"
+    }
+   ],
+   "failure_modes": [
+    "pivot wear",
+    "differential binding"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.mobile.*",
+    "mechanical.chassis.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.suspension.independent",
+   "name": "Independent wheel suspension",
+   "category": "mechanical",
+   "description": "Spring-damper suspension per wheel (swing arm, double wishbone) to keep drive wheel traction on uneven floors.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "swing-arm suspension"
+   ],
+   "properties": [
+    {
+     "name": "travel",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "spring_rate",
+     "kind": "quantity",
+     "unit": "N/m"
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "swing_arm",
+      "double_wishbone",
+      "trailing_arm",
+      "vertical_slide"
+     ]
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "mobility"
+   ],
+   "telemetry": [
+    {
+     "name": "suspension_deflection",
+     "unit": "mm"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "dampers and bushings",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "inspect"
+    }
+   ],
+   "failure_modes": [
+    "loss of traction from spring fatigue",
+    "bushing wear"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "mechanical.chassis.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.link",
+   "name": "Arm link segment",
+   "category": "mechanical",
+   "description": "Rigid structural member between joints of a manipulator or leg, defining kinematic lengths and stiffness.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "link",
+    "arm segment"
+   ],
+   "properties": [
+    {
+     "name": "length",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "mass",
+     "kind": "quantity",
+     "unit": "kg"
+    },
+    {
+     "name": "material",
+     "kind": "enum",
+     "values": [
+      "aluminum",
+      "steel",
+      "cfrp",
+      "cast_iron",
+      "polymer"
+     ]
+    },
+    {
+     "name": "stiffness",
+     "kind": "quantity",
+     "unit": "N/m"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "link",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "visual inspection for cracks or impact damage"
+    }
+   ],
+   "failure_modes": [
+    "fatigue crack",
+    "deformation after collision changing kinematics"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.joint.revolute",
+   "name": "Revolute joint",
+   "category": "mechanical",
+   "description": "Rotational joint assembly (housing, bearings, seal, hard stops) about one axis, actuated by an actuator.* module.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "rotary joint",
+    "hinge joint"
+   ],
+   "properties": [
+    {
+     "name": "range_min",
+     "kind": "quantity",
+     "unit": "deg",
+     "required": true
+    },
+    {
+     "name": "range_max",
+     "kind": "quantity",
+     "unit": "deg",
+     "required": true
+    },
+    {
+     "name": "max_speed",
+     "kind": "quantity",
+     "unit": "deg/s"
+    },
+    {
+     "name": "rated_torque",
+     "kind": "quantity",
+     "unit": "N*m"
+    },
+    {
+     "name": "mechanical_hard_stop",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "rotation"
+   ],
+   "telemetry": [
+    {
+     "name": "joint_position",
+     "unit": "deg"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "seals and stops",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "inspect"
+    }
+   ],
+   "failure_modes": [
+    "backlash",
+    "seal leak",
+    "hard stop damage"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.joint.prismatic",
+   "name": "Prismatic joint",
+   "category": "mechanical",
+   "description": "Linear joint with guide rails/carriages, providing translation along one axis (e.g. gantry or SCARA Z axis).",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "linear joint",
+    "slide"
+   ],
+   "properties": [
+    {
+     "name": "stroke",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "max_speed",
+     "kind": "quantity",
+     "unit": "m/s"
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg"
+    },
+    {
+     "name": "guide",
+     "kind": "enum",
+     "values": [
+      "profile_rail",
+      "round_shaft",
+      "roller",
+      "plain"
+     ]
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "linear_motion"
+   ],
+   "telemetry": [
+    {
+     "name": "joint_position",
+     "unit": "mm"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "guide rails",
+     "basis": "distance_km",
+     "interval": 100,
+     "action": "lubricate per vendor"
+    }
+   ],
+   "failure_modes": [
+    "rail contamination",
+    "carriage wear",
+    "loss of lubrication"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.joint.spherical",
+   "name": "Spherical joint",
+   "category": "mechanical",
+   "description": "Ball-and-socket or rod-end joint allowing three rotational DOF; used in parallel kinematics (delta, hexapod) and passive linkages.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "ball joint",
+    "rod end"
+   ],
+   "properties": [
+    {
+     "name": "max_tilt_angle",
+     "kind": "quantity",
+     "unit": "deg",
+     "required": true
+    },
+    {
+     "name": "load_capacity",
+     "kind": "quantity",
+     "unit": "N"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "joint play",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, replace if loose"
+    }
+   ],
+   "failure_modes": [
+    "play increase",
+    "ball separation in delta robots"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.delta.*",
+    "robot.parallel.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.bearing_housing",
+   "name": "Bearing housing assembly",
+   "category": "mechanical",
+   "description": "Housing that locates rolling bearings (deep-groove, angular-contact, crossed-roller) in a structure; the bearing as drivetrain element is a transmission.* type.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "bearing block",
+    "pillow block"
+   ],
+   "properties": [
+    {
+     "name": "bearing_type",
+     "kind": "enum",
+     "values": [
+      "deep_groove",
+      "angular_contact",
+      "crossed_roller",
+      "tapered_roller",
+      "four_point_contact"
+     ],
+     "required": true
+    },
+    {
+     "name": "bore_diameter",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "dynamic_load_rating",
+     "kind": "quantity",
+     "unit": "kN"
+    },
+    {
+     "name": "lubrication",
+     "kind": "enum",
+     "values": [
+      "sealed_for_life",
+      "grease",
+      "oil"
+     ]
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [
+    {
+     "name": "housing_temperature",
+     "unit": "degC"
+    },
+    {
+     "name": "vibration",
+     "unit": "m/s^2"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "bearing",
+     "basis": "condition",
+     "action": "monitor vibration and temperature; regrease if serviceable"
+    }
+   ],
+   "failure_modes": [
+    "bearing seizure",
+    "misalignment",
+    "seal failure"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "mechanical.joint.*",
+    "mechanical.chassis.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.spring",
+   "name": "Mechanical spring",
+   "category": "mechanical",
+   "description": "Compression, extension, torsion or constant-force spring used for return, gravity compensation or preload.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [],
+   "properties": [
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "compression",
+      "extension",
+      "torsion",
+      "constant_force",
+      "disc"
+     ],
+     "required": true
+    },
+    {
+     "name": "spring_rate",
+     "kind": "quantity",
+     "unit": "N/m",
+     "required": true
+    },
+    {
+     "name": "free_length",
+     "kind": "quantity",
+     "unit": "mm"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "spring",
+     "basis": "cycles",
+     "action": "replace per fatigue rating"
+    }
+   ],
+   "failure_modes": [
+    "fatigue fracture",
+    "relaxation"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "mechanical.*",
+    "end_effector.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.gas_spring",
+   "name": "Gas spring / strut",
+   "category": "mechanical",
+   "description": "Sealed cylinder of pressurized nitrogen giving near-constant force for lids, gravity compensation or counterbalance.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "gas strut",
+    "gas spring"
+   ],
+   "properties": [
+    {
+     "name": "extension_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "stroke",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "lockable",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "gas spring",
+     "basis": "calendar_days",
+     "interval": 730,
+     "action": "check force loss and leaks"
+    }
+   ],
+   "failure_modes": [
+    "pressure loss allowing a lid or arm to drop",
+    "rod seal leak"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "mechanical.*",
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.damper",
+   "name": "Damper / shock absorber",
+   "category": "mechanical",
+   "description": "Hydraulic, elastomer or friction damper dissipating energy at end stops, suspensions or compliance units.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "shock absorber",
+    "end-stop damper"
+   ],
+   "properties": [
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "hydraulic",
+      "elastomer",
+      "friction",
+      "gas"
+     ],
+     "required": true
+    },
+    {
+     "name": "energy_per_cycle",
+     "kind": "quantity",
+     "unit": "J"
+    },
+    {
+     "name": "stroke",
+     "kind": "quantity",
+     "unit": "mm"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "damper",
+     "basis": "cycles",
+     "action": "replace per vendor energy rating"
+    }
+   ],
+   "failure_modes": [
+    "oil leak",
+    "loss of damping"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "mechanical.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.counterbalance",
+   "name": "Counterbalance system",
+   "category": "mechanical",
+   "description": "Spring, gas or counterweight system compensating gravity on heavy robot axes (e.g. axis 2 of large manipulators).",
+   "domains": [
+    "D01",
+    "D14"
+   ],
+   "aliases": [
+    "balancer",
+    "gravity compensator"
+   ],
+   "properties": [
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "spring",
+      "gas_hydraulic",
+      "counterweight"
+     ],
+     "required": true
+    },
+    {
+     "name": "balanced_torque",
+     "kind": "quantity",
+     "unit": "N*m"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [
+    {
+     "name": "balancer_pressure",
+     "unit": "bar"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "balancer",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "inspect for leaks and wear per robot manual"
+    }
+   ],
+   "failure_modes": [
+    "balancer failure causing axis to drop under brake load",
+    "pressure loss"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.cable_carrier",
+   "name": "Cable carrier (drag chain)",
+   "category": "mechanical",
+   "description": "Chain of links guiding moving cables and hoses on linear axes, with a defined bending radius.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "drag chain",
+    "energy chain"
+   ],
+   "properties": [
+    {
+     "name": "bending_radius",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "travel_length",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "inner_width",
+     "kind": "quantity",
+     "unit": "mm"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "chain links and cables",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for broken links and cable wear"
+    }
+   ],
+   "failure_modes": [
+    "link breakage",
+    "cable conductor breakage from fatigue"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "mechanical.joint.prismatic",
+    "robot.gantry.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.dress_pack",
+   "name": "Robot dress pack",
+   "category": "mechanical",
+   "description": "Cable and hose package routed along a manipulator with retraction and protective hoses to the tool.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "umbilical",
+    "hose package"
+   ],
+   "properties": [
+    {
+     "name": "lines",
+     "kind": "integer"
+    },
+    {
+     "name": "routing",
+     "kind": "string",
+     "description": "external or through hollow wrist"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "dress pack",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "inspect for abrasion"
+    }
+   ],
+   "failure_modes": [
+    "abrasion and cable breakage",
+    "snagging"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*",
+    "robot.mobile_manipulator.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.cover.protective",
+   "name": "Protective cover / skin",
+   "category": "mechanical",
+   "description": "Covers, jackets or padded skins protecting a robot from dust, coolant or paint, or padding to reduce contact pressure on humans.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "robot jacket",
+    "padding"
+   ],
+   "properties": [
+    {
+     "name": "purpose",
+     "kind": "enum",
+     "values": [
+      "contamination",
+      "cleanroom",
+      "thermal",
+      "impact_padding"
+     ],
+     "required": true
+    },
+    {
+     "name": "material",
+     "kind": "string"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "cover",
+     "basis": "condition",
+     "action": "replace when torn"
+    }
+   ],
+   "failure_modes": [
+    "tear allowing ingress",
+    "padding compression reducing protection"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.enclosure",
+   "name": "IP-rated enclosure",
+   "category": "mechanical",
+   "description": "Housing for electronics with defined ingress protection, gaskets and cable glands.",
+   "domains": [
+    "D01",
+    "D04"
+   ],
+   "aliases": [
+    "electronics housing"
+   ],
+   "properties": [
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "required": true,
+     "description": "IEC 60529 code"
+    },
+    {
+     "name": "material",
+     "kind": "enum",
+     "values": [
+      "aluminum",
+      "steel",
+      "stainless",
+      "polycarbonate",
+      "abs"
+     ]
+    },
+    {
+     "name": "ik_rating",
+     "kind": "string",
+     "description": "IEC 62262 impact rating"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [
+    {
+     "name": "internal_temperature",
+     "unit": "degC"
+    },
+    {
+     "name": "internal_humidity",
+     "unit": "%RH"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "gaskets and glands",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "inspect"
+    }
+   ],
+   "failure_modes": [
+    "condensation",
+    "gasket aging",
+    "gland loosening"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "compute.*",
+    "power.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 60529"
+    },
+    {
+     "name": "IEC 62262"
+    }
+   ]
+  },
+  {
+   "type_id": "mechanical.seal",
+   "name": "Seal / gasket",
+   "category": "mechanical",
+   "description": "Static or dynamic seal (O-ring, lip seal, labyrinth) that maintains ingress protection or retains lubricant at joints.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "O-ring",
+    "shaft seal"
+   ],
+   "properties": [
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "o_ring",
+      "radial_lip",
+      "labyrinth",
+      "flat_gasket",
+      "bellows"
+     ],
+     "required": true
+    },
+    {
+     "name": "material",
+     "kind": "enum",
+     "values": [
+      "NBR",
+      "FKM",
+      "EPDM",
+      "PTFE",
+      "silicone"
+     ]
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "seal",
+     "basis": "condition",
+     "action": "replace on leakage or at service intervals"
+    }
+   ],
+   "failure_modes": [
+    "lubricant leak",
+    "ingress of water/dust"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "mechanical.*",
+    "actuator.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.frame.extrusion",
+   "name": "Frame / extrusion structure",
+   "category": "mechanical",
+   "description": "T-slot aluminum profile or welded frame forming cells, gantries, robot carts or mounts.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "T-slot frame",
+    "aluminum profile"
+   ],
+   "properties": [
+    {
+     "name": "profile",
+     "kind": "string",
+     "description": "e.g. 40x40 slot 8"
+    },
+    {
+     "name": "mass",
+     "kind": "quantity",
+     "unit": "kg"
+    },
+    {
+     "name": "load_capacity",
+     "kind": "quantity",
+     "unit": "N"
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "fasteners",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "check torque"
+    }
+   ],
+   "failure_modes": [
+    "loosening",
+    "deflection affecting accuracy"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "safety.fence"
+   ]
+  },
+  {
+   "type_id": "mechanical.foot",
+   "name": "Foot / sole (legged)",
+   "category": "mechanical",
+   "description": "Contact element at the end of a leg: rubber hemisphere, flat sole or instrumented foot with contact sensing.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "foot pad",
+    "sole"
+   ],
+   "properties": [
+    {
+     "name": "shape",
+     "kind": "enum",
+     "values": [
+      "point_hemisphere",
+      "flat_sole",
+      "toe_heel"
+     ],
+     "required": true
+    },
+    {
+     "name": "material",
+     "kind": "string"
+    },
+    {
+     "name": "contact_sensing",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "bus.i2c",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "walking"
+   ],
+   "telemetry": [
+    {
+     "name": "contact"
+    },
+    {
+     "name": "ground_reaction_force",
+     "unit": "N"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "foot pad",
+     "basis": "distance_km",
+     "action": "replace when worn"
+    }
+   ],
+   "failure_modes": [
+    "pad wear causing slip",
+    "contact sensor failure"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.legged.*",
+    "robot.humanoid.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.propeller_guard",
+   "name": "Propeller guard",
+   "category": "mechanical",
+   "description": "Ring or cage around rotors protecting people and objects from propeller strikes and the prop from damage.",
+   "domains": [
+    "D01",
+    "D14"
+   ],
+   "aliases": [
+    "prop guard",
+    "duct"
+   ],
+   "properties": [
+    {
+     "name": "material",
+     "kind": "string"
+    },
+    {
+     "name": "mass",
+     "kind": "quantity",
+     "unit": "g"
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "ring",
+      "full_cage",
+      "duct"
+     ]
+    }
+   ],
+   "interfaces": [],
+   "provides": [],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "guard",
+     "basis": "condition",
+     "action": "inspect after every impact"
+    }
+   ],
+   "failure_modes": [
+    "crack allowing contact",
+    "guard contacting propeller"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.aerial.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.airframe.multirotor",
+   "name": "Multirotor airframe",
+   "category": "mechanical",
+   "description": "Frame (arms, body plates, landing gear) of quad-, hexa- or octocopters.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "drone frame"
+   ],
+   "properties": [
+    {
+     "name": "rotor_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "wheelbase",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true,
+     "description": "Diagonal motor-to-motor distance"
+    },
+    {
+     "name": "mass",
+     "kind": "quantity",
+     "unit": "g"
+    },
+    {
+     "name": "material",
+     "kind": "string"
+    },
+    {
+     "name": "max_takeoff_mass",
+     "kind": "quantity",
+     "unit": "kg"
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "flight"
+   ],
+   "telemetry": [
+    {
+     "name": "vibration",
+     "unit": "m/s^2"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "arms and fasteners",
+     "basis": "condition",
+     "action": "inspect before flight"
+    }
+   ],
+   "failure_modes": [
+    "arm crack",
+    "vibration from loose parts degrading IMU"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.aerial.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.airframe.fixed_wing",
+   "name": "Fixed-wing airframe",
+   "category": "mechanical",
+   "description": "Wing, fuselage and tail structure of fixed-wing or VTOL hybrid UAVs including control surfaces.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "UAV airframe"
+   ],
+   "properties": [
+    {
+     "name": "wingspan",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "max_takeoff_mass",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "wing_area",
+     "kind": "quantity",
+     "unit": "m^2"
+    },
+    {
+     "name": "configuration",
+     "kind": "enum",
+     "values": [
+      "conventional",
+      "flying_wing",
+      "vtol_hybrid",
+      "tailsitter"
+     ]
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "flight"
+   ],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "control surface hinges and linkages",
+     "basis": "condition",
+     "action": "inspect before flight"
+    }
+   ],
+   "failure_modes": [
+    "control linkage failure",
+    "structural damage on landing"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.aerial.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.hull",
+   "name": "Marine hull",
+   "category": "mechanical",
+   "description": "Displacement or planing hull, or pressure housing for surface vessels, AUVs and ROVs.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "pressure hull",
+    "vessel hull"
+   ],
+   "properties": [
+    {
+     "name": "vehicle",
+     "kind": "enum",
+     "values": [
+      "surface",
+      "auv",
+      "rov",
+      "glider"
+     ],
+     "required": true
+    },
+    {
+     "name": "depth_rating",
+     "kind": "quantity",
+     "unit": "m"
+    },
+    {
+     "name": "displacement",
+     "kind": "quantity",
+     "unit": "kg"
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "swimming"
+   ],
+   "telemetry": [
+    {
+     "name": "leak_detected"
+    },
+    {
+     "name": "internal_pressure",
+     "unit": "kPa"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "o-rings and penetrators",
+     "basis": "condition",
+     "action": "inspect and grease before each dive"
+    }
+   ],
+   "failure_modes": [
+    "water ingress",
+    "implosion beyond depth rating",
+    "biofouling"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.marine.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.ballast",
+   "name": "Ballast / buoyancy system",
+   "category": "mechanical",
+   "description": "Fixed or variable ballast (tanks, pumps, oil bladders, drop weights) controlling buoyancy and trim of underwater vehicles.",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "aliases": [
+    "variable buoyancy engine"
+   ],
+   "properties": [
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "fixed",
+      "water_tank",
+      "oil_bladder",
+      "drop_weight"
+     ],
+     "required": true
+    },
+    {
+     "name": "buoyancy_change",
+     "kind": "quantity",
+     "unit": "L"
+    }
+   ],
+   "interfaces": [
+    "bus.uart",
+    "can.classic"
+   ],
+   "provides": [
+    "swimming"
+   ],
+   "telemetry": [
+    {
+     "name": "ballast_volume",
+     "unit": "L"
+    },
+    {
+     "name": "depth",
+     "unit": "m"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "pump and valves",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "test"
+    }
+   ],
+   "failure_modes": [
+    "pump failure preventing ascent",
+    "drop weight release failure"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.marine.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.mast.telescopic",
+   "name": "Telescopic mast",
+   "category": "mechanical",
+   "description": "Extendable mast raising sensors, cameras or antennas on mobile robots and vehicles.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "sensor mast"
+   ],
+   "properties": [
+    {
+     "name": "retracted_height",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "extended_height",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "payload",
+     "kind": "quantity",
+     "unit": "kg",
+     "required": true
+    },
+    {
+     "name": "actuation",
+     "kind": "enum",
+     "values": [
+      "electric",
+      "pneumatic",
+      "manual"
+     ]
+    }
+   ],
+   "interfaces": [
+    "can.canopen",
+    "electrical.digital_io",
+    "bus.rs485"
+   ],
+   "provides": [
+    "lifting"
+   ],
+   "telemetry": [
+    {
+     "name": "mast_height",
+     "unit": "mm"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "sections and seals",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "clean, inspect"
+    }
+   ],
+   "failure_modes": [
+    "section jamming",
+    "wind overload",
+    "collision with overhead structures"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.mobile.*"
+   ]
+  },
+  {
+   "type_id": "mechanical.wheel_hub_mount",
+   "name": "Caster wheel",
+   "category": "mechanical",
+   "description": "Passive swivel or fixed caster supporting a mobile base.",
+   "domains": [
+    "D01"
+   ],
+   "aliases": [
+    "caster",
+    "castor"
+   ],
+   "properties": [
+    {
+     "name": "wheel_diameter",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "load_capacity",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "swivel",
+      "fixed",
+      "ball_transfer"
+     ]
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "mobility"
+   ],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "caster bearings",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "clean hair and debris, inspect"
+    }
+   ],
+   "failure_modes": [
+    "flutter",
+    "debris jamming",
+    "tread wear"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "mechanical.chassis.wheeled"
+   ]
+  },
+  {
+   "type_id": "hmi.teach_pendant",
+   "name": "Teach pendant",
+   "category": "hmi",
+   "description": "Handheld programming/operating unit with display, emergency stop and three-position enabling switch, cabled or wireless to the robot controller.",
+   "domains": [
+    "D18",
+    "D14"
+   ],
+   "aliases": [
+    "TP",
+    "FlexPendant-class pendant"
+   ],
+   "properties": [
+    {
+     "name": "display_size",
+     "kind": "quantity",
+     "unit": "mm",
+     "description": "Diagonal"
+    },
+    {
+     "name": "has_emergency_stop",
+     "kind": "bool",
+     "required": true
+    },
+    {
+     "name": "has_enabling_switch",
+     "kind": "bool",
+     "required": true
+    },
+    {
+     "name": "connection",
+     "kind": "enum",
+     "values": [
+      "cabled",
+      "wireless"
+     ]
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [
+    "net.ethernet",
+    "net.wifi",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "human_interaction",
+    "emergency_stop"
+   ],
+   "telemetry": [
+    {
+     "name": "e_stop_pressed"
+    },
+    {
+     "name": "enabling_position",
+     "description": "released / middle / fully pressed"
+    },
+    {
+     "name": "connection_state"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "e-stop and enabling switch function",
+     "basis": "calendar_days",
+     "action": "test per risk assessment and manufacturer"
+    },
+    {
+     "item": "cable",
+     "basis": "condition",
+     "action": "inspect for damage"
+    }
+   ],
+   "failure_modes": [
+    "enabling switch stuck in middle position",
+    "cable damage cutting e-stop chain",
+    "wireless link loss (must lead to stop)"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*",
+    "robot.cobot.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 10218-1"
+    },
+    {
+     "name": "ISO 13850"
+    },
+    {
+     "name": "IEC 60947-5-8"
+    }
+   ]
+  },
+  {
+   "type_id": "hmi.touch_display",
+   "name": "Touch display",
+   "category": "hmi",
+   "description": "Capacitive or resistive touchscreen panel on robots for status and interaction.",
+   "domains": [
+    "D18"
+   ],
+   "aliases": [
+    "touchscreen"
+   ],
+   "properties": [
+    {
+     "name": "diagonal",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "resolution",
+     "kind": "string"
+    },
+    {
+     "name": "brightness",
+     "kind": "string",
+     "description": "cd/m^2"
+    },
+    {
+     "name": "touch",
+     "kind": "enum",
+     "values": [
+      "capacitive",
+      "resistive",
+      "none"
+     ]
+    }
+   ],
+   "interfaces": [
+    "bus.usb",
+    "net.ethernet",
+    "bus.spi"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "backlight_on"
+    },
+    {
+     "name": "touch_events"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "screen",
+     "basis": "condition",
+     "action": "clean"
+    }
+   ],
+   "failure_modes": [
+    "backlight failure",
+    "touch layer failure",
+    "glare unreadability outdoors"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "hmi.stack_light",
+   "name": "Status / stack light",
+   "category": "hmi",
+   "description": "Signal tower with coloured segments and optional buzzer indicating machine state; colour meanings per IEC 60204-1 and IEC 60073.",
+   "domains": [
+    "D18"
+   ],
+   "aliases": [
+    "signal tower",
+    "andon light"
+   ],
+   "properties": [
+    {
+     "name": "segment_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "rated_voltage",
+     "kind": "quantity",
+     "unit": "V",
+     "required": true
+    },
+    {
+     "name": "buzzer",
+     "kind": "bool"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "segment_states"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "lamp test",
+     "basis": "calendar_days",
+     "interval": 30,
+     "action": "verify all segments light"
+    }
+   ],
+   "failure_modes": [
+    "segment LED failure masking a state",
+    "misleading colour assignment"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 60204-1"
+    },
+    {
+     "name": "IEC 60073"
+    }
+   ]
+  },
+  {
+   "type_id": "hmi.led_status_bar",
+   "name": "LED ring / status bar",
+   "category": "hmi",
+   "description": "Addressable LED ring or light bar on cobots and AMRs communicating mode, intent or direction.",
+   "domains": [
+    "D18"
+   ],
+   "aliases": [
+    "light ring",
+    "status LEDs"
+   ],
+   "properties": [
+    {
+     "name": "led_count",
+     "kind": "integer"
+    },
+    {
+     "name": "led_protocol",
+     "kind": "enum",
+     "values": [
+      "ws2812",
+      "sk6812",
+      "apa102",
+      "pwm"
+     ]
+    },
+    {
+     "name": "rated_voltage",
+     "kind": "quantity",
+     "unit": "V"
+    }
+   ],
+   "interfaces": [
+    "bus.spi",
+    "electrical.pwm",
+    "bus.i2c"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "pattern_id"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "LED segment failure"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "hmi.speaker",
+   "name": "Speaker / sounder",
+   "category": "hmi",
+   "description": "Loudspeaker or buzzer for voice, alerts or warning sounds.",
+   "domains": [
+    "D18"
+   ],
+   "aliases": [
+    "buzzer"
+   ],
+   "properties": [
+    {
+     "name": "rated_power",
+     "kind": "quantity",
+     "unit": "W",
+     "required": true
+    },
+    {
+     "name": "sound_pressure",
+     "kind": "quantity",
+     "unit": "dB"
+    },
+    {
+     "name": "impedance",
+     "kind": "quantity",
+     "unit": "Ohm"
+    }
+   ],
+   "interfaces": [
+    "bus.i2c",
+    "electrical.pwm",
+    "bus.usb"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "volume_level",
+     "unit": "%"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "driver failure",
+    "inaudible over ambient noise"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "hmi.microphone",
+   "name": "Microphone (HMI)",
+   "category": "hmi",
+   "description": "Microphone used for voice interaction; arrays for localization are sensor.microphone_array.",
+   "domains": [
+    "D18"
+   ],
+   "aliases": [
+    "mic"
+   ],
+   "properties": [
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "mems_pdm",
+      "mems_i2s",
+      "electret_analog",
+      "usb"
+     ],
+     "required": true
+    },
+    {
+     "name": "sensitivity",
+     "kind": "quantity",
+     "unit": "dB"
+    }
+   ],
+   "interfaces": [
+    "bus.i2c",
+    "bus.usb"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "audio_level",
+     "unit": "dB"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "acoustic port",
+     "basis": "condition",
+     "action": "clean"
+    }
+   ],
+   "failure_modes": [
+    "clogged port",
+    "wind noise"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "hmi.voice_module"
+   ]
+  },
+  {
+   "type_id": "hmi.joystick",
+   "name": "Joystick",
+   "category": "hmi",
+   "description": "Analog or digital multi-axis joystick for jogging or driving robots and vehicles; industrial ones may include deadman or e-stop.",
+   "domains": [
+    "D18"
+   ],
+   "aliases": [
+    "thumbstick"
+   ],
+   "properties": [
+    {
+     "name": "axes",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "output",
+     "kind": "enum",
+     "values": [
+      "analog",
+      "can",
+      "usb",
+      "digital"
+     ]
+    },
+    {
+     "name": "spring_return",
+     "kind": "bool"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [
+    "electrical.analog_0_10v",
+    "can.j1939",
+    "can.canopen",
+    "bus.usb"
+   ],
+   "provides": [
+    "teleoperation"
+   ],
+   "telemetry": [
+    {
+     "name": "axis_values"
+    },
+    {
+     "name": "neutral_detected"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "center drift causing unintended motion",
+    "potentiometer wear"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.*",
+    "hmi.rc_transmitter"
+   ]
+  },
+  {
+   "type_id": "hmi.gamepad",
+   "name": "Gamepad",
+   "category": "hmi",
+   "description": "Consumer game controller used for teleoperation and development; not a safety device.",
+   "domains": [
+    "D18"
+   ],
+   "aliases": [
+    "game controller"
+   ],
+   "properties": [
+    {
+     "name": "connection",
+     "kind": "enum",
+     "values": [
+      "usb",
+      "bluetooth",
+      "proprietary_2_4ghz"
+     ],
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "bus.usb",
+    "net.bluetooth_classic",
+    "net.ble"
+   ],
+   "provides": [
+    "teleoperation"
+   ],
+   "telemetry": [
+    {
+     "name": "connection_state"
+    },
+    {
+     "name": "battery_level",
+     "unit": "%"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "link dropout (needs watchdog stop)",
+    "unintended button press"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "hmi.rc_transmitter",
+   "name": "RC transmitter",
+   "category": "hmi",
+   "description": "Hobby/industrial radio control transmitter for drones, ground vehicles and boats with failsafe on signal loss.",
+   "domains": [
+    "D18",
+    "D07"
+   ],
+   "aliases": [
+    "radio controller",
+    "TX"
+   ],
+   "properties": [
+    {
+     "name": "channel_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "rf_protocol",
+     "kind": "string",
+     "required": true,
+     "description": "e.g. ELRS, FrSky"
+    },
+    {
+     "name": "frequency_band",
+     "kind": "string",
+     "description": "e.g. 2.4 GHz"
+    }
+   ],
+   "interfaces": [
+    "net.rc_sbus",
+    "net.rc_crsf",
+    "net.rc_ppm"
+   ],
+   "provides": [
+    "teleoperation"
+   ],
+   "telemetry": [
+    {
+     "name": "rssi",
+     "unit": "dBm"
+    },
+    {
+     "name": "link_quality",
+     "unit": "%"
+    },
+    {
+     "name": "battery_voltage",
+     "unit": "V"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "failsafe",
+     "basis": "condition",
+     "action": "verify configured failsafe before operation"
+    }
+   ],
+   "failure_modes": [
+    "signal loss",
+    "wrong failsafe configuration",
+    "interference"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.aerial.*",
+    "robot.mobile.*",
+    "robot.marine.*"
+   ]
+  },
+  {
+   "type_id": "hmi.haptic_master",
+   "name": "Haptic master device",
+   "category": "hmi",
+   "description": "Grounded multi-DOF input device with force feedback used to teleoperate a follower robot.",
+   "domains": [
+    "D18",
+    "D12"
+   ],
+   "aliases": [
+    "haptic device",
+    "master arm"
+   ],
+   "properties": [
+    {
+     "name": "dof",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "max_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "workspace",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "update_rate",
+     "kind": "quantity",
+     "unit": "Hz"
+    }
+   ],
+   "interfaces": [
+    "bus.usb",
+    "net.ethernet",
+    "fieldbus.ethercat"
+   ],
+   "provides": [
+    "teleoperation",
+    "force_control"
+   ],
+   "telemetry": [
+    {
+     "name": "handle_pose"
+    },
+    {
+     "name": "feedback_force",
+     "unit": "N"
+    },
+    {
+     "name": "loop_rate",
+     "unit": "Hz"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "calibration",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "recalibrate"
+    }
+   ],
+   "failure_modes": [
+    "instability with communication latency",
+    "loss of deadman input"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "hmi.xr_headset",
+   "name": "VR/AR headset",
+   "category": "hmi",
+   "description": "Head-mounted display for immersive teleoperation, training or AR overlays of robot intent.",
+   "domains": [
+    "D18"
+   ],
+   "aliases": [
+    "HMD",
+    "VR headset",
+    "AR glasses"
+   ],
+   "properties": [
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "vr",
+      "ar_optical",
+      "ar_video"
+     ],
+     "required": true
+    },
+    {
+     "name": "refresh_rate",
+     "kind": "quantity",
+     "unit": "Hz"
+    },
+    {
+     "name": "hand_tracking",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "net.wifi",
+    "bus.usb"
+   ],
+   "provides": [
+    "teleoperation",
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "motion_to_photon_latency",
+     "unit": "ms"
+    },
+    {
+     "name": "battery_level",
+     "unit": "%"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "latency causing motion sickness",
+    "tracking loss"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "hmi.voice_module",
+   "name": "Voice assistant module",
+   "category": "hmi",
+   "description": "Embedded module with wake-word detection, mic front-end and optional on-device speech recognition.",
+   "domains": [
+    "D18",
+    "D13"
+   ],
+   "aliases": [
+    "voice front-end"
+   ],
+   "properties": [
+    {
+     "name": "on_device_asr",
+     "kind": "bool"
+    },
+    {
+     "name": "mic_count",
+     "kind": "integer"
+    },
+    {
+     "name": "languages",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "bus.uart",
+    "bus.usb",
+    "bus.i2c"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "wake_word_detected"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "false wake",
+    "misrecognized command (must not bypass admission)"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "hmi.projector",
+   "name": "Intent projector",
+   "category": "hmi",
+   "description": "Projector or laser line emitter showing an AMR's path, stop zone or warning onto the floor.",
+   "domains": [
+    "D18",
+    "D14"
+   ],
+   "aliases": [
+    "floor projector",
+    "blue spot light"
+   ],
+   "properties": [
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "dlp",
+      "laser_line",
+      "led_spot"
+     ],
+     "required": true
+    },
+    {
+     "name": "brightness",
+     "kind": "string",
+     "description": "lumens"
+    },
+    {
+     "name": "projection_distance",
+     "kind": "quantity",
+     "unit": "m"
+    }
+   ],
+   "interfaces": [
+    "bus.usb",
+    "electrical.digital_io",
+    "net.ethernet"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "projector_on"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "lens",
+     "basis": "condition",
+     "action": "clean"
+    }
+   ],
+   "failure_modes": [
+    "invisible in bright light",
+    "projector failure leaving pedestrians unwarned"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.mobile.*"
+   ]
+  },
+  {
+   "type_id": "hmi.keypad",
+   "name": "Buttons / keypad",
+   "category": "hmi",
+   "description": "Pushbuttons, selector switches or membrane keypads for start, stop, reset and mode selection.",
+   "domains": [
+    "D18"
+   ],
+   "aliases": [
+    "pushbutton",
+    "membrane keypad"
+   ],
+   "properties": [
+    {
+     "name": "button_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "illuminated",
+     "kind": "bool"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "button_state"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "stuck button",
+    "contact bounce"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "hmi.panel"
+   ],
+   "references": [
+    {
+     "name": "IEC 60204-1"
+    }
+   ]
+  },
+  {
+   "type_id": "hmi.panel",
+   "name": "Industrial HMI panel",
+   "category": "hmi",
+   "description": "Panel PC or operator terminal with HMI runtime, connecting via OPC UA, fieldbus or web to the controller.",
+   "domains": [
+    "D18",
+    "D07"
+   ],
+   "aliases": [
+    "operator panel",
+    "HMI terminal"
+   ],
+   "properties": [
+    {
+     "name": "diagonal",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    },
+    {
+     "name": "runtime",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "app.opcua",
+    "app.http_rest",
+    "app.websocket",
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip",
+    "fieldbus.modbus_tcp"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "connection_state"
+    },
+    {
+     "name": "cpu_temperature",
+     "unit": "degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "software updates",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "apply security patches"
+    }
+   ],
+   "failure_modes": [
+    "unauthorized changes from unsecured HMI",
+    "screen failure"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ]
+  },
+  {
+   "type_id": "hmi.tablet",
+   "name": "Mobile app device (tablet)",
+   "category": "hmi",
+   "description": "Tablet or phone running an app for robot setup, fleet supervision or teleoperation; not a safety device.",
+   "domains": [
+    "D18",
+    "D17"
+   ],
+   "aliases": [
+    "tablet HMI"
+   ],
+   "properties": [
+    {
+     "name": "os",
+     "kind": "string"
+    },
+    {
+     "name": "connection",
+     "kind": "enum",
+     "values": [
+      "wifi",
+      "cellular",
+      "bluetooth"
+     ]
+    }
+   ],
+   "interfaces": [
+    "net.wifi",
+    "net.ble",
+    "app.http_rest",
+    "app.websocket",
+    "app.webrtc"
+   ],
+   "provides": [
+    "human_interaction",
+    "teleoperation"
+   ],
+   "telemetry": [
+    {
+     "name": "battery_level",
+     "unit": "%"
+    },
+    {
+     "name": "connection_state"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "lost connection during commanded motion",
+    "stolen device with active session"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "hmi.wearable_alert",
+   "name": "Wearable alert device",
+   "category": "hmi",
+   "description": "Wrist or badge device that vibrates or beeps to warn workers of approaching robots or vehicles, often UWB-based.",
+   "domains": [
+    "D18",
+    "D16"
+   ],
+   "aliases": [
+    "proximity tag",
+    "smartwatch alert"
+   ],
+   "properties": [
+    {
+     "name": "ranging",
+     "kind": "enum",
+     "values": [
+      "uwb",
+      "ble",
+      "rfid",
+      "none"
+     ]
+    },
+    {
+     "name": "battery_capacity",
+     "kind": "quantity",
+     "unit": "mAh"
+    }
+   ],
+   "interfaces": [
+    "net.uwb",
+    "net.ble"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "battery_level",
+     "unit": "%"
+    },
+    {
+     "name": "distance_to_robot",
+     "unit": "m"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "battery",
+     "basis": "calendar_days",
+     "interval": 1,
+     "action": "charge"
+    }
+   ],
+   "failure_modes": [
+    "dead battery leaving worker unwarned",
+    "ranging dropout"
+   ],
+   "safety_relevant": false,
+   "typical_parents": []
+  },
+  {
+   "type_id": "hmi.foot_pedal",
+   "name": "Foot switch / pedal",
+   "category": "hmi",
+   "description": "Foot-operated switch for start, clamp or enable functions (e.g. surgical consoles, workstations).",
+   "domains": [
+    "D18"
+   ],
+   "aliases": [
+    "foot switch"
+   ],
+   "properties": [
+    {
+     "name": "positions",
+     "kind": "integer"
+    },
+    {
+     "name": "guard_hood",
+     "kind": "bool"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "human_interaction"
+   ],
+   "telemetry": [
+    {
+     "name": "pedal_state"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "accidental actuation",
+    "stuck pedal"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.*"
+   ]
+  },
+  {
+   "type_id": "safety.emergency_stop_button",
+   "name": "Emergency stop button",
+   "category": "safety",
+   "description": "Red mushroom pushbutton on yellow background with direct opening action and latching; initiates stop category 0 or 1 per ISO 13850.",
+   "domains": [
+    "D14",
+    "D18"
+   ],
+   "aliases": [
+    "E-stop",
+    "emergency stop pushbutton"
+   ],
+   "properties": [
+    {
+     "name": "nc_contacts",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "latching",
+     "kind": "bool",
+     "required": true
+    },
+    {
+     "name": "reset",
+     "kind": "enum",
+     "values": [
+      "turn",
+      "pull",
+      "key"
+     ]
+    },
+    {
+     "name": "b10d",
+     "kind": "string",
+     "description": "Cycles to dangerous failure of 10%"
+    },
+    {
+     "name": "ip_rating",
+     "kind": "string",
+     "description": "IEC 60529 code, e.g. IP54"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "emergency_stop"
+   ],
+   "telemetry": [
+    {
+     "name": "pressed"
+    },
+    {
+     "name": "channel_discrepancy",
+     "description": "Dual-channel mismatch fault"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "functional test",
+     "basis": "condition",
+     "action": "operate and verify stop; interval per risk assessment and manufacturer"
+    },
+    {
+     "item": "contact block",
+     "basis": "condition",
+     "action": "check mounting (contact block separation)"
+    }
+   ],
+   "failure_modes": [
+    "contact block detached from actuator",
+    "contact welding",
+    "wiring short bridging channels",
+    "obstructed or hidden button"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.*",
+    "hmi.teach_pendant",
+    "infra.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 13850"
+    },
+    {
+     "name": "IEC 60947-5-5"
+    },
+    {
+     "name": "IEC 60204-1"
+    },
+    {
+     "name": "ISO 13849-1"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.wireless_emergency_stop",
+   "name": "Wireless emergency stop",
+   "category": "safety",
+   "description": "Handheld or fixed e-stop transmitting a periodic safe telegram; the receiver opens safety outputs on button press or loss of communication.",
+   "domains": [
+    "D14",
+    "D07"
+   ],
+   "aliases": [
+    "remote e-stop",
+    "WES"
+   ],
+   "properties": [
+    {
+     "name": "frequency_band",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "range",
+     "kind": "quantity",
+     "unit": "m"
+    },
+    {
+     "name": "watchdog_timeout",
+     "kind": "quantity",
+     "unit": "ms",
+     "required": true,
+     "description": "Loss-of-link to stop time"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "net.802_15_4"
+   ],
+   "provides": [
+    "emergency_stop"
+   ],
+   "telemetry": [
+    {
+     "name": "link_ok"
+    },
+    {
+     "name": "rssi",
+     "unit": "dBm"
+    },
+    {
+     "name": "transmitter_battery",
+     "unit": "%"
+    },
+    {
+     "name": "pressed"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "functional test",
+     "basis": "condition",
+     "action": "press and verify stop; test link-loss behaviour"
+    },
+    {
+     "item": "battery",
+     "basis": "condition",
+     "action": "charge or replace"
+    }
+   ],
+   "failure_modes": [
+    "RF interference causing nuisance stops",
+    "pairing to wrong machine",
+    "dead transmitter battery"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.mobile.*",
+    "robot.field.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 13850"
+    },
+    {
+     "name": "ISO 13849-1"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.enabling_switch",
+   "name": "Three-position enabling switch",
+   "category": "safety",
+   "description": "Hand-held enabling device permitting motion only in the middle position; release or full press (panic) stops motion.",
+   "domains": [
+    "D14",
+    "D18"
+   ],
+   "aliases": [
+    "deadman switch",
+    "enabling device"
+   ],
+   "properties": [
+    {
+     "name": "contact_channels",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "panic_position",
+     "kind": "bool",
+     "required": true
+    },
+    {
+     "name": "b10d",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "position",
+     "description": "1 released / 2 enabled / 3 panic"
+    },
+    {
+     "name": "channel_discrepancy"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "functional test",
+     "basis": "condition",
+     "action": "verify release and full-press both stop motion"
+    }
+   ],
+   "failure_modes": [
+    "switch taped or wedged in middle position",
+    "contact welding",
+    "channel short"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "hmi.teach_pendant",
+    "hmi.haptic_master"
+   ],
+   "references": [
+    {
+     "name": "IEC 60947-5-8"
+    },
+    {
+     "name": "ISO 10218-1"
+    },
+    {
+     "name": "IEC 60204-1"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.relay",
+   "name": "Safety relay",
+   "category": "safety",
+   "description": "Dedicated monitoring relay with force-guided contacts and self-monitoring for e-stop, gates or light curtains; outputs open on fault.",
+   "domains": [
+    "D14",
+    "D03"
+   ],
+   "aliases": [
+    "safety relay module",
+    "PNOZ-class relay"
+   ],
+   "properties": [
+    {
+     "name": "safety_outputs",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "input_type",
+     "kind": "enum",
+     "values": [
+      "single_channel",
+      "dual_channel",
+      "dual_channel_cross_monitored",
+      "ossd"
+     ]
+    },
+    {
+     "name": "reset",
+     "kind": "enum",
+     "values": [
+      "automatic",
+      "manual_monitored"
+     ]
+    },
+    {
+     "name": "rated_voltage",
+     "kind": "quantity",
+     "unit": "V"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string",
+     "description": "ISO 13849-1 PL a-e"
+    },
+    {
+     "name": "category",
+     "kind": "string",
+     "description": "ISO 13849-1 Cat B,1-4"
+    },
+    {
+     "name": "sil_cl",
+     "kind": "string",
+     "description": "IEC 62061 SIL claim limit"
+    },
+    {
+     "name": "response_time",
+     "kind": "quantity",
+     "unit": "ms"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "output_state"
+    },
+    {
+     "name": "fault_led"
+    },
+    {
+     "name": "switching_cycles",
+     "unit": "cycles"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "output contacts",
+     "basis": "cycles",
+     "action": "replace at B10d/mission time limit"
+    },
+    {
+     "item": "functional test",
+     "basis": "condition",
+     "action": "test connected safety function"
+    }
+   ],
+   "failure_modes": [
+    "output contact welding (detected by feedback loop)",
+    "wiring fault bypassing monitoring",
+    "automatic reset used where manual reset required"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 13849-1"
+    },
+    {
+     "name": "IEC 62061"
+    },
+    {
+     "name": "IEC 60947-5-1"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.controller",
+   "name": "Safety controller / safety PLC",
+   "category": "safety",
+   "description": "Programmable or configurable safety logic with dual-channel I/O and diagnostics; the compute hardware may also be catalogued as compute.safety_plc.",
+   "domains": [
+    "D14",
+    "D08"
+   ],
+   "aliases": [
+    "safety PLC",
+    "configurable safety relay"
+   ],
+   "properties": [
+    {
+     "name": "safe_inputs",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "safe_outputs",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "sil",
+     "kind": "string",
+     "description": "IEC 61508 / IEC 62061 SIL"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    },
+    {
+     "name": "safety_protocols",
+     "kind": "string",
+     "description": "e.g. PROFIsafe, FSoE, CIP Safety"
+    },
+    {
+     "name": "response_time",
+     "kind": "quantity",
+     "unit": "ms"
+    }
+   ],
+   "interfaces": [
+    "fieldbus.profinet",
+    "fieldbus.ethercat",
+    "fieldbus.ethernet_ip",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "safety_program_crc"
+    },
+    {
+     "name": "io_diagnostics"
+    },
+    {
+     "name": "safe_state_active"
+    },
+    {
+     "name": "cycle_time",
+     "unit": "ms"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "validation",
+     "basis": "condition",
+     "action": "revalidate after program change; keep program CRC under change control"
+    }
+   ],
+   "failure_modes": [
+    "unauthorized safety program change",
+    "safety communication timeout",
+    "output short not detected on single channel"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.*",
+    "infra.*",
+    "compute.safety_plc"
+   ],
+   "references": [
+    {
+     "name": "IEC 61508"
+    },
+    {
+     "name": "IEC 62061"
+    },
+    {
+     "name": "ISO 13849-1"
+    },
+    {
+     "name": "IEC 61131-6"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.light_curtain",
+   "name": "Safety light curtain",
+   "category": "safety",
+   "description": "Active opto-electronic protective device (AOPD) with OSSD outputs detecting intrusion into a plane; Type 2 or Type 4 per IEC 61496.",
+   "domains": [
+    "D14",
+    "D05"
+   ],
+   "aliases": [
+    "AOPD",
+    "light grid"
+   ],
+   "properties": [
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "type_2",
+      "type_4"
+     ],
+     "required": true
+    },
+    {
+     "name": "resolution",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true,
+     "description": "14 mm finger, 30 mm hand, larger for body"
+    },
+    {
+     "name": "protective_height",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "range",
+     "kind": "quantity",
+     "unit": "m"
+    },
+    {
+     "name": "response_time",
+     "kind": "quantity",
+     "unit": "ms",
+     "required": true
+    },
+    {
+     "name": "ossd_outputs",
+     "kind": "integer"
+    },
+    {
+     "name": "muting",
+     "kind": "bool"
+    },
+    {
+     "name": "blanking",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "safety_monitoring",
+    "obstacle_detection"
+   ],
+   "telemetry": [
+    {
+     "name": "ossd_state"
+    },
+    {
+     "name": "beams_interrupted"
+    },
+    {
+     "name": "alignment_level",
+     "unit": "%"
+    },
+    {
+     "name": "lockout"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "test rod check",
+     "basis": "condition",
+     "action": "daily/shift test with specified test rod"
+    },
+    {
+     "item": "safety distance",
+     "basis": "condition",
+     "action": "re-verify per ISO 13855 after changes"
+    },
+    {
+     "item": "front windows",
+     "basis": "condition",
+     "action": "clean"
+    }
+   ],
+   "failure_modes": [
+    "safety distance too short",
+    "reflective surface bypass",
+    "misalignment",
+    "blanking/muting misuse"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 61496-1"
+    },
+    {
+     "name": "IEC 61496-2"
+    },
+    {
+     "name": "ISO 13855"
+    },
+    {
+     "name": "IEC 62046"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.laser_scanner_system",
+   "name": "Safety laser scanner system",
+   "category": "safety",
+   "description": "Configured protective/warning field system based on an AOPDDR; the sensor is sensor.lidar.safety_scanner, this type covers the field set configuration and switching.",
+   "domains": [
+    "D14"
+   ],
+   "aliases": [
+    "safety scanner fieldset"
+   ],
+   "properties": [
+    {
+     "name": "field_sets",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "scanner_type_id",
+     "kind": "string",
+     "required": true,
+     "description": "sensor.lidar.safety_scanner"
+    },
+    {
+     "name": "response_time",
+     "kind": "quantity",
+     "unit": "ms"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip"
+   ],
+   "provides": [
+    "safety_monitoring",
+    "obstacle_detection"
+   ],
+   "telemetry": [
+    {
+     "name": "active_field_set"
+    },
+    {
+     "name": "protective_field_violated"
+    },
+    {
+     "name": "warning_field_violated"
+    },
+    {
+     "name": "contamination_warning"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "field verification",
+     "basis": "condition",
+     "action": "test with test body after configuration change"
+    },
+    {
+     "item": "optics cover",
+     "basis": "condition",
+     "action": "clean"
+    }
+   ],
+   "failure_modes": [
+    "wrong field set selected for speed",
+    "contaminated window",
+    "unauthorized configuration change"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.mobile.*",
+    "robot.manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 61496-3"
+    },
+    {
+     "name": "ISO 3691-4"
+    },
+    {
+     "name": "IEC 62046"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.mat",
+   "name": "Pressure-sensitive safety mat",
+   "category": "safety",
+   "description": "Floor mat whose contacts close under foot pressure, signalling presence in a hazardous zone.",
+   "domains": [
+    "D14"
+   ],
+   "aliases": [
+    "safety mat"
+   ],
+   "properties": [
+    {
+     "name": "actuating_force",
+     "kind": "quantity",
+     "unit": "N"
+    },
+    {
+     "name": "mat_area",
+     "kind": "quantity",
+     "unit": "m^2",
+     "required": true
+    },
+    {
+     "name": "principle",
+     "kind": "enum",
+     "values": [
+      "four_wire",
+      "two_wire_resistive"
+     ]
+    },
+    {
+     "name": "response_time",
+     "kind": "quantity",
+     "unit": "ms"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "occupied"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "mat surface and cables",
+     "basis": "condition",
+     "action": "inspect for damage; function test"
+    }
+   ],
+   "failure_modes": [
+    "mechanical damage",
+    "dead zones at edges",
+    "cable crush"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "infra.*",
+    "robot.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 13856-1"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.edge",
+   "name": "Pressure-sensitive safety edge",
+   "category": "safety",
+   "description": "Profile with internal contact chamber or optical sensing that trips on compression; used on doors, gates and moving parts.",
+   "domains": [
+    "D14"
+   ],
+   "aliases": [
+    "safety edge",
+    "safety bar"
+   ],
+   "properties": [
+    {
+     "name": "actuating_force",
+     "kind": "quantity",
+     "unit": "N"
+    },
+    {
+     "name": "overtravel",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "length",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "principle",
+     "kind": "enum",
+     "values": [
+      "resistive",
+      "optical",
+      "pneumatic"
+     ]
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "triggered"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "function test",
+     "basis": "condition",
+     "action": "compress and verify stop"
+    }
+   ],
+   "failure_modes": [
+    "insufficient overtravel for stopping distance",
+    "profile damage"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "infra.*",
+    "robot.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 13856-2"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.bumper",
+   "name": "Safety bumper (mobile)",
+   "category": "safety",
+   "description": "Pressure-sensitive bumper or edge on mobile robots that stops the drive on contact.",
+   "domains": [
+    "D14",
+    "D01"
+   ],
+   "aliases": [
+    "bumper switch",
+    "tactile bumper"
+   ],
+   "properties": [
+    {
+     "name": "actuating_force",
+     "kind": "quantity",
+     "unit": "N"
+    },
+    {
+     "name": "overtravel",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "height",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "principle",
+     "kind": "enum",
+     "values": [
+      "switching_strip",
+      "optical",
+      "mechanical_microswitch"
+     ]
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring",
+    "obstacle_detection"
+   ],
+   "telemetry": [
+    {
+     "name": "triggered"
+    },
+    {
+     "name": "channel_fault"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "function test",
+     "basis": "condition",
+     "action": "press along length and verify stop"
+    }
+   ],
+   "failure_modes": [
+    "stopping distance exceeds overtravel",
+    "damaged profile",
+    "wiring fault"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.mobile.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 13856-3"
+    },
+    {
+     "name": "ISO 3691-4"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.door_interlock",
+   "name": "Door interlock switch",
+   "category": "safety",
+   "description": "Interlocking device detecting guard position: tongue switch, hinge switch, coded magnetic or RFID sensor, with defined coding level against defeat.",
+   "domains": [
+    "D14"
+   ],
+   "aliases": [
+    "safety switch",
+    "guard interlock"
+   ],
+   "properties": [
+    {
+     "name": "device_type",
+     "kind": "enum",
+     "values": [
+      "type_1_uncoded_mechanical",
+      "type_2_coded_mechanical",
+      "type_3_uncoded_non_contact",
+      "type_4_coded_non_contact"
+     ],
+     "required": true
+    },
+    {
+     "name": "coding_level",
+     "kind": "enum",
+     "values": [
+      "low",
+      "medium",
+      "high",
+      "none"
+     ]
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "guard_closed"
+    },
+    {
+     "name": "channel_discrepancy"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "function test",
+     "basis": "condition",
+     "action": "open guard and verify stop; check for defeat"
+    }
+   ],
+   "failure_modes": [
+    "defeat with spare actuator",
+    "misalignment",
+    "contact welding"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "safety.fence",
+    "infra.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 14119"
+    },
+    {
+     "name": "ISO 13849-1"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.guard_locking",
+   "name": "Guard locking device",
+   "category": "safety",
+   "description": "Interlock with solenoid lock keeping a guard closed until hazardous motion has stopped (power-to-unlock or power-to-lock).",
+   "domains": [
+    "D14"
+   ],
+   "aliases": [
+    "solenoid locking switch"
+   ],
+   "properties": [
+    {
+     "name": "holding_force",
+     "kind": "quantity",
+     "unit": "N",
+     "required": true
+    },
+    {
+     "name": "lock_principle",
+     "kind": "enum",
+     "values": [
+      "power_to_unlock",
+      "power_to_lock"
+     ],
+     "required": true
+    },
+    {
+     "name": "escape_release",
+     "kind": "bool"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "locked"
+    },
+    {
+     "name": "guard_closed"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "function test",
+     "basis": "condition",
+     "action": "verify lock holds during motion and escape release works"
+    }
+   ],
+   "failure_modes": [
+    "unlock before rundown complete",
+    "person trapped without escape release"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "safety.fence",
+    "infra.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 14119"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.two_hand_control",
+   "name": "Two-hand control device",
+   "category": "safety",
+   "description": "Requires simultaneous (within 0.5 s) actuation of two controls to start and hold a hazardous function; Types I, II, IIIA-C.",
+   "domains": [
+    "D14",
+    "D18"
+   ],
+   "aliases": [
+    "two-hand control"
+   ],
+   "properties": [
+    {
+     "name": "type",
+     "kind": "enum",
+     "values": [
+      "I",
+      "II",
+      "IIIA",
+      "IIIB",
+      "IIIC"
+     ],
+     "required": true
+    },
+    {
+     "name": "synchronism_time",
+     "kind": "quantity",
+     "unit": "ms"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "left_pressed"
+    },
+    {
+     "name": "right_pressed"
+    },
+    {
+     "name": "synchronism_fault"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "function test",
+     "basis": "condition",
+     "action": "verify single-hand and non-synchronous actuation do not start"
+    }
+   ],
+   "failure_modes": [
+    "defeat by tying one button",
+    "placement too close to hazard"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "infra.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 13851"
+    },
+    {
+     "name": "ISO 13855"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.sto_module",
+   "name": "Safe torque off (STO) module",
+   "category": "safety",
+   "description": "Drive safety function preventing torque-producing energy to the motor (IEC 61800-5-2 STO); often with SS1 and safe brake control.",
+   "domains": [
+    "D14",
+    "D12"
+   ],
+   "aliases": [
+    "STO",
+    "safe torque off"
+   ],
+   "properties": [
+    {
+     "name": "sto_inputs",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "sil",
+     "kind": "string"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    },
+    {
+     "name": "reaction_time",
+     "kind": "quantity",
+     "unit": "ms"
+    },
+    {
+     "name": "ss1_support",
+     "kind": "bool"
+    },
+    {
+     "name": "sbc_support",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.ethercat",
+    "fieldbus.profinet"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "sto_active"
+    },
+    {
+     "name": "sto_channel_discrepancy"
+    },
+    {
+     "name": "test_pulse_diagnostic"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "STO test",
+     "basis": "condition",
+     "action": "forced dynamization/test at the interval stated by the drive manufacturer"
+    }
+   ],
+   "failure_modes": [
+    "axis falls under gravity when STO active without brake",
+    "STO channel discrepancy",
+    "wiring bypass"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "drive.*",
+    "robot.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 61800-5-2"
+    },
+    {
+     "name": "IEC 61508"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.monitored_stop",
+   "name": "Safety-rated monitored stop function",
+   "category": "safety",
+   "description": "Safety function that monitors standstill while drive power remains on, used for operator entry (ISO 10218 collaborative operation).",
+   "domains": [
+    "D14",
+    "D12"
+   ],
+   "aliases": [
+    "SOS",
+    "safe operating stop"
+   ],
+   "properties": [
+    {
+     "name": "standstill_tolerance",
+     "kind": "quantity",
+     "unit": "deg"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "fieldbus.ethercat",
+    "fieldbus.profinet"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "standstill_violation"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "validation",
+     "basis": "condition",
+     "action": "verify after configuration change"
+    }
+   ],
+   "failure_modes": [
+    "standstill window too wide",
+    "encoder fault"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "safety.safe_motion_unit",
+    "robot.manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 10218-1"
+    },
+    {
+     "name": "IEC 61800-5-2"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.speed_separation_monitoring",
+   "name": "Speed and separation monitoring system",
+   "category": "safety",
+   "description": "System combining human detection and robot speed limits to keep a protective separation distance, per ISO/TS 15066 collaborative operation.",
+   "domains": [
+    "D14",
+    "D13"
+   ],
+   "aliases": [
+    "SSM"
+   ],
+   "properties": [
+    {
+     "name": "min_protective_distance",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "sensor_latency",
+     "kind": "quantity",
+     "unit": "ms"
+    },
+    {
+     "name": "max_robot_speed",
+     "kind": "quantity",
+     "unit": "m/s"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "fieldbus.profinet",
+    "fieldbus.ethercat",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring",
+    "obstacle_detection"
+   ],
+   "telemetry": [
+    {
+     "name": "separation_distance",
+     "unit": "mm"
+    },
+    {
+     "name": "speed_override",
+     "unit": "%"
+    },
+    {
+     "name": "protective_stop"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "validation",
+     "basis": "condition",
+     "action": "re-measure stopping times and verify after layout change"
+    }
+   ],
+   "failure_modes": [
+    "underestimated stopping distance",
+    "occlusion of humans",
+    "sensor latency"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.cobot.*",
+    "robot.manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "ISO/TS 15066"
+    },
+    {
+     "name": "ISO 10218-2"
+    },
+    {
+     "name": "ISO 13855"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.pfl_skin",
+   "name": "Power and force limiting skin/sensor",
+   "category": "safety",
+   "description": "Tactile skin, capacitive proximity skin or joint torque sensing used to detect contact and limit transferred force/pressure in collaborative operation.",
+   "domains": [
+    "D14",
+    "D05"
+   ],
+   "aliases": [
+    "safety skin",
+    "PFL sensor"
+   ],
+   "properties": [
+    {
+     "name": "principle",
+     "kind": "enum",
+     "values": [
+      "capacitive",
+      "pressure_air_chamber",
+      "joint_torque",
+      "resistive"
+     ],
+     "required": true
+    },
+    {
+     "name": "detection_threshold",
+     "kind": "quantity",
+     "unit": "N"
+    },
+    {
+     "name": "response_time",
+     "kind": "quantity",
+     "unit": "ms"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "fieldbus.ethercat",
+    "can.fd",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring",
+    "force_control"
+   ],
+   "telemetry": [
+    {
+     "name": "contact_detected"
+    },
+    {
+     "name": "contact_force",
+     "unit": "N"
+    },
+    {
+     "name": "diagnostic_fault"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "collision force verification",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "measure with force/pressure gauge against biomechanical limits"
+    }
+   ],
+   "failure_modes": [
+    "sensitivity drift",
+    "skin damage creating blind area",
+    "force exceeds ISO/TS 15066 limits"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.cobot.*"
+   ],
+   "references": [
+    {
+     "name": "ISO/TS 15066"
+    },
+    {
+     "name": "ISO 10218-1"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.muting_sensors",
+   "name": "Muting sensors",
+   "category": "safety",
+   "description": "Pair or set of sensors that temporarily suspend a light curtain while material (not people) passes, with timing and sequence monitoring.",
+   "domains": [
+    "D14"
+   ],
+   "aliases": [
+    "muting arms"
+   ],
+   "properties": [
+    {
+     "name": "sensor_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "muting_mode",
+     "kind": "enum",
+     "values": [
+      "two_sensor_crossed",
+      "two_sensor_parallel",
+      "four_sensor_sequential"
+     ]
+    },
+    {
+     "name": "max_muting_time",
+     "kind": "quantity",
+     "unit": "s"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "muting_active"
+    },
+    {
+     "name": "muting_lamp_ok"
+    },
+    {
+     "name": "sequence_fault"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "function test",
+     "basis": "condition",
+     "action": "verify a person cannot trigger muting"
+    }
+   ],
+   "failure_modes": [
+    "muting misuse allowing person to pass",
+    "sensor misalignment",
+    "muting override abuse"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "safety.light_curtain"
+   ],
+   "references": [
+    {
+     "name": "IEC 62046"
+    },
+    {
+     "name": "IEC 61496-1"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.encoder_reference",
+   "name": "Safety encoder (reference)",
+   "category": "safety",
+   "description": "Safety-rated position/speed feedback for safe motion functions; device details live under sensor.encoder.*, this type captures the safety assessment.",
+   "domains": [
+    "D14"
+   ],
+   "aliases": [
+    "SIL encoder"
+   ],
+   "properties": [
+    {
+     "name": "encoder_type_id",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "sil",
+     "kind": "string"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    },
+    {
+     "name": "mttfd",
+     "kind": "string",
+     "description": "years"
+    }
+   ],
+   "interfaces": [
+    "electrical.hiperface_dsl",
+    "electrical.endat",
+    "electrical.biss_c"
+   ],
+   "provides": [
+    "position_sensing"
+   ],
+   "telemetry": [
+    {
+     "name": "encoder_fault"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "mechanical coupling",
+     "basis": "condition",
+     "action": "verify, since shaft slip is often an excluded fault requiring form-fit coupling"
+    }
+   ],
+   "failure_modes": [
+    "shaft slip",
+    "signal fault"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "sensor.encoder.*",
+    "safety.safe_motion_unit"
+   ]
+  },
+  {
+   "type_id": "safety.fence",
+   "name": "Perimeter fence / fixed guard",
+   "category": "safety",
+   "description": "Fixed and movable guarding (mesh panels, posts, doors) around a robot cell, sized per safety distance standards.",
+   "domains": [
+    "D14",
+    "D01"
+   ],
+   "aliases": [
+    "robot cell guarding",
+    "safeguard"
+   ],
+   "properties": [
+    {
+     "name": "height",
+     "kind": "quantity",
+     "unit": "mm",
+     "required": true
+    },
+    {
+     "name": "mesh_opening",
+     "kind": "quantity",
+     "unit": "mm"
+    },
+    {
+     "name": "distance_to_hazard",
+     "kind": "quantity",
+     "unit": "mm"
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "panels and fixings",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "inspect for damage and removed fixings"
+    }
+   ],
+   "failure_modes": [
+    "panel removed without tools",
+    "reach-over/under gaps"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "infra.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 14120"
+    },
+    {
+     "name": "ISO 13857"
+    },
+    {
+     "name": "ISO 10218-2"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.warning_beacon",
+   "name": "Warning beacon / buzzer",
+   "category": "safety",
+   "description": "Flashing or rotating beacon with sounder warning of robot motion or AGV approach.",
+   "domains": [
+    "D14",
+    "D18"
+   ],
+   "aliases": [
+    "beacon",
+    "warning lamp"
+   ],
+   "properties": [
+    {
+     "name": "colour",
+     "kind": "string"
+    },
+    {
+     "name": "sound_pressure",
+     "kind": "quantity",
+     "unit": "dB"
+    },
+    {
+     "name": "rated_voltage",
+     "kind": "quantity",
+     "unit": "V"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "human_interaction",
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "active"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "function test",
+     "basis": "calendar_days",
+     "interval": 30,
+     "action": "verify light and sound"
+    }
+   ],
+   "failure_modes": [
+    "failed lamp",
+    "inaudible over noise"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.mobile.*",
+    "infra.*"
+   ]
+  },
+  {
+   "type_id": "safety.gas_fire_interlock",
+   "name": "Gas / fire detection interlock",
+   "category": "safety",
+   "description": "Gas, smoke or flame detector wired into the safety chain to stop or isolate robots and charging, e.g. in battery rooms or paint booths.",
+   "domains": [
+    "D14",
+    "D19"
+   ],
+   "aliases": [
+    "gas detector interlock"
+   ],
+   "properties": [
+    {
+     "name": "detected_hazard",
+     "kind": "string",
+     "required": true,
+     "description": "e.g. H2, LEL, smoke, flame"
+    },
+    {
+     "name": "alarm_threshold",
+     "kind": "string"
+    },
+    {
+     "name": "sil",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "electrical.analog_4_20ma",
+    "fieldbus.modbus_rtu"
+   ],
+   "provides": [
+    "safety_monitoring",
+    "environment_sensing"
+   ],
+   "telemetry": [
+    {
+     "name": "alarm"
+    },
+    {
+     "name": "gas_concentration",
+     "unit": "ppm"
+    },
+    {
+     "name": "sensor_fault"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "bump test / calibration",
+     "basis": "condition",
+     "action": "per manufacturer with test gas"
+    }
+   ],
+   "failure_modes": [
+    "sensor poisoning",
+    "calibration drift",
+    "detector not covering hazard zone"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "infra.*",
+    "power.*"
+   ]
+  },
+  {
+   "type_id": "safety.brake_test_unit",
+   "name": "Brake test function",
+   "category": "safety",
+   "description": "Function or module that periodically tests holding brakes of gravity-loaded axes by applying torque against the closed brake.",
+   "domains": [
+    "D14",
+    "D12"
+   ],
+   "aliases": [
+    "safe brake test",
+    "SBT"
+   ],
+   "properties": [
+    {
+     "name": "test_torque",
+     "kind": "quantity",
+     "unit": "N*m",
+     "required": true
+    },
+    {
+     "name": "test_interval",
+     "kind": "quantity",
+     "unit": "h"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "fieldbus.ethercat",
+    "fieldbus.profinet"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "last_test_result"
+    },
+    {
+     "name": "time_since_test",
+     "unit": "h"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "brake test",
+     "basis": "condition",
+     "action": "run at the interval required by the robot/drive manufacturer"
+    }
+   ],
+   "failure_modes": [
+    "brake wear not detected",
+    "test overdue",
+    "axis drop"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "safety.safe_motion_unit",
+    "transmission.*"
+   ]
+  },
+  {
+   "type_id": "safety.safe_motion_unit",
+   "name": "Safe motion unit",
+   "category": "safety",
+   "description": "Safety-rated robot controller option supervising safe zones, tool orientation, speed limits, standstill and brakes from redundant position data.",
+   "domains": [
+    "D14",
+    "D12"
+   ],
+   "aliases": [
+    "safe robot supervision",
+    "safe motion option"
+   ],
+   "properties": [
+    {
+     "name": "performance_level",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "sil",
+     "kind": "string"
+    },
+    {
+     "name": "safe_zones",
+     "kind": "integer"
+    },
+    {
+     "name": "supported_functions",
+     "kind": "string",
+     "description": "e.g. SLS, SLP, SOS, SBC, tool zone"
+    }
+   ],
+   "interfaces": [
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip",
+    "fieldbus.ethercat",
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "zone_violation"
+    },
+    {
+     "name": "speed_violation"
+    },
+    {
+     "name": "config_checksum"
+    },
+    {
+     "name": "safe_state_active"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "validation",
+     "basis": "condition",
+     "action": "validate configuration after every change; keep checksum under control"
+    }
+   ],
+   "failure_modes": [
+    "incorrect zone configuration",
+    "unauthorized config change",
+    "tool model mismatch"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 10218-1"
+    },
+    {
+     "name": "ISO 13849-1"
+    },
+    {
+     "name": "IEC 61800-5-2"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.reset_device",
+   "name": "Safety reset device",
+   "category": "safety",
+   "description": "Manual reset pushbutton located outside the hazard zone with full view, required after a safeguard trip before restart.",
+   "domains": [
+    "D14",
+    "D18"
+   ],
+   "aliases": [
+    "reset button"
+   ],
+   "properties": [
+    {
+     "name": "illuminated",
+     "kind": "bool"
+    },
+    {
+     "name": "reset_mode",
+     "kind": "enum",
+     "values": [
+      "falling_edge",
+      "rising_edge"
+     ]
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "pressed"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "reset from inside hazard zone",
+    "stuck button causing automatic reset"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "safety.relay",
+    "safety.controller"
+   ],
+   "references": [
+    {
+     "name": "ISO 13849-1"
+    },
+    {
+     "name": "IEC 60204-1"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.contactor_redundant",
+   "name": "Redundant safety contactors",
+   "category": "safety",
+   "description": "Pair of contactors with mirror contacts in series, switched by a safety output to remove power; feedback detects welding.",
+   "domains": [
+    "D14",
+    "D02"
+   ],
+   "aliases": [
+    "safety contactor pair"
+   ],
+   "properties": [
+    {
+     "name": "rated_current",
+     "kind": "quantity",
+     "unit": "A",
+     "required": true
+    },
+    {
+     "name": "b10d",
+     "kind": "string"
+    },
+    {
+     "name": "mirror_contacts",
+     "kind": "bool",
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "feedback_loop_ok"
+    },
+    {
+     "name": "switching_cycles",
+     "unit": "cycles"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "contactors",
+     "basis": "cycles",
+     "action": "replace before B10d-based limit"
+    }
+   ],
+   "failure_modes": [
+    "main contact welding",
+    "feedback wiring fault"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "safety.relay",
+    "safety.controller"
+   ],
+   "references": [
+    {
+     "name": "IEC 60947-4-1"
+    },
+    {
+     "name": "ISO 13849-2"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.key_selector",
+   "name": "Mode selector / key switch",
+   "category": "safety",
+   "description": "Lockable operating-mode selector (auto, manual reduced speed, manual high speed) forming part of the safety function.",
+   "domains": [
+    "D14",
+    "D18"
+   ],
+   "aliases": [
+    "mode selector",
+    "key switch"
+   ],
+   "properties": [
+    {
+     "name": "positions",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "lockable",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "selected_mode"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "mode change without authorization",
+    "contact fault selecting wrong mode"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.manipulator.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 10218-1"
+    },
+    {
+     "name": "IEC 60204-1"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.safety_io_module",
+   "name": "Safety I/O module",
+   "category": "safety",
+   "description": "Remote dual-channel input/output module communicating over a safety protocol (FSoE, PROFIsafe, CIP Safety) with test pulses and diagnostics.",
+   "domains": [
+    "D14",
+    "D07"
+   ],
+   "aliases": [
+    "fail-safe I/O"
+   ],
+   "properties": [
+    {
+     "name": "safe_inputs",
+     "kind": "integer"
+    },
+    {
+     "name": "safe_outputs",
+     "kind": "integer"
+    },
+    {
+     "name": "safety_protocol",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "sil",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "fieldbus.ethercat",
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "channel_diagnostics"
+    },
+    {
+     "name": "watchdog_timeouts"
+    }
+   ],
+   "maintenance": [],
+   "failure_modes": [
+    "passivation from comms timeout",
+    "cross-short on inputs"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "safety.controller"
+   ],
+   "references": [
+    {
+     "name": "IEC 61508"
+    },
+    {
+     "name": "IEC 61784-3"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.trapped_key",
+   "name": "Trapped-key interlock",
+   "category": "safety",
+   "description": "Mechanical key-transfer system ensuring isolation is applied before guard access.",
+   "domains": [
+    "D14"
+   ],
+   "aliases": [
+    "key exchange interlock"
+   ],
+   "properties": [
+    {
+     "name": "key_count",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "coding",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [],
+   "maintenance": [
+    {
+     "item": "locks",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "inspect and test sequence"
+    }
+   ],
+   "failure_modes": [
+    "spare key defeats sequence",
+    "worn lock"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "safety.fence"
+   ],
+   "references": [
+    {
+     "name": "ISO 14119"
+    }
+   ]
+  },
+  {
+   "type_id": "safety.pressure_relief_valve",
+   "name": "Pneumatic safety exhaust valve",
+   "category": "safety",
+   "description": "Redundant, monitored dump valve that safely exhausts pneumatic energy from grippers and actuators on a safety demand.",
+   "domains": [
+    "D14",
+    "D01"
+   ],
+   "aliases": [
+    "safe exhaust valve",
+    "dump valve"
+   ],
+   "properties": [
+    {
+     "name": "flow_rate",
+     "kind": "quantity",
+     "unit": "L/min",
+     "required": true
+    },
+    {
+     "name": "operating_pressure",
+     "kind": "quantity",
+     "unit": "bar"
+    },
+    {
+     "name": "performance_level",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.io_link"
+   ],
+   "provides": [
+    "safety_monitoring"
+   ],
+   "telemetry": [
+    {
+     "name": "valve_position_feedback"
+    },
+    {
+     "name": "downstream_pressure",
+     "unit": "bar"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "function test",
+     "basis": "condition",
+     "action": "verify exhaust time"
+    }
+   ],
+   "failure_modes": [
+    "silencer clogged slowing exhaust",
+    "spool sticking"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "end_effector.*",
+    "actuator.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 4414"
+    },
+    {
+     "name": "ISO 13849-1"
+    }
+   ]
+  }
+ ]
+}

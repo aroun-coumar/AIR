@@ -1,0 +1,6099 @@
+{
+ "protocols": [
+  {
+   "protocol_id": "electrical.three_phase",
+   "name": "Three-phase motor power",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "0-1000 Hz electrical frequency (inverter output)",
+   "topology": "point-to-point drive to motor",
+   "security": "Not a data link; hazardous voltage, isolate and lock out before work",
+   "domains": [
+    "D01",
+    "D02",
+    "D12"
+   ],
+   "standards": [
+    "IEC 60034-1"
+   ],
+   "description": "Three-phase AC (often PWM inverter output) feeding induction, PMSM and BLDC motors.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.dc",
+   "name": "DC power",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "none",
+   "typical_rate": "n/a (supply rail)",
+   "topology": "bus/star distribution",
+   "security": "Not a data link",
+   "domains": [
+    "D02"
+   ],
+   "standards": [],
+   "description": "DC supply rails (e.g. 5 V, 12 V, 24 V, 48 V) distributing power to robot subsystems.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.pwm",
+   "name": "PWM signal",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "50 Hz (RC servo) to tens of kHz",
+   "topology": "point-to-point",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D03",
+    "D12"
+   ],
+   "standards": [],
+   "description": "Pulse-width modulated logic signal: RC servo/ESC command (1-2 ms pulses at 50-400 Hz) or power-stage gate/LED dimming.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.analog_0_10v",
+   "name": "Analog 0-10 V",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "soft",
+   "typical_rate": "continuous (bandwidth typically < 1 kHz)",
+   "topology": "point-to-point",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D03",
+    "D05"
+   ],
+   "standards": [
+    "IEC 60381-2"
+   ],
+   "description": "Voltage analog signal common for sensors, VFD speed references and building automation; sensitive to ground offsets.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.analog_4_20ma",
+   "name": "Analog 4-20 mA current loop",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "soft",
+   "typical_rate": "continuous (bandwidth typically < 100 Hz)",
+   "topology": "point-to-point loop",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D03",
+    "D05"
+   ],
+   "standards": [
+    "IEC 60381-1"
+   ],
+   "description": "Current loop for process sensors and actuators; live zero (4 mA) allows wire-break detection (< 3.6 mA per NAMUR NE 43).",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.digital_io",
+   "name": "Discrete digital I/O",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "DC to a few kHz",
+   "topology": "point-to-point",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D03",
+    "D12"
+   ],
+   "standards": [
+    "IEC 61131-2"
+   ],
+   "description": "24 V PLC-style or logic-level discrete inputs/outputs (PNP/NPN, sourcing/sinking) for switches, interlocks and solenoids.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.step_dir",
+   "name": "Step/direction",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "up to ~500 kHz pulse rate",
+   "topology": "point-to-point controller to drive",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D12"
+   ],
+   "standards": [],
+   "description": "Pulse-train position command (one pulse per microstep plus direction line) for stepper and servo drives.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.quadrature",
+   "name": "Incremental quadrature (A/B/Z)",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "up to several MHz edge rate",
+   "topology": "point-to-point",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D05",
+    "D12"
+   ],
+   "standards": [],
+   "description": "Two 90-degree phase-shifted channels plus optional index from incremental encoders; TTL or RS-422 differential line drivers.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.ssi",
+   "name": "Synchronous Serial Interface (SSI)",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "100 kHz-2 MHz clock",
+   "topology": "point-to-point (master clocks slave)",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D05",
+    "D12"
+   ],
+   "standards": [],
+   "description": "Clocked RS-422 serial interface for absolute encoder position; no standardized command channel.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.biss_c",
+   "name": "BiSS C",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "up to 10 MHz clock",
+   "topology": "point-to-point or bus (multiple slaves)",
+   "security": "None; relies on physical access control to the wiring; CRC protects integrity only",
+   "domains": [
+    "D05",
+    "D12"
+   ],
+   "standards": [],
+   "description": "Open bidirectional serial encoder protocol (iC-Haus) with CRC, register access and line-delay compensation.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.endat",
+   "name": "EnDat 2.2",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "up to 16 MHz clock",
+   "topology": "point-to-point",
+   "security": "None; relies on physical access control to the wiring; CRC protects integrity only",
+   "domains": [
+    "D05",
+    "D12"
+   ],
+   "standards": [],
+   "description": "HEIDENHAIN bidirectional digital encoder interface with position, diagnostics and additional data; functional-safety variants exist.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.hiperface_dsl",
+   "name": "HIPERFACE DSL",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "9.375 Mbit/s",
+   "topology": "point-to-point, single cable with motor power",
+   "security": "None; relies on physical access control to the wiring; CRC protects integrity only",
+   "domains": [
+    "D05",
+    "D12"
+   ],
+   "standards": [],
+   "description": "SICK digital motor-feedback protocol on two wires integrated into the motor power cable; SIL-capable variants.",
+   "references": []
+  },
+  {
+   "protocol_id": "electrical.resolver",
+   "name": "Resolver excitation/feedback",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "excitation typically 2-20 kHz",
+   "topology": "point-to-point",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D05",
+    "D12"
+   ],
+   "standards": [],
+   "description": "Analog sine/cosine rotary transformer feedback; robust to heat and vibration, decoded by an RDC.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.i2c",
+   "name": "I2C",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "100 kbit/s-1 Mbit/s (3.4 Mbit/s HS)",
+   "topology": "multi-drop bus, multi-master capable",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D03",
+    "D09"
+   ],
+   "standards": [
+    "NXP UM10204"
+   ],
+   "description": "Two-wire on-board bus (SDA/SCL, open drain) for sensors, EEPROMs and PMICs.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.spi",
+   "name": "SPI",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "1-50+ MHz clock",
+   "topology": "master-slave, chip-select per slave",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D03",
+    "D09"
+   ],
+   "standards": [],
+   "description": "De facto 4-wire synchronous serial bus for ADCs, IMUs, flash and displays.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.uart",
+   "name": "UART (TTL serial)",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "9.6 kbit/s-3 Mbit/s",
+   "topology": "point-to-point",
+   "security": "None; relies on physical access control to the wiring; debug consoles are a common attack surface",
+   "domains": [
+    "D03",
+    "D08"
+   ],
+   "standards": [],
+   "description": "Asynchronous serial at logic levels; GPS modules, debug consoles, smart servos.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.rs232",
+   "name": "RS-232",
+   "layer": "physical",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "up to 115.2 kbit/s typical",
+   "topology": "point-to-point",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D03",
+    "D06"
+   ],
+   "standards": [
+    "TIA-232-F"
+   ],
+   "description": "Single-ended serial line (+/-3 to 15 V) for legacy instruments and service ports; ~15 m cable.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.rs485",
+   "name": "RS-485",
+   "layer": "physical",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "up to 10 Mbit/s (short), 100 kbit/s at 1200 m",
+   "topology": "multi-drop differential bus, 120 Ohm terminated at both ends",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D03",
+    "D07"
+   ],
+   "standards": [
+    "TIA-485-A"
+   ],
+   "description": "Differential multi-drop physical layer under Modbus RTU, PROFIBUS DP, DMX and many smart servo buses.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.usb",
+   "name": "USB",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "12 Mbit/s-40 Gbit/s (FS to USB4)",
+   "topology": "tiered star, host-device",
+   "security": "No device authentication in common use; malicious devices (HID injection) are a known risk",
+   "domains": [
+    "D03",
+    "D06",
+    "D10"
+   ],
+   "standards": [
+    "USB 2.0",
+    "USB 3.2",
+    "USB4"
+   ],
+   "description": "Host-device bus for cameras, adapters, storage and debug; USB-C also carries USB PD power.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.one_wire",
+   "name": "1-Wire",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "15.4 kbit/s (overdrive 125 kbit/s)",
+   "topology": "multi-drop bus, single master",
+   "security": "None; relies on physical access control to the wiring; some devices offer SHA-256 authentication",
+   "domains": [
+    "D03"
+   ],
+   "standards": [],
+   "description": "Single data-line bus (Maxim/ADI) for temperature sensors, ID chips and battery authentication.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.i3c",
+   "name": "MIPI I3C",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "12.5 MHz SDR (HDR modes higher)",
+   "topology": "multi-drop bus with dynamic addressing",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D03",
+    "D09"
+   ],
+   "standards": [
+    "MIPI I3C"
+   ],
+   "description": "Successor to I2C with in-band interrupts, dynamic addressing and higher speed; backward compatible with many I2C devices.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.mipi_csi2",
+   "name": "MIPI CSI-2",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "1-4 lanes, ~1-4.5 Gbit/s per lane (D-PHY)",
+   "topology": "point-to-point camera to SoC",
+   "security": "No link-layer authentication by default",
+   "domains": [
+    "D05",
+    "D10"
+   ],
+   "standards": [
+    "MIPI CSI-2"
+   ],
+   "description": "Camera serial interface over D-PHY/C-PHY lanes from image sensor to ISP; short PCB/flex distances.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.gmsl",
+   "name": "GMSL (Gigabit Multimedia Serial Link)",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "3-12 Gbit/s forward (GMSL2/3)",
+   "topology": "point-to-point serializer/deserializer over coax or STP",
+   "security": "No authentication; physical security",
+   "domains": [
+    "D05",
+    "D10"
+   ],
+   "standards": [],
+   "description": "Analog Devices SerDes extending camera/display links over up to ~15 m coax, carrying power and control backchannel.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.pcie",
+   "name": "PCI Express",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "8-64 GT/s per lane (Gen3-Gen6)",
+   "topology": "point-to-point, switched tree",
+   "security": "Devices have DMA access; use an IOMMU; IDE/TDISP add link encryption in newer revisions",
+   "domains": [
+    "D03",
+    "D10"
+   ],
+   "standards": [
+    "PCI Express Base Specification"
+   ],
+   "description": "High-speed expansion bus for accelerators, NVMe, NICs and frame grabbers.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.lin",
+   "name": "LIN",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "up to 20 kbit/s",
+   "topology": "single-master multi-slave bus",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "ISO 17987"
+   ],
+   "description": "Low-cost single-wire automotive sub-bus for body electronics, small actuators and sensors.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.flexray",
+   "name": "FlexRay",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "10 Mbit/s per channel, dual channel",
+   "topology": "bus/star, time-triggered",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "ISO 17458"
+   ],
+   "description": "Deterministic time-triggered automotive bus for chassis and x-by-wire systems.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.qspi",
+   "name": "Quad SPI (QSPI/OSPI)",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "up to ~133 MHz x 4 data lines",
+   "topology": "point-to-point MCU to flash/PSRAM",
+   "security": "None; relies on physical access control to the wiring; external flash contents can be read or altered unless encrypted/authenticated by the MCU",
+   "domains": [
+    "D03",
+    "D08"
+   ],
+   "standards": [],
+   "description": "Multi-line SPI variant for execute-in-place NOR flash and PSRAM on MCUs and FPGAs.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.sdio",
+   "name": "SD/SDIO",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "up to 104 MB/s (UHS-I)",
+   "topology": "point-to-point host to card",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D03",
+    "D10"
+   ],
+   "standards": [
+    "SD Specifications (SD Association)"
+   ],
+   "description": "SD card storage interface and SDIO peripherals such as Wi-Fi/BT modules on embedded boards.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.hdmi",
+   "name": "HDMI",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "up to 48 Gbit/s (HDMI 2.1)",
+   "topology": "point-to-point source to sink",
+   "security": "HDCP content protection only; DDC/CEC side channels are unauthenticated",
+   "domains": [
+    "D06",
+    "D18"
+   ],
+   "standards": [
+    "HDMI 2.1"
+   ],
+   "description": "Digital video/audio output to monitors and HMI panels; also input on capture devices.",
+   "references": []
+  },
+  {
+   "protocol_id": "bus.displayport",
+   "name": "DisplayPort",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "up to 80 Gbit/s (DP 2.1)",
+   "topology": "point-to-point or MST daisy chain",
+   "security": "HDCP content protection only",
+   "domains": [
+    "D06",
+    "D18"
+   ],
+   "standards": [
+    "VESA DisplayPort 2.1"
+   ],
+   "description": "VESA digital display interface, also carried over USB-C alt mode; eDP variant for embedded panels.",
+   "references": []
+  },
+  {
+   "protocol_id": "can.classic",
+   "name": "CAN 2.0 (Classical CAN)",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "125 kbit/s-1 Mbit/s, 8-byte payload",
+   "topology": "multi-drop bus, 120 Ohm termination at both ends",
+   "security": "No authentication or encryption; any node can transmit any identifier. Mitigate with segmentation, gateways and AUTOSAR SecOC",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "ISO 11898-1",
+    "ISO 11898-2"
+   ],
+   "description": "Multi-master arbitrated differential bus with CRC and error confinement (error-passive, bus-off).",
+   "references": []
+  },
+  {
+   "protocol_id": "can.fd",
+   "name": "CAN FD",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "arbitration up to 1 Mbit/s, data phase 2-8 Mbit/s, 64-byte payload",
+   "topology": "multi-drop bus",
+   "security": "No authentication or encryption; any node can transmit any identifier. Mitigate with segmentation, gateways and AUTOSAR SecOC",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "ISO 11898-1",
+    "ISO 11898-2"
+   ],
+   "description": "CAN with flexible data rate and larger payloads; requires FD-capable transceivers and careful topology.",
+   "references": []
+  },
+  {
+   "protocol_id": "can.xl",
+   "name": "CAN XL",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "data phase up to 20 Mbit/s, payload up to 2048 bytes",
+   "topology": "multi-drop bus",
+   "security": "No authentication by default; CANsec (CiA 613-2) defines optional link-layer security",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "CiA 610-1",
+    "ISO 11898-1"
+   ],
+   "description": "Third-generation CAN carrying larger frames (including Ethernet tunneling) at higher data rates.",
+   "references": []
+  },
+  {
+   "protocol_id": "can.canopen",
+   "name": "CANopen",
+   "layer": "application",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "up to 1 Mbit/s (CAN), 127 nodes",
+   "topology": "multi-drop bus, NMT master",
+   "security": "No authentication or encryption; any node can transmit any identifier. Mitigate with segmentation, gateways and AUTOSAR SecOC",
+   "domains": [
+    "D07",
+    "D11",
+    "D12"
+   ],
+   "standards": [
+    "CiA 301",
+    "EN 50325-4",
+    "CiA 402"
+   ],
+   "description": "CAN application layer with object dictionary, PDO/SDO, NMT and device profiles (CiA 402 drives).",
+   "references": []
+  },
+  {
+   "protocol_id": "can.j1939",
+   "name": "SAE J1939",
+   "layer": "application",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "250 or 500 kbit/s",
+   "topology": "multi-drop bus",
+   "security": "No authentication or encryption; any node can transmit any identifier. Mitigate with segmentation, gateways and AUTOSAR SecOC",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "SAE J1939"
+   ],
+   "description": "Heavy-vehicle CAN higher layer using 29-bit IDs and PGNs; used in agricultural and off-highway robots.",
+   "references": []
+  },
+  {
+   "protocol_id": "can.dronecan",
+   "name": "DroneCAN",
+   "layer": "application",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "1 Mbit/s typical",
+   "topology": "multi-drop bus",
+   "security": "No authentication or encryption; any node can transmit any identifier. Mitigate with segmentation, gateways and AUTOSAR SecOC",
+   "domains": [
+    "D07",
+    "D11"
+   ],
+   "standards": [],
+   "description": "Open UAV CAN protocol (UAVCAN v0 lineage) used by ArduPilot/PX4 peripherals: GNSS, ESCs, airspeed sensors.",
+   "references": []
+  },
+  {
+   "protocol_id": "can.cyphal",
+   "name": "OpenCyphal",
+   "layer": "application",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "CAN FD up to 5 Mbit/s data phase; also UDP/serial",
+   "topology": "multi-drop bus, publish-subscribe",
+   "security": "No authentication or encryption; any node can transmit any identifier. Mitigate with segmentation, gateways and AUTOSAR SecOC",
+   "domains": [
+    "D07",
+    "D11"
+   ],
+   "standards": [],
+   "description": "Lightweight publish/subscribe and RPC protocol (UAVCAN v1) over CAN, CAN FD, UDP or serial with DSDL types.",
+   "references": []
+  },
+  {
+   "protocol_id": "can.nmea2000",
+   "name": "NMEA 2000",
+   "layer": "application",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "250 kbit/s",
+   "topology": "multi-drop backbone with drop cables",
+   "security": "No authentication or encryption; any node can transmit any identifier. Mitigate with segmentation, gateways and AUTOSAR SecOC",
+   "domains": [
+    "D07",
+    "D19"
+   ],
+   "standards": [
+    "IEC 61162-3"
+   ],
+   "description": "Marine CAN network (J1939-based) for GNSS, sonar, autopilot and engine data on boats and USVs.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.ethercat",
+   "name": "EtherCAT",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "100 Mbit/s, cycle times down to ~100 us",
+   "topology": "line/ring/tree, master-slave, processing on the fly",
+   "security": "No built-in authentication or encryption; rely on network segmentation per IEC 62443",
+   "domains": [
+    "D07",
+    "D12"
+   ],
+   "standards": [
+    "IEC 61158",
+    "IEC 61784-2"
+   ],
+   "description": "Ethernet-based fieldbus where frames are processed on the fly by slave controllers; distributed clocks for sub-us sync.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.profinet",
+   "name": "PROFINET",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "100 Mbit/s; RT ~1 ms, IRT down to 31.25 us",
+   "topology": "star/line/ring, controller-device",
+   "security": "Legacy installations unauthenticated; PI security classes add integrity/authentication; segment per IEC 62443",
+   "domains": [
+    "D07",
+    "D12"
+   ],
+   "standards": [
+    "IEC 61158",
+    "IEC 61784-2"
+   ],
+   "description": "Industrial Ethernet protocol by PROFIBUS & PROFINET International with RT and IRT classes.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.ethernet_ip",
+   "name": "EtherNet/IP",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "100 Mbit/s-1 Gbit/s, RPI typically 1-100 ms",
+   "topology": "star/ring (DLR), producer-consumer",
+   "security": "Optional CIP Security (TLS/DTLS, device identity); most devices unauthenticated",
+   "domains": [
+    "D07",
+    "D12"
+   ],
+   "standards": [
+    "IEC 61158",
+    "IEC 61784-1"
+   ],
+   "description": "ODVA Common Industrial Protocol (CIP) over standard TCP/UDP Ethernet.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.modbus_rtu",
+   "name": "Modbus RTU",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "9.6-115.2 kbit/s",
+   "topology": "multi-drop RS-485, single master",
+   "security": "None: no authentication, integrity only via CRC",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "Modbus over Serial Line V1.02"
+   ],
+   "description": "Simple register-based master/slave protocol over RS-485/RS-232; ubiquitous in drives, meters and BMS.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.modbus_tcp",
+   "name": "Modbus TCP",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "10/100 Mbit/s Ethernet, TCP port 502",
+   "topology": "client-server over TCP/IP",
+   "security": "None in classic Modbus TCP; Modbus/TCP Security (TLS, port 802) is optional and rarely deployed",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "Modbus Application Protocol V1.1b3"
+   ],
+   "description": "Modbus application protocol over TCP/IP.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.io_link",
+   "name": "IO-Link",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "4.8/38.4/230.4 kbit/s (COM1-3)",
+   "topology": "point-to-point master port to device, 3-wire unshielded up to 20 m",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D05",
+    "D07"
+   ],
+   "standards": [
+    "IEC 61131-9"
+   ],
+   "description": "Point-to-point digital link to smart sensors/actuators with process data, parameters and diagnostics (IODD).",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.profibus",
+   "name": "PROFIBUS DP/PA",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "9.6 kbit/s-12 Mbit/s (DP), 31.25 kbit/s (PA)",
+   "topology": "multi-drop RS-485 (DP) or MBP (PA), master-slave",
+   "security": "No built-in authentication or encryption; rely on network segmentation per IEC 62443",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "IEC 61158",
+    "IEC 61784-1"
+   ],
+   "description": "Legacy serial fieldbus for factory (DP) and process (PA, intrinsically safe) automation.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.devicenet",
+   "name": "DeviceNet",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "125/250/500 kbit/s",
+   "topology": "trunk-drop CAN bus",
+   "security": "No authentication or encryption; any node can transmit any identifier. Mitigate with segmentation, gateways and AUTOSAR SecOC",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "IEC 62026-3",
+    "EN 50325-2"
+   ],
+   "description": "CIP over CAN for device-level networking of sensors and drives (ODVA).",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.sercos3",
+   "name": "SERCOS III",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "100 Mbit/s, cycle down to 31.25 us",
+   "topology": "line/ring, master-slave",
+   "security": "No built-in authentication or encryption; rely on network segmentation per IEC 62443",
+   "domains": [
+    "D07",
+    "D12"
+   ],
+   "standards": [
+    "IEC 61491",
+    "IEC 61158",
+    "IEC 61784-2"
+   ],
+   "description": "Real-time Ethernet for motion control with synchronized drives; supports CIP Safety on Sercos.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.powerlink",
+   "name": "Ethernet POWERLINK",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "100 Mbit/s, cycle down to ~100 us",
+   "topology": "star/line/tree via hubs, managing node polls controlled nodes",
+   "security": "No built-in authentication or encryption; rely on network segmentation per IEC 62443",
+   "domains": [
+    "D07",
+    "D12"
+   ],
+   "standards": [
+    "IEC 61158",
+    "IEC 61784-2"
+   ],
+   "description": "Open real-time Ethernet (EPSG) using time-slot polling and CANopen device profiles.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.cc_link_ie",
+   "name": "CC-Link IE (Field/TSN)",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "1 Gbit/s (Field), 100 Mbit/s-1 Gbit/s (TSN)",
+   "topology": "line/star/ring",
+   "security": "No built-in authentication or encryption; rely on network segmentation per IEC 62443",
+   "domains": [
+    "D07",
+    "D12"
+   ],
+   "standards": [
+    "IEC 61158",
+    "IEC 61784-2"
+   ],
+   "description": "CLPA gigabit industrial Ethernet; CC-Link IE TSN uses IEEE 802.1 TSN scheduling.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.hart",
+   "name": "HART",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "1.2 kbit/s FSK superimposed on 4-20 mA",
+   "topology": "point-to-point or multi-drop",
+   "security": "None on wired HART",
+   "domains": [
+    "D05",
+    "D07"
+   ],
+   "standards": [
+    "IEC 61158",
+    "IEC 61784-1"
+   ],
+   "description": "Digital FSK communication overlaid on 4-20 mA loops for configuration and diagnostics of process instruments.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.ethercat_fsoe",
+   "name": "Safety over EtherCAT (FSoE)",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "over EtherCAT cycle",
+   "topology": "black channel over EtherCAT",
+   "security": "Black-channel safety layer: CRC, sequence counters and watchdogs protect against communication errors, not against deliberate attack",
+   "domains": [
+    "D07",
+    "D14"
+   ],
+   "standards": [
+    "IEC 61784-3-12",
+    "ETG.5100"
+   ],
+   "description": "Functional-safety protocol carried in EtherCAT process data, up to SIL 3 / PL e.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.profisafe",
+   "name": "PROFIsafe",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "over PROFINET/PROFIBUS cycle",
+   "topology": "black channel over PROFINET or PROFIBUS",
+   "security": "Black-channel safety layer: CRC, sequence counters and watchdogs protect against communication errors, not against deliberate attack",
+   "domains": [
+    "D07",
+    "D14"
+   ],
+   "standards": [
+    "IEC 61784-3-3"
+   ],
+   "description": "Functional-safety profile for PROFINET/PROFIBUS up to SIL 3; widely used for safe torque off and safe I/O.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.cip_safety",
+   "name": "CIP Safety",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "over EtherNet/IP, DeviceNet or Sercos",
+   "topology": "black channel over CIP networks",
+   "security": "Black-channel safety layer: CRC, sequence counters and watchdogs protect against communication errors, not against deliberate attack",
+   "domains": [
+    "D07",
+    "D14"
+   ],
+   "standards": [
+    "IEC 61784-3-2"
+   ],
+   "description": "ODVA safety extension of CIP for safe I/O and drive functions up to SIL 3.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.opensafety",
+   "name": "openSAFETY",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "over host protocol cycle",
+   "topology": "black channel, bus-independent",
+   "security": "Black-channel safety layer: CRC, sequence counters and watchdogs protect against communication errors, not against deliberate attack",
+   "domains": [
+    "D07",
+    "D14"
+   ],
+   "standards": [
+    "IEC 61784-3-13"
+   ],
+   "description": "Bus-independent safety protocol (originating with POWERLINK) up to SIL 3.",
+   "references": []
+  },
+  {
+   "protocol_id": "fieldbus.asi",
+   "name": "AS-Interface (AS-i)",
+   "layer": "fieldbus",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "167 kbit/s, cycle ~5 ms for 31 slaves",
+   "topology": "unshielded two-wire tree carrying data and power",
+   "security": "None; relies on physical access control to the wiring",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "IEC 62026-2",
+    "EN 50295"
+   ],
+   "description": "Simple sensor/actuator bus on a yellow flat cable; ASIsafe/Safety at Work variant for e-stops and light curtains.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.ethernet",
+   "name": "Ethernet",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "10 Mbit/s-10 Gbit/s",
+   "topology": "switched star",
+   "security": "No built-in authentication; IEEE 802.1X port access control and 802.1AE MACsec available",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "IEEE 802.3"
+   ],
+   "description": "Standard wired LAN used for sensors (lidar, cameras), compute interconnect and higher protocols.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.tsn",
+   "name": "Time-Sensitive Networking (TSN)",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "100 Mbit/s-10 Gbit/s with bounded latency",
+   "topology": "switched, scheduled",
+   "security": "Inherits Ethernet; MACsec and 802.1Qci per-stream filtering limit misbehaving talkers",
+   "domains": [
+    "D07",
+    "D12"
+   ],
+   "standards": [
+    "IEEE 802.1AS",
+    "IEEE 802.1Qbv",
+    "IEEE 802.1CB",
+    "IEC/IEEE 60802"
+   ],
+   "description": "IEEE 802.1 extensions for time sync, scheduled traffic and redundancy giving deterministic Ethernet.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.poe",
+   "name": "Power over Ethernet",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "none",
+   "typical_rate": "up to 15.4/30/60/90 W at PSE (Types 1-4)",
+   "topology": "point-to-point PSE to PD",
+   "security": "Not a data protocol; uncontrolled PSEs can power arbitrary devices",
+   "domains": [
+    "D02",
+    "D07"
+   ],
+   "standards": [
+    "IEEE 802.3af",
+    "IEEE 802.3at",
+    "IEEE 802.3bt"
+   ],
+   "description": "DC power over twisted-pair Ethernet cabling for cameras, APs and sensors.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.spe_10base_t1l",
+   "name": "Single Pair Ethernet 10BASE-T1L",
+   "layer": "physical",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "10 Mbit/s up to 1000 m",
+   "topology": "point-to-point single twisted pair",
+   "security": "As Ethernet; Ethernet-APL adds intrinsic-safety power, not security",
+   "domains": [
+    "D07"
+   ],
+   "standards": [
+    "IEEE 802.3cg"
+   ],
+   "description": "Long-reach single-pair Ethernet physical layer; basis of Ethernet-APL for process field devices.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.wifi",
+   "name": "Wi-Fi",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "tens of Mbit/s to multiple Gbit/s (802.11n/ac/ax/be)",
+   "topology": "infrastructure (AP-STA) or mesh",
+   "security": "WPA3-SAE or WPA2/WPA3-Enterprise (802.1X/EAP); WPA2-PSK open to offline guessing; open networks unencrypted",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "IEEE 802.11"
+   ],
+   "description": "WLAN on 2.4/5/6 GHz for robot-fleet links, teleoperation and IoT.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.wifi_halow",
+   "name": "Wi-Fi HaLow",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "150 kbit/s-~80 Mbit/s",
+   "topology": "star AP-STA, relay",
+   "security": "WPA3 (SAE/OWE) required for Wi-Fi CERTIFIED HaLow",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "IEEE 802.11ah"
+   ],
+   "description": "Sub-1 GHz Wi-Fi for long-range low-power IoT (km range).",
+   "references": []
+  },
+  {
+   "protocol_id": "net.cellular_lte",
+   "name": "LTE (4G)",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "~10-150 Mbit/s down typical (Cat 4-Cat 12)",
+   "topology": "cellular star via operator core",
+   "security": "SIM-based mutual authentication (EPS-AKA) and air-interface ciphering; no user-plane integrity; private APN/VPN recommended",
+   "domains": [
+    "D07",
+    "D17"
+   ],
+   "standards": [
+    "3GPP TS 36 series"
+   ],
+   "description": "4G cellular for remote telemetry and teleoperation of field robots.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.cellular_5g",
+   "name": "5G NR",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "100 Mbit/s-several Gbit/s; URLLC targets ~1 ms",
+   "topology": "cellular star; public or private (non-public) networks",
+   "security": "5G-AKA/EAP-AKA', SUCI identity concealment, optional user-plane integrity",
+   "domains": [
+    "D07",
+    "D17"
+   ],
+   "standards": [
+    "3GPP Release 15+"
+   ],
+   "description": "5G New Radio for high-throughput, low-latency and private campus networks.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.nb_iot",
+   "name": "NB-IoT",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "none",
+   "typical_rate": "~20-127 kbit/s",
+   "topology": "cellular star",
+   "security": "3GPP SIM-based authentication and ciphering",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "3GPP Release 13 (LTE Cat NB1/NB2)"
+   ],
+   "description": "Narrowband LPWA cellular for low-rate static IoT sensors with deep coverage and PSM/eDRX sleep.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.lte_m",
+   "name": "LTE-M (Cat M1)",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "none",
+   "typical_rate": "up to ~1 Mbit/s",
+   "topology": "cellular star",
+   "security": "3GPP SIM-based authentication and ciphering",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "3GPP Release 13 (LTE Cat M1)"
+   ],
+   "description": "LPWA cellular with mobility and voice support for trackers and mobile IoT.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.ble",
+   "name": "Bluetooth Low Energy",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "125 kbit/s-2 Mbit/s PHY",
+   "topology": "star (peripheral-central), broadcast, mesh",
+   "security": "LE Secure Connections (ECDH P-256) with AES-CCM; Just Works pairing lacks MITM protection; legacy pairing weak",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "Bluetooth Core Specification"
+   ],
+   "description": "Low-power 2.4 GHz radio for wearables, beacons, provisioning and sensor links.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.bluetooth_classic",
+   "name": "Bluetooth Classic (BR/EDR)",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "1-3 Mbit/s",
+   "topology": "piconet",
+   "security": "Secure Simple Pairing (Secure Connections mode recommended); legacy PIN pairing weak",
+   "domains": [
+    "D07",
+    "D18"
+   ],
+   "standards": [
+    "Bluetooth Core Specification"
+   ],
+   "description": "Bluetooth BR/EDR for gamepads, audio and serial (SPP) links.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.802_15_4",
+   "name": "IEEE 802.15.4",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "250 kbit/s (2.4 GHz O-QPSK)",
+   "topology": "star or peer-to-peer mesh",
+   "security": "Optional AES-CCM* link-layer security; key management left to upper layers",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "IEEE 802.15.4"
+   ],
+   "description": "Low-rate WPAN PHY/MAC beneath Zigbee, Thread, WirelessHART and ISA100.11a.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.zigbee",
+   "name": "Zigbee",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "250 kbit/s",
+   "topology": "mesh with coordinator, routers and end devices",
+   "security": "AES-128 CCM* network key; Zigbee 3.0 install codes; trust center controls joining; default link key widely known",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "Zigbee Specification (CSA)",
+    "IEEE 802.15.4"
+   ],
+   "description": "Mesh networking for home/building IoT sensors, lights and switches.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.thread",
+   "name": "Thread",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "250 kbit/s",
+   "topology": "IPv6 mesh (6LoWPAN) with border routers",
+   "security": "AES-CCM link security with network key; commissioning via DTLS (EC-JPAKE)",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "Thread Specification",
+    "IEEE 802.15.4",
+    "RFC 4944",
+    "RFC 6282"
+   ],
+   "description": "Low-power IPv6 mesh, the main low-power transport for Matter.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.zwave",
+   "name": "Z-Wave",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "9.6-100 kbit/s (sub-GHz)",
+   "topology": "source-routed mesh; Z-Wave LR star",
+   "security": "S2 security (ECDH Curve25519 key exchange, AES-128); legacy S0 weak; unsecured inclusion possible",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "ITU-T G.9959"
+   ],
+   "description": "Sub-GHz home automation mesh for locks, sensors and switches.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.lorawan",
+   "name": "LoRaWAN",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "none",
+   "typical_rate": "0.3-50 kbit/s (region dependent), duty-cycle limited",
+   "topology": "star-of-stars: devices - gateways - network server",
+   "security": "AES-128 session keys (NwkSKey/AppSKey; split network keys in 1.1); OTAA preferred over ABP; gateways forward without decrypting",
+   "domains": [
+    "D07",
+    "D16",
+    "D17"
+   ],
+   "standards": [
+    "LoRaWAN L2 1.0.4 (LoRa Alliance)",
+    "ITU-T Y.4480"
+   ],
+   "description": "LPWAN MAC over LoRa modulation for long-range, low-rate battery sensors.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.lora",
+   "name": "LoRa (raw PHY)",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "none",
+   "typical_rate": "0.3-~37.5 kbit/s",
+   "topology": "point-to-point or custom star/mesh",
+   "security": "None at the PHY; application must add encryption and authentication",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [],
+   "description": "Semtech chirp spread spectrum modulation used directly (without LoRaWAN) for custom long-range links and Meshtastic-style meshes.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.mioty",
+   "name": "mioty",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "none",
+   "typical_rate": "~400 bit/s per telegram, very high node density",
+   "topology": "star",
+   "security": "AES-128 encryption and authentication of telegrams",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "ETSI TS 103 357"
+   ],
+   "description": "LPWAN using telegram splitting for interference robustness in industrial IoT.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.dect_nr_plus",
+   "name": "DECT NR+",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "up to several Mbit/s; low latency mode",
+   "topology": "self-organizing mesh, star",
+   "security": "Link-layer ciphering and integrity defined in the standard",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [
+    "ETSI TS 103 636"
+   ],
+   "description": "Non-cellular IMT-2020 radio in the 1.9 GHz band for license-exempt industrial mesh IoT.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.wirelesshart",
+   "name": "WirelessHART",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "250 kbit/s, update rates 1-60 s typical",
+   "topology": "TDMA mesh with network manager and gateway",
+   "security": "Mandatory AES-128 CCM, join keys and per-session keys managed by security manager",
+   "domains": [
+    "D05",
+    "D07"
+   ],
+   "standards": [
+    "IEC 62591",
+    "IEEE 802.15.4"
+   ],
+   "description": "Wireless extension of HART for process instruments.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.isa100",
+   "name": "ISA100.11a",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "250 kbit/s",
+   "topology": "mesh/star with backbone routers",
+   "security": "AES-128 CCM link and transport security with security manager",
+   "domains": [
+    "D05",
+    "D07"
+   ],
+   "standards": [
+    "IEC 62734",
+    "IEEE 802.15.4"
+   ],
+   "description": "Industrial wireless sensor networking standard for process automation.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.esp_now",
+   "name": "ESP-NOW",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "1 Mbit/s default, ~250-byte payloads",
+   "topology": "peer-to-peer / broadcast",
+   "security": "Optional CCMP encryption with PMK/LMK for a limited number of peers; unencrypted by default",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "standards": [],
+   "description": "Espressif connectionless 2.4 GHz protocol over Wi-Fi vendor action frames for low-latency ESP32 links.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.uwb",
+   "name": "Ultra-wideband (UWB)",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "6.8-27 Mbit/s; ranging accuracy ~10 cm",
+   "topology": "anchor-tag (TDoA/TWR) or peer-to-peer",
+   "security": "802.15.4z Scrambled Timestamp Sequence (STS) protects ranging against distance spoofing",
+   "domains": [
+    "D05",
+    "D07"
+   ],
+   "standards": [
+    "IEEE 802.15.4z",
+    "FiRa"
+   ],
+   "description": "Impulse-radio UWB for precise indoor positioning and secure ranging.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.satellite",
+   "name": "Satellite link",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "none",
+   "typical_rate": "kbit/s (L-band IoT) to 100+ Mbit/s (LEO broadband)",
+   "topology": "star via satellite and ground station",
+   "security": "Provider-dependent; treat as untrusted transport and use end-to-end TLS/VPN",
+   "domains": [
+    "D07",
+    "D17"
+   ],
+   "standards": [],
+   "description": "LEO/GEO satellite connectivity for remote field, marine and agricultural robots.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.rc_sbus",
+   "name": "Futaba S.BUS",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "100 kbit/s inverted UART, 7-14 ms frames, 16 channels",
+   "topology": "point-to-point receiver to flight controller",
+   "security": "None (wired leg); RF link security depends on the RC system",
+   "domains": [
+    "D07",
+    "D18"
+   ],
+   "standards": [],
+   "description": "Serial RC receiver output carrying 16 proportional channels plus failsafe flags.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.rc_crsf",
+   "name": "Crossfire / CRSF",
+   "layer": "link",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "416.666 kbit/s UART; up to 1000 Hz packets (ExpressLRS)",
+   "topology": "point-to-point receiver to flight controller, bidirectional telemetry",
+   "security": "None on the serial link; ExpressLRS binding phrase is not cryptographic authentication",
+   "domains": [
+    "D07",
+    "D18"
+   ],
+   "standards": [],
+   "description": "TBS Crossfire serial protocol (also used by ExpressLRS) carrying RC channels and telemetry.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.rc_ppm",
+   "name": "RC PPM (CPPM)",
+   "layer": "electrical",
+   "medium": "electrical",
+   "realtime": "hard",
+   "typical_rate": "~22.5 ms frame, 8 channels",
+   "topology": "point-to-point",
+   "security": "None",
+   "domains": [
+    "D18"
+   ],
+   "standards": [],
+   "description": "Pulse-position modulated sum signal of RC channels on a single wire; legacy.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.dsrc_v2x",
+   "name": "DSRC / V2X",
+   "layer": "radio",
+   "medium": "wireless",
+   "realtime": "soft",
+   "typical_rate": "3-27 Mbit/s (802.11p), 5.9 GHz",
+   "topology": "broadcast ad hoc (V2V/V2I)",
+   "security": "IEEE 1609.2 certificate-signed messages with SCMS/PKI; no confidentiality for broadcast safety messages",
+   "domains": [
+    "D07",
+    "D19"
+   ],
+   "standards": [
+    "IEEE 802.11p",
+    "IEEE 1609",
+    "SAE J2735"
+   ],
+   "description": "Vehicle-to-everything messaging (BSM, SPaT/MAP) for road robots and infrastructure; C-V2X (3GPP PC5) is the cellular alternative.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.ptp",
+   "name": "Precision Time Protocol",
+   "layer": "network",
+   "medium": "wired",
+   "realtime": "hard",
+   "typical_rate": "sub-microsecond sync accuracy",
+   "topology": "grandmaster - boundary/transparent clocks - ordinary clocks",
+   "security": "Unauthenticated in common profiles; IEEE 1588-2019 optional authentication TLV",
+   "domains": [
+    "D07",
+    "D12"
+   ],
+   "standards": [
+    "IEEE 1588-2019",
+    "IEEE 802.1AS"
+   ],
+   "description": "Network clock synchronization for sensor fusion timestamps, TSN and motion control.",
+   "references": []
+  },
+  {
+   "protocol_id": "net.tls",
+   "name": "TLS",
+   "layer": "transport",
+   "medium": "logical",
+   "realtime": "none",
+   "typical_rate": "n/a (security layer)",
+   "topology": "client-server",
+   "security": "TLS 1.3 provides authenticated encryption; use certificate validation and mutual TLS for devices",
+   "domains": [
+    "D15"
+   ],
+   "standards": [
+    "RFC 8446"
+   ],
+   "description": "Transport Layer Security protecting MQTT, HTTP, gRPC, OPC UA (HTTPS) and other TCP protocols; DTLS (RFC 9147) for UDP.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.mqtt",
+   "name": "MQTT",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "msg rates from 1/h to thousands/s per broker client",
+   "topology": "publish-subscribe via broker",
+   "security": "No security in the protocol itself; rely on TLS, client authentication (username/password, X.509) and broker topic ACLs",
+   "domains": [
+    "D16",
+    "D17"
+   ],
+   "standards": [
+    "OASIS MQTT 5.0",
+    "ISO/IEC 20922"
+   ],
+   "description": "Lightweight broker-based pub/sub over TCP for telemetry and fleet messaging.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.coap",
+   "name": "CoAP",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "constrained (kbit/s) links, UDP",
+   "topology": "client-server, observe, multicast",
+   "security": "DTLS (RFC 9147) or OSCORE (RFC 8613) object security",
+   "domains": [
+    "D16"
+   ],
+   "standards": [
+    "RFC 7252"
+   ],
+   "description": "RESTful protocol for constrained devices over UDP.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.lwm2m",
+   "name": "OMA LwM2M",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "constrained links over CoAP",
+   "topology": "client - server (bootstrap, management)",
+   "security": "DTLS/TLS with PSK, raw public key or X.509; OSCORE supported from 1.1",
+   "domains": [
+    "D16",
+    "D17"
+   ],
+   "standards": [
+    "OMA LwM2M 1.2"
+   ],
+   "description": "Device-management and telemetry protocol on CoAP with the IPSO/LwM2M object model (firmware update, connectivity, sensors).",
+   "references": []
+  },
+  {
+   "protocol_id": "app.opcua",
+   "name": "OPC UA",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "client-server over TCP (opc.tcp) or HTTPS",
+   "topology": "client-server",
+   "security": "Built-in security: SecurityMode None/Sign/SignAndEncrypt with X.509 application certificates and user tokens; 'None' must not be used in production",
+   "domains": [
+    "D07",
+    "D11",
+    "D17"
+   ],
+   "standards": [
+    "IEC 62541"
+   ],
+   "description": "Platform-independent industrial information modeling and communication (companion specs incl. OPC UA Robotics).",
+   "references": []
+  },
+  {
+   "protocol_id": "app.opcua_pubsub",
+   "name": "OPC UA PubSub",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "UDP multicast/TSN or broker (MQTT/AMQP)",
+   "topology": "publish-subscribe",
+   "security": "Message signing/encryption with group keys distributed by a Security Key Service (SKS)",
+   "domains": [
+    "D07",
+    "D11"
+   ],
+   "standards": [
+    "IEC 62541-14"
+   ],
+   "description": "Publish-subscribe extension of OPC UA for cyclic data, including over TSN (OPC UA FX).",
+   "references": []
+  },
+  {
+   "protocol_id": "app.http_rest",
+   "name": "HTTP/REST",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "none",
+   "typical_rate": "request-response",
+   "topology": "client-server",
+   "security": "TLS (HTTPS) plus application authentication (OAuth 2.0, API keys, mTLS)",
+   "domains": [
+    "D17",
+    "D18"
+   ],
+   "standards": [
+    "RFC 9110"
+   ],
+   "description": "Resource-oriented HTTP APIs for configuration, fleet and cloud integration.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.websocket",
+   "name": "WebSocket",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "full-duplex over a single TCP connection",
+   "topology": "client-server",
+   "security": "Use wss:// (TLS); validate Origin; authentication left to the application",
+   "domains": [
+    "D17",
+    "D18"
+   ],
+   "standards": [
+    "RFC 6455"
+   ],
+   "description": "Bidirectional streaming over HTTP upgrade for dashboards, rosbridge and teleoperation UIs.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.grpc",
+   "name": "gRPC",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "HTTP/2 streams, protobuf payloads",
+   "topology": "client-server, streaming RPC",
+   "security": "TLS/mTLS channel credentials plus per-call tokens",
+   "domains": [
+    "D11",
+    "D17"
+   ],
+   "standards": [
+    "RFC 9113"
+   ],
+   "description": "High-performance RPC framework (CNCF) using Protocol Buffers over HTTP/2.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.matter",
+   "name": "Matter",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "over Wi-Fi, Thread or Ethernet (IPv6)",
+   "topology": "fabric of nodes, controller-device",
+   "security": "PASE (SPAKE2+) commissioning, CASE (SIGMA) operational sessions, Device Attestation Certificates, ACLs per fabric",
+   "domains": [
+    "D16"
+   ],
+   "standards": [
+    "Matter Specification (CSA)"
+   ],
+   "description": "IP-based smart-home application standard with a common data model of clusters and device types.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.bacnet",
+   "name": "BACnet",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "BACnet/IP (UDP 47808) or MS/TP 9.6-115.2 kbit/s",
+   "topology": "peer-to-peer, client-server",
+   "security": "Legacy BACnet/IP and MS/TP unauthenticated; BACnet Secure Connect (BACnet/SC) adds TLS over WebSockets",
+   "domains": [
+    "D16",
+    "D19"
+   ],
+   "standards": [
+    "ISO 16484-5",
+    "ANSI/ASHRAE 135"
+   ],
+   "description": "Building automation protocol for HVAC, lighting, access and elevators.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.knx",
+   "name": "KNX",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "9.6 kbit/s (TP1), KNXnet/IP",
+   "topology": "tree/line twisted pair, IP",
+   "security": "Legacy unauthenticated; KNX Data Secure and KNX IP Secure use AES-128 CCM",
+   "domains": [
+    "D16",
+    "D19"
+   ],
+   "standards": [
+    "ISO/IEC 14543-3",
+    "EN 50090"
+   ],
+   "description": "Home and building control standard for lighting, blinds and HVAC.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.nmea0183",
+   "name": "NMEA 0183",
+   "layer": "application",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "4800 or 38400 bit/s ASCII sentences",
+   "topology": "talker-listener serial",
+   "security": "None",
+   "domains": [
+    "D05",
+    "D19"
+   ],
+   "standards": [
+    "IEC 61162-1"
+   ],
+   "description": "ASCII sentence protocol output by GNSS receivers, compasses and marine instruments.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.someip",
+   "name": "SOME/IP",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "hard",
+   "typical_rate": "over automotive Ethernet (UDP/TCP)",
+   "topology": "service-oriented client-server, SD",
+   "security": "None natively; use SecOC, TLS or IPsec",
+   "domains": [
+    "D07",
+    "D11"
+   ],
+   "standards": [
+    "AUTOSAR SOME/IP Protocol Specification"
+   ],
+   "description": "Scalable service-oriented middleware over IP used in automotive ECUs.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.onvif",
+   "name": "ONVIF",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "SOAP/HTTP control, RTSP/RTP media",
+   "topology": "client-device",
+   "security": "WS-UsernameToken/HTTP digest, optional TLS; default credentials are a common weakness",
+   "domains": [
+    "D05",
+    "D15"
+   ],
+   "standards": [
+    "ONVIF Profile S",
+    "ONVIF Profile T"
+   ],
+   "description": "Interoperability standard for IP cameras: discovery, PTZ, streaming and events.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.rtsp",
+   "name": "RTSP",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "control channel for RTP media streams",
+   "topology": "client-server",
+   "security": "Basic/digest authentication; RTSPS and SRTP optional; often deployed in cleartext",
+   "domains": [
+    "D05"
+   ],
+   "standards": [
+    "RFC 7826",
+    "RFC 2326"
+   ],
+   "description": "Stream control protocol for IP camera video (RTP payloads).",
+   "references": []
+  },
+  {
+   "protocol_id": "app.webrtc",
+   "name": "WebRTC",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "adaptive media, typically 0.5-10 Mbit/s video",
+   "topology": "peer-to-peer with ICE/STUN/TURN",
+   "security": "Mandatory DTLS-SRTP media encryption; signaling security is application-defined",
+   "domains": [
+    "D13",
+    "D18"
+   ],
+   "standards": [
+    "W3C WebRTC",
+    "RFC 8825"
+   ],
+   "description": "Low-latency real-time audio/video/data for teleoperation and remote monitoring.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.dynamixel_protocol2",
+   "name": "DYNAMIXEL Protocol 2.0",
+   "layer": "application",
+   "medium": "wired",
+   "realtime": "soft",
+   "typical_rate": "57.6 kbit/s-4.5 Mbit/s over TTL or RS-485",
+   "topology": "half-duplex multi-drop, master-slave",
+   "security": "None",
+   "domains": [
+    "D01",
+    "D12"
+   ],
+   "standards": [],
+   "description": "ROBOTIS packet protocol for smart servos: control table reads/writes, sync/bulk read-write, CRC-16.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.mavlink",
+   "name": "MAVLink",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "serial/UDP; telemetry 1-50 Hz per message",
+   "topology": "peer-to-peer system/component ids",
+   "security": "MAVLink 2 optional message signing (SHA-256 based, 48-bit signature) for authentication; no encryption; v1 unauthenticated",
+   "domains": [
+    "D11",
+    "D13",
+    "D17"
+   ],
+   "standards": [],
+   "description": "Lightweight messaging for drones and ground control (PX4, ArduPilot), carried over telemetry radios or IP.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.snmp",
+   "name": "SNMP",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "none",
+   "typical_rate": "polling/traps over UDP 161/162",
+   "topology": "manager-agent",
+   "security": "v1/v2c use plaintext community strings; v3 USM provides authentication and privacy",
+   "domains": [
+    "D07",
+    "D15"
+   ],
+   "standards": [
+    "RFC 3411",
+    "RFC 3414"
+   ],
+   "description": "Network management of switches, UPSs and gateways.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.amqp",
+   "name": "AMQP 1.0",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "broker or peer messaging over TCP",
+   "topology": "point-to-point / brokered",
+   "security": "SASL authentication plus TLS",
+   "domains": [
+    "D17"
+   ],
+   "standards": [
+    "OASIS AMQP 1.0",
+    "ISO/IEC 19464"
+   ],
+   "description": "Reliable enterprise messaging protocol used by cloud IoT hubs and message brokers.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.sparkplug_b",
+   "name": "Eclipse Sparkplug B",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "over MQTT 3.1.1/5.0, protobuf payloads",
+   "topology": "publish-subscribe with primary host application",
+   "security": "Relies on MQTT TLS and broker ACLs; no payload authentication",
+   "domains": [
+    "D16",
+    "D17"
+   ],
+   "standards": [
+    "Eclipse Sparkplug 3.0"
+   ],
+   "description": "MQTT topic namespace, state management and payload definition for industrial IoT.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.dnp3",
+   "name": "DNP3",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "serial or TCP/UDP port 20000",
+   "topology": "master-outstation",
+   "security": "Secure Authentication v5 (HMAC challenge-response) optional; TLS per IEC 62351; legacy unauthenticated",
+   "domains": [
+    "D02",
+    "D07"
+   ],
+   "standards": [
+    "IEEE 1815"
+   ],
+   "description": "SCADA protocol for utilities (energy, water) used by substation and grid-inspection integrations.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.ntrip",
+   "name": "NTRIP",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "RTCM corrections ~1 Hz, a few kbit/s",
+   "topology": "caster - server/client over HTTP",
+   "security": "NTRIP v1 basic auth in cleartext; v2 supports TLS",
+   "domains": [
+    "D05",
+    "D17"
+   ],
+   "standards": [
+    "RTCM 10410.1"
+   ],
+   "description": "Networked transport of RTCM GNSS corrections from casters to RTK rovers.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.wot_td",
+   "name": "W3C WoT Thing Description",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "none",
+   "typical_rate": "n/a (metadata format, JSON-LD)",
+   "topology": "description of a Thing's interaction affordances",
+   "security": "Declares securityDefinitions (basic, digest, bearer, OAuth2, PSK); does not itself enforce security",
+   "domains": [
+    "D16"
+   ],
+   "standards": [
+    "W3C WoT Thing Description 1.1"
+   ],
+   "description": "JSON-LD description of properties, actions and events of IoT devices with protocol bindings.",
+   "references": []
+  },
+  {
+   "protocol_id": "app.asset_administration_shell",
+   "name": "Asset Administration Shell (AAS)",
+   "layer": "application",
+   "medium": "logical",
+   "realtime": "none",
+   "typical_rate": "n/a (information model, REST API)",
+   "topology": "digital twin repository/registry",
+   "security": "API security per implementation (TLS, OAuth 2.0); AAS security metamodel defines access rules",
+   "domains": [
+    "D16",
+    "D17"
+   ],
+   "standards": [
+    "IEC 63278-1"
+   ],
+   "description": "Industry 4.0 standardized digital twin with submodels (nameplate, technical data) and HTTP API.",
+   "references": []
+  },
+  {
+   "protocol_id": "middleware.ros1",
+   "name": "ROS 1",
+   "layer": "middleware",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "TCPROS/UDPROS topics",
+   "topology": "master-based publish-subscribe and services",
+   "security": "None: XML-RPC master and topics are unauthenticated; ROS 1 is end-of-life (Noetic EOL May 2025)",
+   "domains": [
+    "D11"
+   ],
+   "standards": [],
+   "description": "Robot Operating System 1 with roscore name service; legacy systems.",
+   "references": []
+  },
+  {
+   "protocol_id": "middleware.ros2",
+   "name": "ROS 2",
+   "layer": "middleware",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "DDS/RTPS or Zenoh transport",
+   "topology": "decentralized publish-subscribe, services, actions",
+   "security": "Off by default; SROS2 enables DDS Security (authentication, access control, encryption)",
+   "domains": [
+    "D11"
+   ],
+   "standards": [
+    "REP 2000"
+   ],
+   "description": "Robot Operating System 2 built on pluggable RMW middleware.",
+   "references": []
+  },
+  {
+   "protocol_id": "middleware.sros2",
+   "name": "SROS2 (ROS 2 security)",
+   "layer": "middleware",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "as underlying DDS",
+   "topology": "keystore with per-enclave identities",
+   "security": "X.509 identity and permissions certificates applied through DDS Security plugins",
+   "domains": [
+    "D11",
+    "D15"
+   ],
+   "standards": [
+    "OMG DDS Security 1.1"
+   ],
+   "description": "ROS 2 tooling that generates keystores, enclaves and governance/permissions for DDS Security.",
+   "references": []
+  },
+  {
+   "protocol_id": "middleware.dds",
+   "name": "OMG DDS (RTPS)",
+   "layer": "middleware",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "UDP multicast/unicast, shared memory",
+   "topology": "data-centric publish-subscribe, discovery",
+   "security": "DDS Security plugins (authentication, access control, cryptography) optional; unsecured by default",
+   "domains": [
+    "D11"
+   ],
+   "standards": [
+    "OMG DDS 1.4",
+    "OMG DDSI-RTPS 2.5",
+    "OMG DDS Security 1.1"
+   ],
+   "description": "Data Distribution Service with QoS policies; default ROS 2 transport.",
+   "references": []
+  },
+  {
+   "protocol_id": "middleware.zenoh",
+   "name": "Eclipse Zenoh",
+   "layer": "middleware",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "TCP/UDP/QUIC/serial, low overhead",
+   "topology": "pub/sub/query, peer-to-peer, routed, client",
+   "security": "TLS/QUIC with mTLS, user/password authentication and access control rules; off by default",
+   "domains": [
+    "D11",
+    "D17"
+   ],
+   "standards": [],
+   "description": "Pub/sub/query protocol spanning microcontrollers to cloud; rmw_zenoh RMW for ROS 2.",
+   "references": []
+  },
+  {
+   "protocol_id": "middleware.micro_ros",
+   "name": "micro-ROS",
+   "layer": "middleware",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "serial/UDP via XRCE-DDS agent",
+   "topology": "client-agent bridging to DDS",
+   "security": "XRCE-DDS link has no built-in security; secure the transport and agent side",
+   "domains": [
+    "D08",
+    "D11"
+   ],
+   "standards": [
+    "OMG DDS-XRCE"
+   ],
+   "description": "ROS 2 client library for microcontrollers communicating through a micro-ROS agent.",
+   "references": []
+  },
+  {
+   "protocol_id": "middleware.iceoryx",
+   "name": "Eclipse iceoryx",
+   "layer": "middleware",
+   "medium": "logical",
+   "realtime": "hard",
+   "typical_rate": "zero-copy shared memory, constant time",
+   "topology": "intra-host publish-subscribe",
+   "security": "Relies on OS user/group permissions on shared memory",
+   "domains": [
+    "D10",
+    "D11"
+   ],
+   "standards": [],
+   "description": "Zero-copy inter-process communication used as shared-memory transport (e.g. Cyclone DDS).",
+   "references": []
+  },
+  {
+   "protocol_id": "middleware.dora",
+   "name": "dora-rs",
+   "layer": "middleware",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "shared memory / Apache Arrow dataflow",
+   "topology": "dataflow graph of nodes",
+   "security": "No built-in authentication; local process trust",
+   "domains": [
+    "D11",
+    "D13"
+   ],
+   "standards": [],
+   "description": "Dataflow-oriented robotics middleware using zero-copy Arrow messages, aimed at AI pipelines.",
+   "references": []
+  },
+  {
+   "protocol_id": "fleet.vda5050",
+   "name": "VDA 5050",
+   "layer": "fleet",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "JSON over MQTT, state messages ~1 Hz or on change",
+   "topology": "master control - vehicle via MQTT broker",
+   "security": "Relies on MQTT TLS, client authentication and broker ACLs",
+   "domains": [
+    "D13",
+    "D17"
+   ],
+   "standards": [
+    "VDA 5050 2.0"
+   ],
+   "description": "Interface between AGV/AMR fleets and master control: orders, actions, state and visualization.",
+   "references": []
+  },
+  {
+   "protocol_id": "fleet.massrobotics_interop",
+   "name": "MassRobotics Interoperability Standard",
+   "layer": "fleet",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "JSON over WebSocket",
+   "topology": "robots report to a shared server",
+   "security": "Use wss:// (TLS) and server authentication",
+   "domains": [
+    "D13",
+    "D17"
+   ],
+   "standards": [],
+   "description": "Status and identity reporting of heterogeneous AMRs to a common server for shared-space coordination.",
+   "references": []
+  },
+  {
+   "protocol_id": "fleet.open_rmf",
+   "name": "Open-RMF",
+   "layer": "fleet",
+   "medium": "logical",
+   "realtime": "soft",
+   "typical_rate": "ROS 2 topics/services and fleet adapters",
+   "topology": "central traffic/task managers with fleet adapters",
+   "security": "Inherits ROS 2 security (SROS2); API server should use TLS and authentication",
+   "domains": [
+    "D13",
+    "D17"
+   ],
+   "standards": [],
+   "description": "Open Robotics Middleware Framework for multi-fleet traffic, task allocation and infrastructure (doors, lifts) integration.",
+   "references": []
+  }
+ ],
+ "device_types": [
+  {
+   "type_id": "comms.can.transceiver",
+   "name": "CAN transceiver",
+   "category": "comms",
+   "description": "Physical-layer IC converting controller TX/RX logic to differential CANH/CANL; classic, FD and SIC variants.",
+   "domains": [
+    "D03",
+    "D07"
+   ],
+   "aliases": [
+    "CAN PHY",
+    "CAN FD transceiver"
+   ],
+   "properties": [
+    {
+     "name": "max_data_rate",
+     "kind": "quantity",
+     "unit": "Mbit/s",
+     "required": true
+    },
+    {
+     "name": "supply_voltage",
+     "kind": "quantity",
+     "unit": "V",
+     "required": true
+    },
+    {
+     "name": "can_fd_capable",
+     "kind": "bool",
+     "required": true
+    },
+    {
+     "name": "bus_fault_protection",
+     "kind": "quantity",
+     "unit": "V",
+     "description": "Bus pin fault protection (e.g. +/-58 V)"
+    },
+    {
+     "name": "standby_wake",
+     "kind": "bool"
+    },
+    {
+     "name": "isolated",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "can.classic",
+    "can.fd",
+    "can.canopen",
+    "can.j1939",
+    "can.dronecan",
+    "can.cyphal"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "tx_error_counter",
+     "warn_above": 96,
+     "critical_above": 127,
+     "description": "CAN TEC; error-passive at 128, bus-off above 255"
+    },
+    {
+     "name": "rx_error_counter",
+     "warn_above": 96,
+     "critical_above": 127,
+     "description": "CAN REC; error-passive at 128"
+    },
+    {
+     "name": "bus_off",
+     "description": "Boolean bus-off state (TEC > 255); node stops transmitting until recovery"
+    },
+    {
+     "name": "bus_load",
+     "unit": "%",
+     "warn_above": 70,
+     "critical_above": 90,
+     "description": "Typical design guidance keeps CAN bus load below ~70-80 %"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "bus-off from persistent errors",
+    "missing or duplicated 120 Ohm termination",
+    "EMI-induced bit errors",
+    "ground offset beyond common-mode range",
+    "TXD dominant timeout triggered by stuck controller"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "compute.*",
+    "drive.*",
+    "sensor.*"
+   ],
+   "references": [
+    {
+     "name": "ISO 11898-2"
+    }
+   ]
+  },
+  {
+   "type_id": "comms.can.isolated_transceiver",
+   "name": "Isolated CAN transceiver",
+   "category": "comms",
+   "description": "CAN transceiver with galvanic isolation barrier to break ground loops between drive power and logic domains.",
+   "domains": [
+    "D03",
+    "D04",
+    "D07"
+   ],
+   "aliases": [
+    "isolated CAN PHY"
+   ],
+   "properties": [
+    {
+     "name": "isolation_voltage",
+     "kind": "quantity",
+     "unit": "V",
+     "required": true,
+     "description": "Rated isolation (e.g. 2500-5000 Vrms)"
+    },
+    {
+     "name": "max_data_rate",
+     "kind": "quantity",
+     "unit": "Mbit/s",
+     "required": true
+    },
+    {
+     "name": "can_fd_capable",
+     "kind": "bool",
+     "required": true
+    },
+    {
+     "name": "integrated_dcdc",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "can.classic",
+    "can.fd"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "tx_error_counter",
+     "warn_above": 96,
+     "critical_above": 127,
+     "description": "CAN TEC; error-passive at 128, bus-off above 255"
+    },
+    {
+     "name": "rx_error_counter",
+     "warn_above": 96,
+     "critical_above": 127,
+     "description": "CAN REC; error-passive at 128"
+    },
+    {
+     "name": "bus_off",
+     "description": "Boolean bus-off state (TEC > 255); node stops transmitting until recovery"
+    },
+    {
+     "name": "bus_load",
+     "unit": "%",
+     "warn_above": 70,
+     "critical_above": 90,
+     "description": "Typical design guidance keeps CAN bus load below ~70-80 %"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "isolation barrier breakdown",
+    "bus-off",
+    "termination missing",
+    "isolated supply failure"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "compute.*",
+    "drive.*",
+    "power.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.can.usb_adapter",
+   "name": "CAN-USB adapter",
+   "category": "comms",
+   "description": "USB interface to CAN/CAN FD buses for development, logging and host-side control (SocketCAN, PCAN, gs_usb).",
+   "domains": [
+    "D07",
+    "D09"
+   ],
+   "aliases": [
+    "USB-CAN",
+    "CAN interface"
+   ],
+   "properties": [
+    {
+     "name": "channels",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "can_fd_capable",
+     "kind": "bool",
+     "required": true
+    },
+    {
+     "name": "driver_api",
+     "kind": "enum",
+     "values": [
+      "socketcan",
+      "gs_usb",
+      "slcan",
+      "vendor"
+     ],
+     "required": true
+    },
+    {
+     "name": "isolated",
+     "kind": "bool"
+    },
+    {
+     "name": "timestamp_resolution",
+     "kind": "quantity",
+     "unit": "us"
+    }
+   ],
+   "interfaces": [
+    "bus.usb",
+    "can.classic",
+    "can.fd"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "tx_error_counter",
+     "warn_above": 96,
+     "critical_above": 127,
+     "description": "CAN TEC; error-passive at 128, bus-off above 255"
+    },
+    {
+     "name": "rx_error_counter",
+     "warn_above": 96,
+     "critical_above": 127,
+     "description": "CAN REC; error-passive at 128"
+    },
+    {
+     "name": "bus_off",
+     "description": "Boolean bus-off state (TEC > 255); node stops transmitting until recovery"
+    },
+    {
+     "name": "bus_load",
+     "unit": "%",
+     "warn_above": 70,
+     "critical_above": 90,
+     "description": "Typical design guidance keeps CAN bus load below ~70-80 %"
+    },
+    {
+     "name": "rx_overrun_count",
+     "description": "Frames dropped by adapter buffer overrun"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    },
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "USB disconnect under vibration",
+    "buffer overruns at high bus load",
+    "bus-off",
+    "ground loop via host PC"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "compute.*",
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.can.gateway",
+   "name": "CAN-Ethernet gateway",
+   "category": "comms",
+   "description": "Bridges CAN/CAN FD frames to Ethernet (UDP/TCP) or between CAN segments with filtering.",
+   "domains": [
+    "D07",
+    "D15"
+   ],
+   "aliases": [
+    "CAN bridge",
+    "CAN router"
+   ],
+   "properties": [
+    {
+     "name": "can_channels",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "ethernet_ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "filtering",
+     "kind": "bool"
+    },
+    {
+     "name": "mode",
+     "kind": "enum",
+     "values": [
+      "bridge",
+      "router",
+      "logger"
+     ]
+    }
+   ],
+   "interfaces": [
+    "can.classic",
+    "can.fd",
+    "net.ethernet"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "tx_error_counter",
+     "warn_above": 96,
+     "critical_above": 127,
+     "description": "CAN TEC; error-passive at 128, bus-off above 255"
+    },
+    {
+     "name": "rx_error_counter",
+     "warn_above": 96,
+     "critical_above": 127,
+     "description": "CAN REC; error-passive at 128"
+    },
+    {
+     "name": "bus_off",
+     "description": "Boolean bus-off state (TEC > 255); node stops transmitting until recovery"
+    },
+    {
+     "name": "bus_load",
+     "unit": "%",
+     "warn_above": 70,
+     "critical_above": 90,
+     "description": "Typical design guidance keeps CAN bus load below ~70-80 %"
+    },
+    {
+     "name": "latency",
+     "unit": "ms",
+     "description": "Round-trip or one-way link latency"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "unfiltered forwarding exposing CAN to the network",
+    "bus-off",
+    "buffer overflow at peak load",
+    "power interruption"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.ethercat.esc",
+   "name": "EtherCAT slave controller (ESC)",
+   "category": "comms",
+   "description": "ASIC/FPGA IP that processes EtherCAT frames on the fly, providing DPRAM, SyncManagers, FMMUs and distributed clocks.",
+   "domains": [
+    "D03",
+    "D07",
+    "D12"
+   ],
+   "aliases": [
+    "ESC",
+    "EtherCAT slave chip"
+   ],
+   "properties": [
+    {
+     "name": "ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "process_data_ram",
+     "kind": "quantity",
+     "unit": "B",
+     "required": true
+    },
+    {
+     "name": "distributed_clocks",
+     "kind": "bool",
+     "required": true
+    },
+    {
+     "name": "pdi",
+     "kind": "enum",
+     "values": [
+      "spi",
+      "parallel",
+      "digital_io",
+      "internal"
+     ]
+    },
+    {
+     "name": "eeprom_sii",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "fieldbus.ethercat",
+    "fieldbus.ethercat_fsoe",
+    "bus.spi"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "lost_link_counter",
+     "description": "Per-port link loss count"
+    },
+    {
+     "name": "rx_error_counter",
+     "description": "Per-port receive error counter"
+    },
+    {
+     "name": "dc_sync_deviation",
+     "unit": "us",
+     "description": "Distributed clock deviation from reference"
+    },
+    {
+     "name": "al_state",
+     "description": "Application layer state INIT/PREOP/SAFEOP/OP"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "link loss on damaged cable",
+    "DC sync loss",
+    "SII EEPROM corruption",
+    "watchdog expiry dropping to SAFEOP"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "drive.*",
+    "sensor.*",
+    "compute.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 61158"
+    }
+   ]
+  },
+  {
+   "type_id": "comms.ethernet.switch_unmanaged",
+   "name": "Unmanaged industrial Ethernet switch",
+   "category": "comms",
+   "description": "DIN-rail or embedded plug-and-play switch for small robot cells and onboard networks.",
+   "domains": [
+    "D07"
+   ],
+   "aliases": [
+    "unmanaged switch"
+   ],
+   "properties": [
+    {
+     "name": "ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "max_port_speed",
+     "kind": "quantity",
+     "unit": "Mbit/s",
+     "required": true
+    },
+    {
+     "name": "supply_voltage",
+     "kind": "quantity",
+     "unit": "V",
+     "required": true
+    },
+    {
+     "name": "operating_temperature_max",
+     "kind": "quantity",
+     "unit": "degC"
+    }
+   ],
+   "interfaces": [
+    "net.ethernet"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "link_up",
+     "description": "Boolean link state"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "broadcast storm from loops",
+    "port failure",
+    "power supply failure",
+    "connector damage from vibration"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.ethernet.switch_managed",
+   "name": "Managed industrial Ethernet switch",
+   "category": "comms",
+   "description": "Managed switch with VLANs, QoS, IGMP snooping, redundancy (RSTP/MRP/DLR) and port security for OT networks.",
+   "domains": [
+    "D07",
+    "D15"
+   ],
+   "aliases": [
+    "managed switch",
+    "L2 switch"
+   ],
+   "properties": [
+    {
+     "name": "ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "max_port_speed",
+     "kind": "quantity",
+     "unit": "Mbit/s",
+     "required": true
+    },
+    {
+     "name": "redundancy",
+     "kind": "enum",
+     "values": [
+      "rstp",
+      "mrp",
+      "dlr",
+      "hsr_prp",
+      "none"
+     ]
+    },
+    {
+     "name": "vlan_support",
+     "kind": "bool",
+     "required": true
+    },
+    {
+     "name": "supply_voltage",
+     "kind": "quantity",
+     "unit": "V"
+    }
+   ],
+   "interfaces": [
+    "net.ethernet",
+    "app.snmp",
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "link_up",
+     "description": "Boolean link state"
+    },
+    {
+     "name": "crc_error_count",
+     "description": "Cumulative frame CRC errors"
+    },
+    {
+     "name": "port_utilization",
+     "unit": "%",
+     "warn_above": 70,
+     "description": "Per-port bandwidth utilization"
+    },
+    {
+     "name": "ring_state",
+     "description": "Ring redundancy state"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    },
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    },
+    {
+     "item": "configuration backup",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "export and archive configuration"
+    }
+   ],
+   "failure_modes": [
+    "misconfigured VLAN isolating devices",
+    "ring redundancy failure",
+    "default credentials",
+    "port flapping",
+    "firmware vulnerability"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.ethernet.switch_tsn",
+   "name": "TSN switch",
+   "category": "comms",
+   "description": "Ethernet switch implementing IEEE 802.1AS time sync and 802.1Qbv scheduled traffic for deterministic control traffic.",
+   "domains": [
+    "D07",
+    "D12"
+   ],
+   "aliases": [
+    "time-sensitive networking switch"
+   ],
+   "properties": [
+    {
+     "name": "ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "max_port_speed",
+     "kind": "quantity",
+     "unit": "Mbit/s",
+     "required": true
+    },
+    {
+     "name": "tsn_features",
+     "kind": "string",
+     "required": true,
+     "description": "Supported IEEE 802.1 TSN standards, e.g. 802.1AS, Qbv, CB, Qci"
+    }
+   ],
+   "interfaces": [
+    "net.ethernet",
+    "net.tsn",
+    "net.ptp",
+    "fieldbus.cc_link_ie",
+    "app.opcua_pubsub"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "link_up",
+     "description": "Boolean link state"
+    },
+    {
+     "name": "time_offset",
+     "unit": "us",
+     "description": "Offset from gPTP grandmaster"
+    },
+    {
+     "name": "gate_overrun_count",
+     "description": "Scheduled window overruns"
+    },
+    {
+     "name": "crc_error_count",
+     "description": "Cumulative frame CRC errors"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "loss of time synchronization",
+    "schedule misconfiguration",
+    "frame drops on window overrun"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.ethernet.poe_switch",
+   "name": "PoE switch",
+   "category": "comms",
+   "description": "Ethernet switch acting as power sourcing equipment (PSE) for cameras, APs and lidars.",
+   "domains": [
+    "D02",
+    "D07"
+   ],
+   "aliases": [
+    "PoE PSE switch"
+   ],
+   "properties": [
+    {
+     "name": "ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "poe_standard",
+     "kind": "enum",
+     "values": [
+      "802.3af",
+      "802.3at",
+      "802.3bt_type3",
+      "802.3bt_type4"
+     ],
+     "required": true
+    },
+    {
+     "name": "power_budget",
+     "kind": "quantity",
+     "unit": "W",
+     "required": true
+    },
+    {
+     "name": "managed",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "net.ethernet",
+    "net.poe"
+   ],
+   "provides": [
+    "communication",
+    "power_supply"
+   ],
+   "telemetry": [
+    {
+     "name": "poe_power_draw",
+     "unit": "W",
+     "description": "Total PoE load versus budget"
+    },
+    {
+     "name": "port_power",
+     "unit": "W",
+     "description": "Per-port power"
+    },
+    {
+     "name": "link_up",
+     "description": "Boolean link state"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "power budget exceeded shutting down ports",
+    "PSE port failure",
+    "overheating in enclosures"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.ethernet.poe_injector",
+   "name": "PoE injector / splitter",
+   "category": "comms",
+   "description": "Midspan injector adding PoE power, or splitter extracting DC at a non-PoE device.",
+   "domains": [
+    "D02",
+    "D07"
+   ],
+   "aliases": [
+    "midspan",
+    "PoE splitter"
+   ],
+   "properties": [
+    {
+     "name": "role",
+     "kind": "enum",
+     "values": [
+      "injector",
+      "splitter"
+     ],
+     "required": true
+    },
+    {
+     "name": "max_power",
+     "kind": "quantity",
+     "unit": "W",
+     "required": true
+    },
+    {
+     "name": "output_voltage",
+     "kind": "quantity",
+     "unit": "V"
+    }
+   ],
+   "interfaces": [
+    "net.ethernet",
+    "net.poe",
+    "electrical.dc"
+   ],
+   "provides": [
+    "power_supply"
+   ],
+   "telemetry": [
+    {
+     "name": "output_voltage",
+     "unit": "V"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "overload",
+    "passive-PoE mismatch damaging device",
+    "thermal failure"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.ethernet.media_converter",
+   "name": "Fiber media converter",
+   "category": "comms",
+   "description": "Converts copper Ethernet to optical fiber for long runs and EMI immunity (e.g. through high-power drive cabinets).",
+   "domains": [
+    "D04",
+    "D07"
+   ],
+   "aliases": [
+    "fiber converter",
+    "SFP media converter"
+   ],
+   "properties": [
+    {
+     "name": "fiber_type",
+     "kind": "enum",
+     "values": [
+      "multimode",
+      "singlemode"
+     ],
+     "required": true
+    },
+    {
+     "name": "wavelength",
+     "kind": "quantity",
+     "unit": "nm",
+     "required": true
+    },
+    {
+     "name": "max_distance",
+     "kind": "quantity",
+     "unit": "km"
+    },
+    {
+     "name": "speed",
+     "kind": "quantity",
+     "unit": "Mbit/s",
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "net.ethernet"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "optical_rx_power",
+     "unit": "dBm",
+     "description": "Received optical power (DDM); compare to SFP sensitivity"
+    },
+    {
+     "name": "optical_tx_power",
+     "unit": "dBm"
+    },
+    {
+     "name": "link_up",
+     "description": "Boolean link state"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "fiber connectors",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "inspect and clean ferrules"
+    }
+   ],
+   "failure_modes": [
+    "dirty or damaged fiber connector",
+    "fiber bend loss",
+    "SFP laser degradation"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.ethernet.spe_switch",
+   "name": "Single Pair Ethernet / APL field switch",
+   "category": "comms",
+   "description": "Switch providing 10BASE-T1L (Ethernet-APL) ports to field devices, optionally with power.",
+   "domains": [
+    "D07"
+   ],
+   "aliases": [
+    "APL field switch",
+    "SPE switch"
+   ],
+   "properties": [
+    {
+     "name": "spe_ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "port_power_class",
+     "kind": "string"
+    },
+    {
+     "name": "intrinsic_safety",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "net.spe_10base_t1l",
+    "net.ethernet"
+   ],
+   "provides": [
+    "communication",
+    "power_supply"
+   ],
+   "telemetry": [
+    {
+     "name": "link_up",
+     "description": "Boolean link state"
+    },
+    {
+     "name": "crc_error_count",
+     "description": "Cumulative frame CRC errors"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "cable fault on long trunk",
+    "power overload on port"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "infra.*",
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.wifi.access_point",
+   "name": "Wi-Fi access point",
+   "category": "comms",
+   "description": "Infrastructure AP (often industrial, with fast roaming 802.11r/k/v) providing WLAN coverage for mobile robot fleets.",
+   "domains": [
+    "D07",
+    "D15",
+    "D16"
+   ],
+   "aliases": [
+    "WAP",
+    "AP"
+   ],
+   "properties": [
+    {
+     "name": "wifi_standard",
+     "kind": "enum",
+     "values": [
+      "802.11n",
+      "802.11ac",
+      "802.11ax",
+      "802.11be"
+     ],
+     "required": true
+    },
+    {
+     "name": "bands",
+     "kind": "string",
+     "required": true,
+     "description": "e.g. 2.4/5/6 GHz"
+    },
+    {
+     "name": "max_clients",
+     "kind": "integer"
+    },
+    {
+     "name": "security_modes",
+     "kind": "string",
+     "required": true,
+     "description": "e.g. WPA3-SAE, WPA3-Enterprise"
+    },
+    {
+     "name": "poe_powered",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "net.wifi",
+    "net.ethernet",
+    "net.poe",
+    "app.snmp"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "client_count"
+    },
+    {
+     "name": "channel_utilization",
+     "unit": "%",
+     "warn_above": 60,
+     "critical_above": 80,
+     "description": "Typical: above ~60-70 % causes latency"
+    },
+    {
+     "name": "noise_floor",
+     "unit": "dBm"
+    },
+    {
+     "name": "roam_count",
+     "description": "Client roams per interval"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    },
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    }
+   ],
+   "failure_modes": [
+    "coverage holes",
+    "co-channel interference",
+    "roaming delays dropping robot sessions",
+    "rogue AP / misconfiguration",
+    "default credentials"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.wifi.client_module",
+   "name": "Wi-Fi client module",
+   "category": "comms",
+   "description": "Embedded STA module or M.2 card giving a robot or device WLAN connectivity.",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "aliases": [
+    "WLAN module",
+    "Wi-Fi NIC"
+   ],
+   "properties": [
+    {
+     "name": "wifi_standard",
+     "kind": "enum",
+     "values": [
+      "802.11n",
+      "802.11ac",
+      "802.11ax",
+      "802.11be",
+      "802.11ah"
+     ],
+     "required": true
+    },
+    {
+     "name": "host_interface",
+     "kind": "enum",
+     "values": [
+      "pcie",
+      "usb",
+      "sdio",
+      "spi",
+      "uart"
+     ],
+     "required": true
+    },
+    {
+     "name": "antenna_ports",
+     "kind": "integer"
+    },
+    {
+     "name": "tx_power_max",
+     "kind": "quantity",
+     "unit": "dBm"
+    }
+   ],
+   "interfaces": [
+    "net.wifi",
+    "bus.pcie",
+    "bus.usb",
+    "bus.sdio",
+    "bus.spi",
+    "bus.uart"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    },
+    {
+     "name": "snr",
+     "unit": "dB",
+     "description": "Signal-to-noise ratio"
+    },
+    {
+     "name": "tx_bitrate",
+     "unit": "Mbit/s"
+    },
+    {
+     "name": "packet_loss",
+     "unit": "%",
+     "warn_above": 2,
+     "critical_above": 10,
+     "description": "Typical: sustained loss above a few percent degrades control links"
+    },
+    {
+     "name": "latency",
+     "unit": "ms",
+     "description": "Round-trip or one-way link latency"
+    },
+    {
+     "name": "roam_count"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    },
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "antenna cable damage",
+    "roaming failure",
+    "driver/firmware crash",
+    "EMI from motors desensitizing receiver"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "compute.*",
+    "iot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.wifi.halow_module",
+   "name": "Wi-Fi HaLow module",
+   "category": "comms",
+   "description": "Sub-1 GHz 802.11ah radio module for long-range low-power links.",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "aliases": [
+    "802.11ah module"
+   ],
+   "properties": [
+    {
+     "name": "frequency_band",
+     "kind": "string",
+     "required": true,
+     "description": "Regional sub-GHz band, e.g. 902-928 MHz"
+    },
+    {
+     "name": "host_interface",
+     "kind": "enum",
+     "values": [
+      "spi",
+      "sdio",
+      "usb"
+     ],
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "net.wifi_halow",
+    "bus.spi",
+    "bus.sdio",
+    "bus.usb"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    },
+    {
+     "name": "snr",
+     "unit": "dB",
+     "description": "Signal-to-noise ratio"
+    },
+    {
+     "name": "packet_loss",
+     "unit": "%",
+     "warn_above": 2,
+     "critical_above": 10,
+     "description": "Typical: sustained loss above a few percent degrades control links"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    },
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "regional band misconfiguration",
+    "antenna damage"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "iot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.cellular.modem_lte",
+   "name": "LTE cellular modem",
+   "category": "comms",
+   "description": "LTE Cat-1 to Cat-12+ modem (module or router) for wide-area telemetry and teleoperation.",
+   "domains": [
+    "D07",
+    "D17"
+   ],
+   "aliases": [
+    "4G modem",
+    "LTE module"
+   ],
+   "properties": [
+    {
+     "name": "lte_category",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "bands",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "host_interface",
+     "kind": "enum",
+     "values": [
+      "usb",
+      "pcie",
+      "uart",
+      "ethernet"
+     ],
+     "required": true
+    },
+    {
+     "name": "sim",
+     "kind": "enum",
+     "values": [
+      "nano_sim",
+      "esim",
+      "dual"
+     ]
+    },
+    {
+     "name": "gnss_integrated",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "net.cellular_lte",
+    "bus.usb",
+    "bus.pcie",
+    "bus.uart",
+    "net.ethernet"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "rsrp",
+     "unit": "dBm",
+     "warn_below": -105,
+     "critical_below": -115,
+     "description": "Typical: below -110 dBm is poor LTE coverage"
+    },
+    {
+     "name": "rsrq",
+     "unit": "dB",
+     "warn_below": -15,
+     "description": "Typical: below -15 dB is poor"
+    },
+    {
+     "name": "sinr",
+     "unit": "dB"
+    },
+    {
+     "name": "latency",
+     "unit": "ms",
+     "description": "Round-trip or one-way link latency"
+    },
+    {
+     "name": "data_usage",
+     "unit": "MB"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    },
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    },
+    {
+     "item": "SIM and data plan",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "verify subscription and SIM status"
+    }
+   ],
+   "failure_modes": [
+    "coverage loss",
+    "SIM/plan expiry",
+    "antenna damage",
+    "modem firmware hang requiring reset",
+    "carrier network outage"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "iot.*",
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.cellular.modem_5g",
+   "name": "5G cellular modem",
+   "category": "comms",
+   "description": "5G NR (SA/NSA) module or router, including private 5G campus deployments.",
+   "domains": [
+    "D07",
+    "D17"
+   ],
+   "aliases": [
+    "5G module",
+    "5G router"
+   ],
+   "properties": [
+    {
+     "name": "bands",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "modes",
+     "kind": "enum",
+     "values": [
+      "sa",
+      "nsa",
+      "sa_nsa"
+     ],
+     "required": true
+    },
+    {
+     "name": "host_interface",
+     "kind": "enum",
+     "values": [
+      "usb",
+      "pcie",
+      "ethernet"
+     ],
+     "required": true
+    },
+    {
+     "name": "max_downlink",
+     "kind": "quantity",
+     "unit": "Mbit/s"
+    }
+   ],
+   "interfaces": [
+    "net.cellular_5g",
+    "net.cellular_lte",
+    "bus.usb",
+    "bus.pcie",
+    "net.ethernet"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "ss_rsrp",
+     "unit": "dBm",
+     "description": "5G SS-RSRP"
+    },
+    {
+     "name": "ss_sinr",
+     "unit": "dB"
+    },
+    {
+     "name": "latency",
+     "unit": "ms",
+     "description": "Round-trip or one-way link latency"
+    },
+    {
+     "name": "data_usage",
+     "unit": "MB"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    },
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "coverage loss falling back to LTE",
+    "thermal throttling",
+    "antenna damage"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.cellular.lpwa_module",
+   "name": "NB-IoT / LTE-M module",
+   "category": "comms",
+   "description": "Low-power cellular module with PSM/eDRX for battery IoT sensors and trackers.",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "aliases": [
+    "LPWA modem",
+    "Cat-M1 module"
+   ],
+   "properties": [
+    {
+     "name": "rat",
+     "kind": "enum",
+     "values": [
+      "nb_iot",
+      "lte_m",
+      "nb_iot_lte_m"
+     ],
+     "required": true
+    },
+    {
+     "name": "bands",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "sleep_current",
+     "kind": "quantity",
+     "unit": "uA"
+    }
+   ],
+   "interfaces": [
+    "net.nb_iot",
+    "net.lte_m",
+    "bus.uart",
+    "app.lwm2m",
+    "app.coap",
+    "app.mqtt"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "rsrp",
+     "unit": "dBm"
+    },
+    {
+     "name": "coverage_enhancement_level",
+     "description": "CE level 0-2"
+    },
+    {
+     "name": "battery_voltage",
+     "unit": "V"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    },
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "network attach failure",
+    "excess energy use from poor coverage",
+    "SIM expiry"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "iot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.satellite.terminal",
+   "name": "Satellite terminal",
+   "category": "comms",
+   "description": "LEO/GEO broadband terminal or L-band IoT satellite modem for robots beyond terrestrial coverage.",
+   "domains": [
+    "D07",
+    "D17"
+   ],
+   "aliases": [
+    "satcom terminal",
+    "satellite modem"
+   ],
+   "properties": [
+    {
+     "name": "network_type",
+     "kind": "enum",
+     "values": [
+      "leo_broadband",
+      "geo_broadband",
+      "l_band_iot",
+      "leo_iot"
+     ],
+     "required": true
+    },
+    {
+     "name": "power_consumption",
+     "kind": "quantity",
+     "unit": "W",
+     "required": true
+    },
+    {
+     "name": "antenna_type",
+     "kind": "enum",
+     "values": [
+      "phased_array",
+      "dish",
+      "patch",
+      "omni"
+     ]
+    }
+   ],
+   "interfaces": [
+    "net.satellite",
+    "net.ethernet",
+    "bus.uart"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "snr",
+     "unit": "dB",
+     "description": "Signal-to-noise ratio"
+    },
+    {
+     "name": "latency",
+     "unit": "ms",
+     "description": "Round-trip or one-way link latency"
+    },
+    {
+     "name": "obstruction",
+     "unit": "%",
+     "description": "Fraction of sky view obstructed"
+    },
+    {
+     "name": "power_draw",
+     "unit": "W"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    },
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "sky obstruction",
+    "rain fade",
+    "high power draw draining battery",
+    "antenna misalignment"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.lora.gateway",
+   "name": "LoRaWAN gateway",
+   "category": "comms",
+   "description": "Multi-channel LoRa concentrator forwarding uplinks to a LoRaWAN network server (Semtech UDP or Basics Station).",
+   "domains": [
+    "D07",
+    "D16",
+    "D17"
+   ],
+   "aliases": [
+    "LoRa gateway",
+    "LoRaWAN concentrator"
+   ],
+   "properties": [
+    {
+     "name": "channels",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "frequency_plan",
+     "kind": "string",
+     "required": true,
+     "description": "e.g. EU868, US915"
+    },
+    {
+     "name": "backhaul",
+     "kind": "enum",
+     "values": [
+      "ethernet",
+      "wifi",
+      "cellular"
+     ],
+     "required": true
+    },
+    {
+     "name": "packet_forwarder",
+     "kind": "enum",
+     "values": [
+      "semtech_udp",
+      "basics_station"
+     ]
+    }
+   ],
+   "interfaces": [
+    "net.lorawan",
+    "net.ethernet",
+    "net.cellular_lte",
+    "app.mqtt"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "uplinks_per_hour"
+    },
+    {
+     "name": "backhaul_up"
+    },
+    {
+     "name": "noise_floor",
+     "unit": "dBm"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    },
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    },
+    {
+     "item": "lightning protection",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "inspect surge arrestor and grounding"
+    }
+   ],
+   "failure_modes": [
+    "backhaul outage",
+    "antenna/lightning damage",
+    "wrong frequency plan",
+    "duty-cycle saturation"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.lora.module",
+   "name": "LoRa / LoRaWAN radio module",
+   "category": "comms",
+   "description": "Sub-GHz LoRa transceiver (e.g. SX126x-class) used as LoRaWAN end device or raw LoRa link.",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "aliases": [
+    "LoRa transceiver"
+   ],
+   "properties": [
+    {
+     "name": "frequency_band",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "tx_power_max",
+     "kind": "quantity",
+     "unit": "dBm",
+     "required": true
+    },
+    {
+     "name": "lorawan_stack",
+     "kind": "bool"
+    },
+    {
+     "name": "host_interface",
+     "kind": "enum",
+     "values": [
+      "spi",
+      "uart"
+     ],
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "net.lorawan",
+    "net.lora",
+    "bus.spi",
+    "bus.uart"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    },
+    {
+     "name": "snr",
+     "unit": "dB",
+     "description": "Signal-to-noise ratio"
+    },
+    {
+     "name": "spreading_factor"
+    },
+    {
+     "name": "frame_counter",
+     "description": "Uplink frame counter"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    }
+   ],
+   "failure_modes": [
+    "antenna mismatch",
+    "duty-cycle violation",
+    "frame counter reset rejected by network server (ABP)"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "iot.*",
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.zigbee.coordinator",
+   "name": "Zigbee coordinator",
+   "category": "comms",
+   "description": "USB stick or module forming a Zigbee network and acting as trust center.",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "aliases": [
+    "Zigbee dongle",
+    "Zigbee hub radio"
+   ],
+   "properties": [
+    {
+     "name": "chipset",
+     "kind": "string"
+    },
+    {
+     "name": "host_interface",
+     "kind": "enum",
+     "values": [
+      "usb",
+      "uart",
+      "spi"
+     ],
+     "required": true
+    },
+    {
+     "name": "max_direct_children",
+     "kind": "integer"
+    }
+   ],
+   "interfaces": [
+    "net.zigbee",
+    "net.802_15_4",
+    "bus.usb",
+    "bus.uart"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "lqi",
+     "description": "Link quality indicator per neighbor"
+    },
+    {
+     "name": "device_count"
+    },
+    {
+     "name": "packet_loss",
+     "unit": "%",
+     "warn_above": 2,
+     "critical_above": 10,
+     "description": "Typical: sustained loss above a few percent degrades control links"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "2.4 GHz Wi-Fi interference",
+    "USB 3.0 port interference",
+    "network key exposure"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "iot.*",
+    "compute.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.thread.border_router",
+   "name": "Thread border router",
+   "category": "comms",
+   "description": "Router connecting a Thread mesh to IP networks (Wi-Fi/Ethernet), commonly part of Matter controllers.",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "aliases": [
+    "OTBR"
+   ],
+   "properties": [
+    {
+     "name": "uplink",
+     "kind": "enum",
+     "values": [
+      "ethernet",
+      "wifi"
+     ],
+     "required": true
+    },
+    {
+     "name": "matter_controller",
+     "kind": "bool"
+    },
+    {
+     "name": "thread_version",
+     "kind": "string"
+    }
+   ],
+   "interfaces": [
+    "net.thread",
+    "net.802_15_4",
+    "net.ethernet",
+    "net.wifi",
+    "app.matter"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "router_count"
+    },
+    {
+     "name": "child_count"
+    },
+    {
+     "name": "link_up",
+     "description": "Boolean link state"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "multiple border routers with partitioned networks",
+    "uplink loss",
+    "IPv6 misconfiguration"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "iot.*",
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.ble.module",
+   "name": "Bluetooth LE module",
+   "category": "comms",
+   "description": "BLE SoC or module for provisioning, beacons, wearables and low-rate sensor links.",
+   "domains": [
+    "D07",
+    "D16"
+   ],
+   "aliases": [
+    "BLE SoC"
+   ],
+   "properties": [
+    {
+     "name": "bluetooth_version",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "tx_power_max",
+     "kind": "quantity",
+     "unit": "dBm"
+    },
+    {
+     "name": "host_interface",
+     "kind": "enum",
+     "values": [
+      "uart",
+      "spi",
+      "usb",
+      "standalone"
+     ],
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "net.ble",
+    "net.bluetooth_classic",
+    "bus.uart",
+    "bus.spi"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    },
+    {
+     "name": "packet_loss",
+     "unit": "%",
+     "warn_above": 2,
+     "critical_above": 10,
+     "description": "Typical: sustained loss above a few percent degrades control links"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "insecure Just Works pairing",
+    "2.4 GHz interference",
+    "connection supervision timeout"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "iot.*",
+    "robot.*",
+    "hmi.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.uwb.anchor",
+   "name": "UWB anchor",
+   "category": "comms",
+   "description": "Fixed UWB node of a real-time location system (RTLS) supporting TWR or TDoA positioning.",
+   "domains": [
+    "D05",
+    "D07"
+   ],
+   "aliases": [
+    "UWB beacon"
+   ],
+   "properties": [
+    {
+     "name": "ranging_method",
+     "kind": "enum",
+     "values": [
+      "twr",
+      "tdoa",
+      "pdoa"
+     ],
+     "required": true
+    },
+    {
+     "name": "channel",
+     "kind": "integer"
+    },
+    {
+     "name": "backhaul",
+     "kind": "enum",
+     "values": [
+      "ethernet",
+      "wifi",
+      "uwb"
+     ]
+    }
+   ],
+   "interfaces": [
+    "net.uwb",
+    "net.ethernet",
+    "net.poe"
+   ],
+   "provides": [
+    "ranging",
+    "localization"
+   ],
+   "telemetry": [
+    {
+     "name": "clock_sync_error",
+     "unit": "us",
+     "description": "Anchor clock synchronization error (TDoA)"
+    },
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    },
+    {
+     "name": "first_path_power",
+     "unit": "dBm"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "anchor position survey",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "re-survey anchor coordinates after layout changes"
+    }
+   ],
+   "failure_modes": [
+    "anchor moved without re-survey",
+    "NLOS multipath errors",
+    "clock sync loss"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.uwb.tag",
+   "name": "UWB tag module",
+   "category": "comms",
+   "description": "Mobile UWB transceiver on a robot or person for positioning and secure ranging.",
+   "domains": [
+    "D05",
+    "D07"
+   ],
+   "aliases": [
+    "UWB transceiver"
+   ],
+   "properties": [
+    {
+     "name": "ranging_method",
+     "kind": "enum",
+     "values": [
+      "twr",
+      "tdoa",
+      "pdoa"
+     ],
+     "required": true
+    },
+    {
+     "name": "update_rate",
+     "kind": "quantity",
+     "unit": "Hz",
+     "required": true
+    },
+    {
+     "name": "sts_secure_ranging",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "net.uwb",
+    "bus.spi",
+    "bus.uart"
+   ],
+   "provides": [
+    "ranging",
+    "localization"
+   ],
+   "telemetry": [
+    {
+     "name": "range_quality"
+    },
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    }
+   ],
+   "failure_modes": [
+    "body or metal occlusion",
+    "multipath",
+    "antenna detuning near metal"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "iot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.serial.rs485_transceiver",
+   "name": "RS-485 transceiver",
+   "category": "comms",
+   "description": "Differential half/full-duplex line driver/receiver for Modbus RTU, DMX and smart servo buses.",
+   "domains": [
+    "D03",
+    "D07"
+   ],
+   "aliases": [
+    "RS-485 PHY"
+   ],
+   "properties": [
+    {
+     "name": "max_data_rate",
+     "kind": "quantity",
+     "unit": "Mbit/s",
+     "required": true
+    },
+    {
+     "name": "supply_voltage",
+     "kind": "quantity",
+     "unit": "V",
+     "required": true
+    },
+    {
+     "name": "duplex",
+     "kind": "enum",
+     "values": [
+      "half",
+      "full"
+     ],
+     "required": true
+    },
+    {
+     "name": "isolated",
+     "kind": "bool"
+    },
+    {
+     "name": "fail_safe_bias",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "bus.rs485",
+    "fieldbus.modbus_rtu",
+    "app.dynamixel_protocol2",
+    "fieldbus.profibus"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "crc_error_count",
+     "description": "Cumulative frame CRC errors"
+    },
+    {
+     "name": "timeout_count",
+     "description": "Unanswered master requests"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "missing termination or bias",
+    "ground potential difference",
+    "bus contention from DE timing"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "compute.*",
+    "drive.*",
+    "sensor.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.serial.device_server",
+   "name": "Serial device server",
+   "category": "comms",
+   "description": "Ethernet-to-serial converter exposing RS-232/422/485 ports over TCP (raw, RFC 2217, Modbus gateway).",
+   "domains": [
+    "D07",
+    "D15"
+   ],
+   "aliases": [
+    "serial-to-Ethernet converter",
+    "terminal server"
+   ],
+   "properties": [
+    {
+     "name": "serial_ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "serial_standards",
+     "kind": "string",
+     "required": true,
+     "description": "RS-232/422/485"
+    },
+    {
+     "name": "modes",
+     "kind": "string",
+     "description": "TCP server/client, RFC 2217, UDP"
+    }
+   ],
+   "interfaces": [
+    "net.ethernet",
+    "bus.rs232",
+    "bus.rs485",
+    "fieldbus.modbus_tcp",
+    "fieldbus.modbus_rtu"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "link_up",
+     "description": "Boolean link state"
+    },
+    {
+     "name": "tcp_connections"
+    },
+    {
+     "name": "serial_overrun_count"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "exposed unauthenticated TCP ports",
+    "default credentials",
+    "baud mismatch"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "infra.*",
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.gateway.protocol",
+   "name": "Industrial protocol gateway",
+   "category": "comms",
+   "description": "Protocol converter, e.g. Modbus-to-MQTT, PROFINET-to-EtherCAT or OPC UA server for legacy fieldbus devices.",
+   "domains": [
+    "D07",
+    "D15",
+    "D16"
+   ],
+   "aliases": [
+    "edge gateway",
+    "protocol converter"
+   ],
+   "properties": [
+    {
+     "name": "southbound_protocols",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "northbound_protocols",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "tag_capacity",
+     "kind": "integer"
+    }
+   ],
+   "interfaces": [
+    "fieldbus.modbus_rtu",
+    "fieldbus.modbus_tcp",
+    "fieldbus.profinet",
+    "fieldbus.ethercat",
+    "fieldbus.ethernet_ip",
+    "app.mqtt",
+    "app.opcua",
+    "app.sparkplug_b",
+    "can.canopen",
+    "app.bacnet"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "poll_cycle_time",
+     "unit": "ms"
+    },
+    {
+     "name": "tag_error_count"
+    },
+    {
+     "name": "latency",
+     "unit": "ms",
+     "description": "Round-trip or one-way link latency"
+    },
+    {
+     "name": "link_up",
+     "description": "Boolean link state"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    },
+    {
+     "item": "configuration backup",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "archive mapping configuration"
+    }
+   ],
+   "failure_modes": [
+    "stale data presented as current",
+    "mapping error",
+    "unauthenticated northbound access",
+    "polling overload"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "infra.*",
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.io_link.master",
+   "name": "IO-Link master",
+   "category": "comms",
+   "description": "Module with IO-Link ports (Class A/B) connecting smart sensors/actuators to a fieldbus or Ethernet.",
+   "domains": [
+    "D05",
+    "D07"
+   ],
+   "aliases": [
+    "IO-Link hub"
+   ],
+   "properties": [
+    {
+     "name": "ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "port_class",
+     "kind": "enum",
+     "values": [
+      "class_a",
+      "class_b"
+     ],
+     "required": true
+    },
+    {
+     "name": "uplink",
+     "kind": "enum",
+     "values": [
+      "profinet",
+      "ethernet_ip",
+      "ethercat",
+      "modbus_tcp",
+      "opcua",
+      "mqtt"
+     ],
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "fieldbus.io_link",
+    "fieldbus.profinet",
+    "fieldbus.ethernet_ip",
+    "fieldbus.ethercat",
+    "fieldbus.modbus_tcp",
+    "app.opcua",
+    "app.mqtt"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "port_status",
+     "description": "Per-port COM state/device presence"
+    },
+    {
+     "name": "port_current",
+     "unit": "mA"
+    },
+    {
+     "name": "event_count"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "port short circuit",
+    "wrong device replaced (validation mismatch)",
+    "cable damage"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.radio.mesh_manet",
+   "name": "Mesh radio (MANET)",
+   "category": "comms",
+   "description": "Mobile ad hoc networking radio forming self-healing IP mesh between robots, operators and base stations.",
+   "domains": [
+    "D07",
+    "D13"
+   ],
+   "aliases": [
+    "MANET radio",
+    "tactical mesh radio"
+   ],
+   "properties": [
+    {
+     "name": "frequency_band",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "max_throughput",
+     "kind": "quantity",
+     "unit": "Mbit/s"
+    },
+    {
+     "name": "encryption",
+     "kind": "string",
+     "required": true,
+     "description": "e.g. AES-256"
+    },
+    {
+     "name": "tx_power_max",
+     "kind": "quantity",
+     "unit": "dBm"
+    }
+   ],
+   "interfaces": [
+    "net.ethernet"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    },
+    {
+     "name": "snr",
+     "unit": "dB",
+     "description": "Signal-to-noise ratio"
+    },
+    {
+     "name": "hop_count"
+    },
+    {
+     "name": "latency",
+     "unit": "ms",
+     "description": "Round-trip or one-way link latency"
+    },
+    {
+     "name": "packet_loss",
+     "unit": "%",
+     "warn_above": 2,
+     "critical_above": 10,
+     "description": "Typical: sustained loss above a few percent degrades control links"
+    },
+    {
+     "name": "neighbor_count"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    },
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "partition when robots move out of range",
+    "multi-hop throughput collapse",
+    "jamming",
+    "antenna damage"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.radio.telemetry",
+   "name": "Telemetry radio (UAV)",
+   "category": "comms",
+   "description": "Sub-GHz (433/868/915 MHz) serial radio linking a vehicle autopilot to ground control (e.g. SiK, RFD900-class).",
+   "domains": [
+    "D07",
+    "D13"
+   ],
+   "aliases": [
+    "telemetry modem",
+    "SiK radio"
+   ],
+   "properties": [
+    {
+     "name": "frequency_band",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "air_data_rate",
+     "kind": "quantity",
+     "unit": "kbit/s",
+     "required": true
+    },
+    {
+     "name": "tx_power_max",
+     "kind": "quantity",
+     "unit": "dBm"
+    },
+    {
+     "name": "encryption",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "bus.uart",
+    "app.mavlink"
+   ],
+   "provides": [
+    "communication",
+    "teleoperation"
+   ],
+   "telemetry": [
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    },
+    {
+     "name": "remote_rssi",
+     "unit": "dBm"
+    },
+    {
+     "name": "noise",
+     "unit": "dBm"
+    },
+    {
+     "name": "rx_errors"
+    },
+    {
+     "name": "packet_loss",
+     "unit": "%",
+     "warn_above": 2,
+     "critical_above": 10,
+     "description": "Typical: sustained loss above a few percent degrades control links"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    }
+   ],
+   "failure_modes": [
+    "link loss triggering failsafe",
+    "regional frequency/power non-compliance",
+    "unencrypted link spoofing"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.aerial.*",
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.rc.receiver",
+   "name": "RC receiver",
+   "category": "comms",
+   "description": "Radio-control receiver outputting pilot commands (S.BUS, CRSF, PPM, PWM) to a flight controller or vehicle controller.",
+   "domains": [
+    "D07",
+    "D18"
+   ],
+   "aliases": [
+    "RX"
+   ],
+   "properties": [
+    {
+     "name": "output_protocol",
+     "kind": "enum",
+     "values": [
+      "sbus",
+      "crsf",
+      "ppm",
+      "pwm",
+      "ibus"
+     ],
+     "required": true
+    },
+    {
+     "name": "frequency_band",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "channels",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "telemetry",
+     "kind": "bool"
+    },
+    {
+     "name": "failsafe_mode",
+     "kind": "enum",
+     "values": [
+      "no_pulses",
+      "hold",
+      "preset"
+     ],
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "net.rc_sbus",
+    "net.rc_crsf",
+    "net.rc_ppm",
+    "electrical.pwm"
+   ],
+   "provides": [
+    "teleoperation",
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "link_quality",
+     "unit": "%",
+     "description": "Vendor link quality indicator (LQI/uplink quality)"
+    },
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    },
+    {
+     "name": "failsafe_active",
+     "description": "Boolean failsafe state"
+    },
+    {
+     "name": "frame_rate",
+     "unit": "Hz"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    }
+   ],
+   "failure_modes": [
+    "link loss / failsafe",
+    "incorrect failsafe configuration",
+    "antenna damage",
+    "brownout reboot"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.video.transmitter",
+   "name": "Video transmitter (FPV)",
+   "category": "comms",
+   "description": "Analog or digital low-latency video link from vehicle camera to operator (5.8 GHz analog, digital FPV systems).",
+   "domains": [
+    "D05",
+    "D07",
+    "D18"
+   ],
+   "aliases": [
+    "VTX",
+    "FPV transmitter"
+   ],
+   "properties": [
+    {
+     "name": "modulation",
+     "kind": "enum",
+     "values": [
+      "analog",
+      "digital"
+     ],
+     "required": true
+    },
+    {
+     "name": "frequency_band",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "tx_power",
+     "kind": "quantity",
+     "unit": "mW",
+     "required": true
+    },
+    {
+     "name": "latency_typical",
+     "kind": "quantity",
+     "unit": "ms"
+    }
+   ],
+   "interfaces": [
+    "bus.uart",
+    "bus.mipi_csi2"
+   ],
+   "provides": [
+    "imaging",
+    "teleoperation"
+   ],
+   "telemetry": [
+    {
+     "name": "tx_power_setting",
+     "unit": "mW"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    },
+    {
+     "name": "latency",
+     "unit": "ms",
+     "description": "Round-trip or one-way link latency"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    }
+   ],
+   "failure_modes": [
+    "overheating without airflow",
+    "powering without antenna damages amplifier",
+    "channel interference",
+    "regulatory power non-compliance"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.video.receiver",
+   "name": "Video receiver / goggles link",
+   "category": "comms",
+   "description": "Ground-side receiver for FPV or digital video links.",
+   "domains": [
+    "D07",
+    "D18"
+   ],
+   "aliases": [
+    "VRX"
+   ],
+   "properties": [
+    {
+     "name": "modulation",
+     "kind": "enum",
+     "values": [
+      "analog",
+      "digital"
+     ],
+     "required": true
+    },
+    {
+     "name": "frequency_band",
+     "kind": "string",
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "bus.hdmi",
+    "bus.usb"
+   ],
+   "provides": [
+    "imaging",
+    "teleoperation"
+   ],
+   "telemetry": [
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    },
+    {
+     "name": "latency",
+     "unit": "ms",
+     "description": "Round-trip or one-way link latency"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    }
+   ],
+   "failure_modes": [
+    "multipath breakup",
+    "antenna damage"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "hmi.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.slip_ring",
+   "name": "Slip ring (rotary electrical joint)",
+   "category": "comms",
+   "description": "Rotary joint passing power and signals (including Ethernet/fieldbus) across continuously rotating axes such as lidar turrets and pan units.",
+   "domains": [
+    "D01",
+    "D07"
+   ],
+   "aliases": [
+    "rotary joint",
+    "rotary union (electrical)"
+   ],
+   "properties": [
+    {
+     "name": "circuits",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "max_current_per_circuit",
+     "kind": "quantity",
+     "unit": "A",
+     "required": true
+    },
+    {
+     "name": "max_speed",
+     "kind": "quantity",
+     "unit": "rpm",
+     "required": true
+    },
+    {
+     "name": "data_rating",
+     "kind": "string",
+     "description": "e.g. 100BASE-TX, USB 2.0, CAN"
+    },
+    {
+     "name": "contact_type",
+     "kind": "enum",
+     "values": [
+      "brush",
+      "fiber_brush",
+      "contactless",
+      "mercury"
+     ]
+    }
+   ],
+   "interfaces": [
+    "electrical.dc",
+    "net.ethernet",
+    "can.classic",
+    "bus.rs485"
+   ],
+   "provides": [
+    "communication",
+    "rotation"
+   ],
+   "telemetry": [
+    {
+     "name": "contact_resistance_variation",
+     "unit": "mOhm",
+     "description": "Dynamic resistance noise"
+    },
+    {
+     "name": "crc_error_count",
+     "description": "Cumulative frame CRC errors"
+    },
+    {
+     "name": "revolutions",
+     "unit": "cycles"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "brushes and rings",
+     "basis": "cycles",
+     "interval": 10000000,
+     "action": "inspect wear and clean per manufacturer interval"
+    },
+    {
+     "item": "brushes",
+     "basis": "condition",
+     "interval": 0,
+     "action": "replace when noise or CRC errors rise"
+    }
+   ],
+   "failure_modes": [
+    "contact wear causing intermittent signals",
+    "debris contamination",
+    "crosstalk degrading high-speed data"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "sensor.*",
+    "mechanical.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.time.ptp_grandmaster",
+   "name": "PTP grandmaster clock",
+   "category": "comms",
+   "description": "IEEE 1588 time server, typically GNSS-disciplined, providing network time to sensors, TSN and controllers.",
+   "domains": [
+    "D07",
+    "D12"
+   ],
+   "aliases": [
+    "PTP time server",
+    "grandmaster"
+   ],
+   "properties": [
+    {
+     "name": "time_source",
+     "kind": "enum",
+     "values": [
+      "gnss",
+      "external_pps",
+      "free_running"
+     ],
+     "required": true
+    },
+    {
+     "name": "profiles",
+     "kind": "string",
+     "required": true,
+     "description": "e.g. default, gPTP 802.1AS, power profile"
+    },
+    {
+     "name": "holdover_oscillator",
+     "kind": "enum",
+     "values": [
+      "tcxo",
+      "ocxo",
+      "rubidium"
+     ]
+    },
+    {
+     "name": "ntp_server",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "net.ptp",
+    "net.ethernet",
+    "net.tsn"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "gnss_lock",
+     "description": "Boolean GNSS lock"
+    },
+    {
+     "name": "time_offset",
+     "unit": "us"
+    },
+    {
+     "name": "holdover_active"
+    },
+    {
+     "name": "clock_class"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    },
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    }
+   ],
+   "failure_modes": [
+    "GNSS loss entering holdover drift",
+    "GNSS spoofing",
+    "best-master election by rogue clock"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "infra.*",
+    "robot.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.gnss.ntrip_modem",
+   "name": "GNSS correction modem (NTRIP client)",
+   "category": "comms",
+   "description": "Device or router function retrieving RTCM corrections from an NTRIP caster and feeding an RTK GNSS receiver.",
+   "domains": [
+    "D05",
+    "D07"
+   ],
+   "aliases": [
+    "RTK correction modem",
+    "NTRIP client"
+   ],
+   "properties": [
+    {
+     "name": "backhaul",
+     "kind": "enum",
+     "values": [
+      "cellular",
+      "wifi",
+      "ethernet",
+      "radio"
+     ],
+     "required": true
+    },
+    {
+     "name": "output",
+     "kind": "enum",
+     "values": [
+      "uart",
+      "usb",
+      "tcp"
+     ],
+     "required": true
+    },
+    {
+     "name": "ntrip_version",
+     "kind": "enum",
+     "values": [
+      "v1",
+      "v2"
+     ]
+    }
+   ],
+   "interfaces": [
+    "app.ntrip",
+    "net.cellular_lte",
+    "bus.uart",
+    "app.nmea0183"
+   ],
+   "provides": [
+    "localization",
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "correction_age",
+     "unit": "s",
+     "warn_above": 5,
+     "critical_above": 30,
+     "description": "Typical: RTK fix degrades when correction age exceeds ~10 s"
+    },
+    {
+     "name": "caster_connected"
+    },
+    {
+     "name": "data_rate",
+     "unit": "bit/s"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    }
+   ],
+   "failure_modes": [
+    "correction outage dropping RTK fix",
+    "caster credential expiry",
+    "wrong mountpoint / far base station"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "sensor.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.security.firewall_router",
+   "name": "Industrial firewall / VPN router",
+   "category": "comms",
+   "description": "Router enforcing zone/conduit segmentation (IEC 62443), deep packet inspection for OT protocols and VPN remote access.",
+   "domains": [
+    "D07",
+    "D15"
+   ],
+   "aliases": [
+    "OT firewall",
+    "VPN gateway",
+    "secure remote access router"
+   ],
+   "properties": [
+    {
+     "name": "vpn",
+     "kind": "string",
+     "required": true,
+     "description": "e.g. IPsec, OpenVPN, WireGuard"
+    },
+    {
+     "name": "ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "dpi_protocols",
+     "kind": "string",
+     "description": "OT protocols inspected, e.g. Modbus, OPC UA"
+    },
+    {
+     "name": "cellular_uplink",
+     "kind": "bool"
+    }
+   ],
+   "interfaces": [
+    "net.ethernet",
+    "net.cellular_lte",
+    "net.tls",
+    "app.snmp"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "vpn_tunnel_up"
+    },
+    {
+     "name": "blocked_connections"
+    },
+    {
+     "name": "cpu_load",
+     "unit": "%"
+    },
+    {
+     "name": "link_up",
+     "description": "Boolean link state"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    },
+    {
+     "item": "rule review",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "review firewall rules and remote-access accounts"
+    }
+   ],
+   "failure_modes": [
+    "permissive any-any rule",
+    "expired certificates breaking VPN",
+    "unpatched vulnerability",
+    "single point of failure"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "infra.*",
+    "robot.*"
+   ],
+   "references": [
+    {
+     "name": "IEC 62443-3-3"
+    }
+   ]
+  },
+  {
+   "type_id": "comms.usb.hub_industrial",
+   "name": "Industrial USB hub",
+   "category": "comms",
+   "description": "Powered, often isolated, USB hub with locking connectors and surge protection for onboard sensors and adapters.",
+   "domains": [
+    "D03",
+    "D06"
+   ],
+   "aliases": [
+    "USB hub"
+   ],
+   "properties": [
+    {
+     "name": "ports",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "usb_version",
+     "kind": "enum",
+     "values": [
+      "usb2",
+      "usb3_2_gen1",
+      "usb3_2_gen2"
+     ],
+     "required": true
+    },
+    {
+     "name": "isolated",
+     "kind": "bool"
+    },
+    {
+     "name": "port_power",
+     "kind": "quantity",
+     "unit": "A"
+    }
+   ],
+   "interfaces": [
+    "bus.usb",
+    "electrical.dc"
+   ],
+   "provides": [
+    "communication",
+    "power_supply"
+   ],
+   "telemetry": [
+    {
+     "name": "port_overcurrent"
+    },
+    {
+     "name": "board_temperature",
+     "unit": "degC",
+     "warn_above": 75,
+     "critical_above": 85,
+     "description": "Module/enclosure temperature; typical industrial rating up to 85 degC"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "connectors and cable strain relief",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect, re-seat and check strain relief"
+    }
+   ],
+   "failure_modes": [
+    "USB 3 interference in 2.4 GHz band",
+    "connector loosening from vibration",
+    "overcurrent trip",
+    "device enumeration failures"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "robot.*",
+    "compute.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.wirelesshart.gateway",
+   "name": "WirelessHART / ISA100 gateway",
+   "category": "comms",
+   "description": "Gateway and network/security manager for industrial wireless sensor networks, exposing data via Modbus, OPC UA or HART-IP.",
+   "domains": [
+    "D05",
+    "D07"
+   ],
+   "aliases": [
+    "WirelessHART gateway"
+   ],
+   "properties": [
+    {
+     "name": "protocol",
+     "kind": "enum",
+     "values": [
+      "wirelesshart",
+      "isa100"
+     ],
+     "required": true
+    },
+    {
+     "name": "max_devices",
+     "kind": "integer",
+     "required": true
+    },
+    {
+     "name": "northbound",
+     "kind": "string",
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "net.wirelesshart",
+    "net.isa100",
+    "fieldbus.modbus_tcp",
+    "app.opcua",
+    "net.ethernet"
+   ],
+   "provides": [
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "device_count"
+    },
+    {
+     "name": "path_stability",
+     "unit": "%"
+    },
+    {
+     "name": "reliability",
+     "unit": "%"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "firmware",
+     "basis": "calendar_days",
+     "interval": 90,
+     "action": "check for vendor security updates and apply after validation"
+    },
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    }
+   ],
+   "failure_modes": [
+    "join key mismanagement",
+    "mesh path loss",
+    "gateway single point of failure"
+   ],
+   "safety_relevant": false,
+   "typical_parents": [
+    "infra.*"
+   ],
+   "references": []
+  },
+  {
+   "type_id": "comms.wireless.estop_link_carrier",
+   "name": "Wireless safety link radio",
+   "category": "comms",
+   "description": "Radio pair carrying a safety-rated stop/enable channel (e.g. wireless emergency stop receiver interface) with heartbeat-based fail-safe.",
+   "domains": [
+    "D07",
+    "D14"
+   ],
+   "aliases": [
+    "safety radio link"
+   ],
+   "properties": [
+    {
+     "name": "frequency_band",
+     "kind": "string",
+     "required": true
+    },
+    {
+     "name": "safety_rating",
+     "kind": "string",
+     "required": true,
+     "description": "e.g. PL d / SIL 2 per manufacturer"
+    },
+    {
+     "name": "heartbeat_timeout",
+     "kind": "quantity",
+     "unit": "ms",
+     "required": true
+    }
+   ],
+   "interfaces": [
+    "electrical.digital_io",
+    "fieldbus.profisafe",
+    "fieldbus.ethercat_fsoe"
+   ],
+   "provides": [
+    "emergency_stop",
+    "communication"
+   ],
+   "telemetry": [
+    {
+     "name": "rssi",
+     "unit": "dBm",
+     "warn_below": -80,
+     "critical_below": -90,
+     "description": "Received signal strength; typical usable floor around -85 to -90 dBm for Wi-Fi/BLE"
+    },
+    {
+     "name": "heartbeat_misses"
+    },
+    {
+     "name": "link_quality",
+     "unit": "%",
+     "description": "Vendor link quality indicator (LQI/uplink quality)"
+    }
+   ],
+   "maintenance": [
+    {
+     "item": "antenna and RF connectors",
+     "basis": "calendar_days",
+     "interval": 180,
+     "action": "inspect for damage, corrosion and loose connectors"
+    },
+    {
+     "item": "proof test",
+     "basis": "calendar_days",
+     "interval": 365,
+     "action": "verify stop on link loss"
+    }
+   ],
+   "failure_modes": [
+    "link loss (must trigger safe stop)",
+    "interference causing nuisance stops",
+    "pairing to wrong unit"
+   ],
+   "safety_relevant": true,
+   "typical_parents": [
+    "robot.*",
+    "safety.*"
+   ],
+   "references": []
+  }
+ ]
+}
