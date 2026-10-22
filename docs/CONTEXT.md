@@ -1,6 +1,6 @@
 # Context pack: agentic-robotics
 
-Generated 2026-10-22 10:05 UTC at commit `8a0629e` by `air context`. Do not edit by hand; regenerate it.
+Generated 2026-10-22 10:25 UTC at commit `2ce1d40` by `air context`. Do not edit by hand; regenerate it.
 
 ## Project
 
@@ -194,7 +194,7 @@ Open (not yet claimed verified):
 
 ## Recent commits
 
-- `8a0629e` Add source catalog: 343 studied open-source projects and backlog mapping (2026-10-22)
+- `2ce1d40` Add source catalog tooling; keep research notes local (2026-10-22)
 - `ec964d2` Add agentic engineering work: sandboxes, provider-agnostic models, proposals (2026-10-22)
 - `a5bbbfb` Wave 1: fail-closed leases, verifiable registry, ledger v2, W3C ids, schemas (2026-10-22)
 - `1479e5b` Add open-source landscape survey and adoption plan (2026-10-22)
