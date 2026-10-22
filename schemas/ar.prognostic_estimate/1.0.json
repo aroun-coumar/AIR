@@ -1,0 +1,215 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.prognostic_estimate/1.0.json",
+  "title": "ar.prognostic_estimate/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.prognostic_estimate/1\\.\\d+|https?://.+/ar\\.prognostic_estimate/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "estimate_id": {
+      "type": "string"
+    },
+    "robot_id": {
+      "type": "string"
+    },
+    "component_id": {
+      "type": "string"
+    },
+    "event": {
+      "type": "string"
+    },
+    "signal": {
+      "type": "string"
+    },
+    "threshold": {
+      "type": "number"
+    },
+    "direction": {
+      "enum": [
+        "below",
+        "above"
+      ]
+    },
+    "estimated_at": {
+      "type": "number"
+    },
+    "event_state": {
+      "$ref": "#/$defs/Interval"
+    },
+    "time_of_event": {
+      "$ref": "#/$defs/TimeOfEvent"
+    },
+    "horizon_s": {
+      "type": "number"
+    },
+    "loading": {
+      "$ref": "#/$defs/LoadingAssumption"
+    },
+    "method": {
+      "type": "string",
+      "default": "air.linear_bootstrap/1"
+    },
+    "seed": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "inputs_n": {
+      "type": "integer",
+      "default": 0
+    },
+    "validation": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "number"
+      }
+    }
+  },
+  "required": [
+    "estimate_id",
+    "robot_id",
+    "component_id",
+    "event",
+    "signal",
+    "threshold",
+    "direction",
+    "estimated_at",
+    "event_state",
+    "time_of_event",
+    "horizon_s"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Interval": {
+      "type": "object",
+      "properties": {
+        "low": {
+          "type": "number"
+        },
+        "mean": {
+          "type": "number"
+        },
+        "high": {
+          "type": "number"
+        }
+      },
+      "required": [
+        "low",
+        "mean",
+        "high"
+      ],
+      "additionalProperties": false
+    },
+    "LoadingAssumption": {
+      "type": "object",
+      "properties": {
+        "kind": {
+          "type": "string",
+          "default": "observed_trend"
+        },
+        "description": {
+          "type": "string",
+          "default": "usage continues as in the observed window (linear in time)"
+        },
+        "parameters": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        }
+      },
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "TimeOfEvent": {
+      "type": "object",
+      "description": "Seconds from ``estimated_at`` until the event. A quantile named in ``censored_quantiles`` did not reach the event within the horizon: its value is the horizon and means \"at least this long\".",
+      "properties": {
+        "quantiles": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "censored_quantiles": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "censored_fraction": {
+          "type": "number",
+          "default": 0.0
+        },
+        "mean_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "samples": {
+          "type": "integer",
+          "default": 0
+        }
+      },
+      "required": [
+        "quantiles"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

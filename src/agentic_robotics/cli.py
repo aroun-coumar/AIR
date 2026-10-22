@@ -136,6 +136,7 @@ def build_parser() -> argparse.ArgumentParser:
     r.set_defaults(fn=_registry)
 
     from .hardware.cli import add_commands as add_hardware_commands
+    from .health.cli import add_commands as add_operations_commands
     from .provenance.cli import add_commands
     from .triage.cli import add_commands as add_triage_commands
     from .work.cli import add_commands as add_work_commands
@@ -143,6 +144,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_work_commands(sub)
     add_triage_commands(sub)
     add_hardware_commands(sub)
+    add_operations_commands(sub)
     return p
 
 

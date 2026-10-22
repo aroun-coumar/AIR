@@ -147,3 +147,37 @@ evidence spine ties everything together.
 `provenance` depend on `contracts`/`core`; `runtime` and `agents` use `provenance.tracing`.
 `hardware` depends on `contracts` and `core`. `integrations` depend only on public
 protocols (`plugins`, `contracts`). Nothing in the core imports an integration.
+
+## Operations: health, readiness, incidents, prognostics (stage 5)
+
+```
+ ComponentManifest + catalog telemetry_limits --derive--> HealthManifest (expected items, gates)
+ adapter readings · monitors (rate, latency) · PSI probe · diagnosis table · transport loss
+          |
+          v
+ HealthAggregator: missing = ERROR · silent past timeout or lost = STALE (never OK)
+                   worst-of rollup by component tree · "other" bucket · critical fast path
+          |                                  |
+          | HealthReport                     | ReadinessGate (ordered pluggable checks)
+          v                                  v      -> can_run per mode, failsafe flags
+ HealthGate (admission check before check_capability): only downgrades profiles
+   + prognostic_gater (p5 time-of-event vs mission)  -> RESTRICTED / UNAVAILABLE
+   + RobotOwnedRecoveryCheck: recovery the robot owns is never commanded
+          |
+ Detection -> Incident (novel vs domain-pack failure classes and learned signatures)
+   -> Hypothesis (agent ones non-authoritative) -> BoundedTest: steady state, method via
+      Runtime.submit within a budget, steady state again, rollbacks by strategy
+   -> recovery VERIFIED from observations | handoff (UNRESOLVED: reconcile, never retry)
+          |
+ triage.operations: health ERROR/STALE, readiness blocks/failsafes, novel or handed-off
+                    incidents, prognostic crossings -> triage Signals
+```
+
+- Health reports, it does not command. Its only effect on the runtime is a gated
+  `CapabilityReport` (and a monotonic gated revision) that ordinary admission checks.
+- Every incident step and readiness evaluation is a ledger entry; incident steps are also
+  trace events. Prognostics are a stdlib, clean-room estimator (progpy is NOSA: API shape
+  only).
+- `air health derive|check|ready|psi|diagnosis`, `air incident open|list|show|propose|
+  handoff|close`, `air prognose estimate|list`.
+- See [ADR 0015](decisions/0015-health-incidents-prognostics.md).

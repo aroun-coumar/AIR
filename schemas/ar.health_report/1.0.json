@@ -1,0 +1,158 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.health_report/1.0.json",
+  "title": "ar.health_report/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.health_report/1\\.\\d+|https?://.+/ar\\.health_report/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "robot_id": {
+      "type": "string"
+    },
+    "observed_at": {
+      "type": "number"
+    },
+    "level": {
+      "enum": [
+        "ok",
+        "warn",
+        "error",
+        "stale"
+      ]
+    },
+    "items": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/HealthStatus"
+      },
+      "default": []
+    },
+    "groups": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/HealthStatus"
+      },
+      "default": []
+    },
+    "other": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/HealthStatus"
+      },
+      "default": []
+    },
+    "critical": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "required": [
+    "robot_id",
+    "observed_at",
+    "level"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "HealthStatus": {
+      "type": "object",
+      "description": "One reporter's (or one rollup group's) level at a time.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "level": {
+          "enum": [
+            "ok",
+            "warn",
+            "error",
+            "stale"
+          ]
+        },
+        "message": {
+          "type": "string",
+          "default": ""
+        },
+        "path": {
+          "type": "string",
+          "default": ""
+        },
+        "values": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "observed_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "source": {
+          "type": "string",
+          "default": ""
+        },
+        "critical": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "name",
+        "level"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

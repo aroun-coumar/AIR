@@ -376,6 +376,12 @@ use only public protocols, and nothing in the core imports an integration. See
 | Domain briefing (D01–D19) for agents and people | `air hardware brief D02 D14` |
 | Pin a datasheet to a component | `air hardware attach robot.manifest.json wheel-left sheet.pdf` |
 | Export as W3C WoT Thing Model or JSON-LD | `air hardware export sensor.imu.mems_6axis` |
+| Expected health items for a robot, from the catalog | `air health derive robot.manifest.json --out health.json` |
+| Aggregate readings (ERROR/STALE exit 1, optionally into triage) | `air health check health.json --readings r.json --triage` |
+| Readiness before activating a mode | `air health ready robot.manifest.json --readings r.json --mode autonomous` |
+| Host pressure (Linux PSI) and the diagnosis table | `air health psi` · `air health diagnosis --exercise` |
+| Open, investigate, hand off and close incidents | `air incident open --robot … --signal …` · `air incident list` · `air incident close <id> --by … --resolution …` |
+| Time-to-event with uncertainty, gated on p5 | `air prognose estimate --series soh.csv --threshold 80 --robot … --component … --signal … --mission 8h` |
 
 ## Status and roadmap
 
@@ -409,6 +415,9 @@ src/agentic_robotics/
 ├── work/          sandboxes · work contracts · guarded tools · work agent · proposals
 ├── provenance/    tracing · ledger · project · traceability · explain · context pack · sources
 ├── hardware/      device catalog: 100 robot classes · 648 device types · 122 protocols · manifest checks
+├── health/        expected items · STALE · rollup · monitors · PSI · capability gate · readiness · diagnosis
+├── incidents/     detection · novelty · hypotheses · bounded tests through admission · recovery or handoff
+├── maintenance/   prognostics: time-of-event distributions, censoring, gating on p5
 ├── integrations/  fake carrier and arm (reference adapters)
 └── testing/       pytest evidence plugin
 schemas/           published JSON Schemas for every contract

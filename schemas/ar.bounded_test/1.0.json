@@ -1,0 +1,202 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.bounded_test/1.0.json",
+  "title": "ar.bounded_test/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.bounded_test/1\\.\\d+|https?://.+/ar\\.bounded_test/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "test_id": {
+      "type": "string"
+    },
+    "hypothesis_id": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "steady_state": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Condition"
+      }
+    },
+    "method": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TestAction"
+      }
+    },
+    "rollbacks": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TestAction"
+      },
+      "default": []
+    },
+    "rollback_strategy": {
+      "enum": [
+        "always",
+        "never",
+        "deviated"
+      ],
+      "default": "deviated"
+    },
+    "budget": {
+      "$ref": "#/$defs/TestBudget"
+    },
+    "predicts_deviation": {
+      "type": "boolean",
+      "default": true
+    },
+    "max_input_age_s": {
+      "type": "number",
+      "default": 1.0
+    }
+  },
+  "required": [
+    "test_id",
+    "hypothesis_id",
+    "title",
+    "steady_state",
+    "method"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Condition": {
+      "type": "object",
+      "properties": {
+        "signal": {
+          "type": "string"
+        },
+        "op": {
+          "enum": [
+            "eq",
+            "ne",
+            "lt",
+            "le",
+            "gt",
+            "ge",
+            "approx",
+            "present"
+          ]
+        },
+        "value": {
+          "default": null
+        },
+        "field": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "tolerance": {
+          "type": "number",
+          "default": 0.0
+        },
+        "description": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "signal",
+        "op"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "TestAction": {
+      "type": "object",
+      "properties": {
+        "skill_id": {
+          "type": "string"
+        },
+        "args": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "robot_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "timeout_s": {
+          "type": "number",
+          "default": 30.0
+        }
+      },
+      "required": [
+        "skill_id"
+      ],
+      "additionalProperties": false
+    },
+    "TestBudget": {
+      "type": "object",
+      "properties": {
+        "max_commands": {
+          "type": "integer",
+          "default": 3
+        },
+        "max_duration_s": {
+          "type": "number",
+          "default": 60.0
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}
