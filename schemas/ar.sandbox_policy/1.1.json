@@ -1,0 +1,237 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.sandbox_policy/1.1.json",
+  "title": "ar.sandbox_policy/1.1",
+  "type": "object",
+  "description": "What work in the sandbox may do, and which limits must be *enforced*.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.sandbox_policy/1\\.\\d+|https?://.+/ar\\.sandbox_policy/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "network": {
+      "enum": [
+        "none",
+        "any",
+        "proxy"
+      ],
+      "default": "none"
+    },
+    "allowed_commands": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "python"
+      ]
+    },
+    "env_allowlist": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "max_wall_s": {
+      "type": "number",
+      "default": 120.0
+    },
+    "max_memory_mb": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": 2048
+    },
+    "max_cpus": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": 2.0
+    },
+    "max_output_bytes": {
+      "type": "integer",
+      "default": 200000
+    },
+    "require_enforced": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        "time",
+        "env",
+        "output"
+      ]
+    },
+    "mode": {
+      "enum": [
+        "strict",
+        "best_effort"
+      ],
+      "default": "strict"
+    },
+    "egress": {
+      "$ref": "#/$defs/EgressPolicy"
+    },
+    "protected_paths": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": [
+        ".git"
+      ]
+    },
+    "deny_read": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "EgressPolicy": {
+      "type": "object",
+      "description": "Where a proxied sandbox may connect. Everything not allowed is denied.",
+      "properties": {
+        "allow_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "deny_domains": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "allow_cidrs": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "allow_ports": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          },
+          "default": [
+            80,
+            443
+          ]
+        },
+        "tls_origination": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "secrets": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/SecretBinding"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "SecretBinding": {
+      "type": "object",
+      "description": "A credential the sandbox may *use* but never *hold*.",
+      "properties": {
+        "env": {
+          "type": "string"
+        },
+        "source_env": {
+          "type": "string"
+        },
+        "hosts": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "header_fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "authorization"
+          ]
+        },
+        "allow_plain_http": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "env",
+        "source_env",
+        "hosts"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

@@ -364,6 +364,10 @@ use only public protocols, and nothing in the core imports an integration. See
 | Requirements matrix (fails on missing evidence) | `air requirements matrix --check` |
 | Briefing for people and agents | `air context --out docs/CONTEXT.md` |
 | Run agent work in a sandbox | `air work run task.json [--approve robot]` |
+| Run agent work unattended (every approval ask becomes a deny) | `air work run task.json --unattended` |
+| Check a command against the agent command policy | `air work rules check -- git push` · `air work rules validate rules.json` |
+| What each sandbox adapter enforces on this host | `air sandbox probe [--policy policy.json]` |
+| Show the bwrap / landrun / Seatbelt command a sandbox would run | `air sandbox preview --adapter bubblewrap -- python job.py` |
 | See everything that needs a decision, most severe first | `air triage sweep` then `air triage list --overdue` |
 | Acknowledge, assign or close an item | `air triage ack <id> --by …`, `air triage resolve <id> --by … --reason … --evidence ledger:<seq>` |
 | List declared models | `air models` |

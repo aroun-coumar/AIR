@@ -147,3 +147,28 @@ evidence spine ties everything together.
 `provenance` depend on `contracts`/`core`; `runtime` and `agents` use `provenance.tracing`.
 `hardware` depends on `contracts` and `core`. `integrations` depend only on public
 protocols (`plugins`, `contracts`). Nothing in the core imports an integration.
+
+## Enforcing sandboxes and agent tool policy
+
+```
+ model tool call
+   -> allowlist -> argument schema -> authority
+   -> command policy (ar.command_policy: allow / prompt / forbidden, strictest wins)
+   -> risk analyzers (side effect, policy, pattern; worst wins; UNKNOWN confirms)
+   -> approval gate (bound to call id + tool + argument digest, single-use;
+                     approve / reject / escalate chain, default reject; dont_ask = deny)
+   -> sandbox adapter (strict refuses, best_effort records what was not applied)
+        local (rlimits / Windows job object) · bubblewrap · landlock · seatbelt
+        · container · remote/microVM (placement recorded; restricted data refused)
+        network: none | any | proxy -> EgressProxy (deny inward ranges, DNS-pinned
+                 allowlist, secret placeholders substituted only for allowed hosts)
+   -> RunResult: applied, not_applied, unenforced, egress events, violations
+   -> ledger: work.sandbox, work.approval (steps), work.tool_call (risk, policy)
+```
+
+- Each adapter declares what it enforces. Its command line is built by a pure function
+  (`bwrap_argv`, `landrun_argv`, `seatbelt_profile`) and run by an injectable
+  `ProcessRunner`.
+- `air sandbox probe` lists the adapters available on this host and what each enforces.
+  `air sandbox preview` prints the command an adapter would run.
+- See [ADR 0017](decisions/0017-enforcing-sandboxes.md).

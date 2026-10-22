@@ -7,6 +7,7 @@ from enum import StrEnum
 
 from ..agents.providers.base import Location
 from ..core.schema import Contract, contract
+from .execpolicy import CommandPolicy
 from .sandbox import SandboxPolicy
 
 __requirements__ = ("AIR01", "AIR03", "REQ02", "REQ04", "REQ11", "REQ16", "REQ17")
@@ -33,6 +34,20 @@ class SideEffect(StrEnum):
     PROMOTE = "promote"      # turns a proposal into an accepted change
 
 
+class Risk(StrEnum):
+    """Risk an analyzer assigns to a tool call; UNKNOWN means it could not tell."""
+
+    LOW = "low"
+    MEDIUM = "medium"
+    HIGH = "high"
+    UNKNOWN = "unknown"
+
+
+class ApprovalMode(StrEnum):
+    ASK = "ask"            # consult the approver chain
+    DONT_ASK = "dont_ask"  # unattended: every ask becomes a deny
+
+
 class DataClass(StrEnum):
     PUBLIC = "public"
     INTERNAL = "internal"
@@ -54,7 +69,7 @@ class ModelConstraints:
     prefer: tuple[str, ...] = ()
 
 
-@contract("work_task", version="1.0")
+@contract("work_task", version="1.1")
 class WorkTask(Contract):
     task_id: str
     kind: WorkKind
@@ -71,6 +86,16 @@ class WorkTask(Contract):
     sandbox: SandboxPolicy = field(default_factory=SandboxPolicy)
     models: ModelConstraints = field(default_factory=ModelConstraints)
     robot_id: str | None = None           # the robot the work concerns, if any
+    # 1.1: command rules for `run` (added to the built-in rules; strictest wins), the
+    # risk level at which a call needs confirmation (UNKNOWN always does), and whether
+    # anyone is there to ask (dont_ask turns every ask into a deny).
+    command_policy: CommandPolicy | None = None
+    confirm_risk: Risk = Risk.HIGH
+    approval_mode: ApprovalMode = ApprovalMode.ASK
+
+    def __post_init__(self) -> None:
+        if self.confirm_risk is Risk.UNKNOWN:
+            raise ValueError("confirm_risk cannot be 'unknown' (unknown risk always confirms)")
 
 
 class ProposalKind(StrEnum):

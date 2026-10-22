@@ -23,7 +23,7 @@ from __future__ import annotations
 import hashlib
 import json
 import time
-from collections.abc import Awaitable, Callable, Mapping
+from collections.abc import Callable, Mapping, Sequence
 from dataclasses import dataclass, field
 from enum import StrEnum
 from typing import Any
@@ -43,7 +43,26 @@ from ..provenance.model import ActivityKind
 from ..provenance.project import Project
 from ..runtime.authority import AuthorityService
 from ..runtime.runtime import Runtime
-from .contracts import DataClass, Proposal, ProposalStatus, SideEffect, WorkKind, WorkTask
+from .approval import (
+    BYPASS_IMMUNE_EFFECTS,
+    AllowRule,
+    ApprovalGate,
+    ApprovalRequest,
+    Approver,
+    Grant,
+    deny_all,
+)
+from .contracts import (
+    ApprovalMode,
+    DataClass,
+    Proposal,
+    ProposalStatus,
+    Risk,
+    WorkKind,
+    WorkTask,
+)
+from .execpolicy import DEFAULT_COMMAND_POLICY, CommandDecision, CommandPolicy
+from .risk import DEFAULT_ANALYZERS, CallView, ConfirmRisky, RiskAnalyzer, assess
 from .sandbox import Sandbox, SandboxError, SandboxPolicy, default_sandbox
 from .tools import ALL_TOOLS, DEFAULT_TOOLS, ToolOutput, WorkContext, WorkTool, validate_args
 
@@ -56,30 +75,6 @@ ACTIVITY_KIND = {WorkKind.RESEARCH: ActivityKind.RESEARCH,
                  WorkKind.EVALUATION: ActivityKind.EVALUATION,
                  WorkKind.MAINTENANCE: ActivityKind.MAINTENANCE,
                  WorkKind.DIAGNOSIS: ActivityKind.DIAGNOSIS}
-
-
-@dataclass(frozen=True)
-class ApprovalRequest:
-    task_id: str
-    call_id: str
-    tool: str
-    side_effect: SideEffect
-    arguments: dict[str, Any]
-    principal: str
-
-
-@dataclass(frozen=True)
-class Decision:
-    approved: bool
-    approver: str
-    reason: str = ""
-
-
-Approver = Callable[[ApprovalRequest], Awaitable[Decision]]
-
-
-async def deny_all(request: ApprovalRequest) -> Decision:
-    return Decision(False, "policy:default-deny", "no approver configured")
 
 
 class WorkStatus(StrEnum):
@@ -126,23 +121,38 @@ def _digest(value: Any) -> str:
 class WorkAgent:
     def __init__(self, project: Project, router: ModelRouter, *,
                  principal: str = "agent:work",
-                 approver: Approver = deny_all,
+                 approver: Approver | Sequence[Approver] = deny_all,
                  authority: AuthorityService | None = None,
                  delegation_id: str | None = None,
                  sandbox_factory: Callable[[SandboxPolicy], Sandbox] = default_sandbox,
                  runtime: Runtime | None = None,
                  robot_delegation_id: str | None = None,
-                 tools: Mapping[str, WorkTool] | None = None) -> None:
+                 tools: Mapping[str, WorkTool] | None = None,
+                 allow_rules: Sequence[AllowRule] = (),
+                 grants: Sequence[Grant] = (),
+                 unattended: bool = False,
+                 command_policy: CommandPolicy = DEFAULT_COMMAND_POLICY,
+                 analyzers: Sequence[RiskAnalyzer] = DEFAULT_ANALYZERS) -> None:
         self.project = project
         self.router = router
         self.principal = principal
-        self.approver = approver
+        self.approvers: tuple[Approver, ...] = tuple(approver) \
+            if isinstance(approver, Sequence) else (approver,)
+        self.allow_rules = tuple(allow_rules)
+        self.grants = list(grants)
+        self.unattended = unattended
+        self.command_policy = command_policy
+        self.analyzers = tuple(analyzers)
         self.authority = authority
         self.delegation_id = delegation_id
         self.sandbox_factory = sandbox_factory
         self.runtime = runtime
         self.robot_delegation_id = robot_delegation_id
         self.tools = dict(tools or ALL_TOOLS)
+
+    @property
+    def approver(self) -> Approver:
+        return self.approvers[0]
 
     def model_policy(self, task: WorkTask) -> ModelPolicy:
         egress = task.models.allow_data_egress and \
@@ -175,15 +185,31 @@ class WorkAgent:
                 result.problems.append(str(exc))
                 act.fail(f"sandbox refused: {exc}")
                 return result
+            caps = sandbox.capabilities
+            self.project.ledger.append("work.sandbox", act.activity_id, {
+                "isolation": caps.isolation.value,
+                "enforced": sorted(caps.enforced),
+                "unenforced": caps.unenforced(),
+                "not_applied": list(getattr(sandbox, "not_applied", [])),
+                "applied": list(caps.applied), "placement": caps.placement.value,
+                "landlock_abi": caps.landlock_abi,
+                "data_leaves_device": caps.data_leaves_device,
+                "mode": sandbox.policy.mode.value,
+                "detail": caps.detail,
+                "policy": sandbox.policy.to_dict()})
+            if caps.data_leaves_device and task.data_classification is DataClass.RESTRICTED:
+                sandbox.close()
+                result.status = WorkStatus.SANDBOX_REFUSED
+                result.problems.append("restricted data cannot be sent to a "
+                                       f"{caps.placement.value} sandbox")
+                act.fail("sandbox refused: restricted data would leave the device")
+                return result
+            mode = ApprovalMode.DONT_ASK if self.unattended else task.approval_mode
             ctx = WorkContext(task=task, sandbox=sandbox, project=self.project, activity=act,
                               principal=self.principal, runtime=self.runtime,
-                              robot_delegation_id=self.robot_delegation_id)
-            self.project.ledger.append("work.sandbox", act.activity_id, {
-                "isolation": sandbox.capabilities.isolation.value,
-                "enforced": sorted(sandbox.capabilities.enforced),
-                "unenforced": sandbox.capabilities.unenforced(),
-                "detail": sandbox.capabilities.detail,
-                "policy": sandbox.policy.to_dict()})
+                              robot_delegation_id=self.robot_delegation_id,
+                              gate=ApprovalGate(self.approvers, mode, self.allow_rules,
+                                                list(self.grants)))
             try:
                 await self._loop(task, ctx, allowed, result, started)
             finally:
@@ -260,42 +286,112 @@ class WorkAgent:
             "refusal_category": turn.refusal_category})
 
     async def _call(self, ctx: WorkContext, allowed: tuple[str, ...], call_id: str,
-                    name: str, args: dict[str, Any]) -> ToolOutcome:
+                    name: str, args: Any) -> ToolOutcome:
+        """allowlist -> arguments -> authority -> command policy -> risk -> approval (bound,
+        single-use) -> execution in the sandbox -> ledger entry."""
         started = time.monotonic()
         tool = self.tools.get(name)
-        decision: Decision | None = None
+        unparseable = not isinstance(args, dict) or "__invalid_json__" in args
+        record_args: dict[str, Any] = args if isinstance(args, dict) else \
+            {"__invalid_json__": str(args)}
+        digest = _digest(record_args)
         output: ToolOutput
+        evidence: dict[str, Any] = {}
         with tracing.span(f"tool:{name}"):
-            if tool is None or name not in allowed:
+            if call_id in ctx.seen_calls:
+                output = ToolOutput(f"call id '{call_id}' was already put to approval; an "
+                                    "approval is single-use", is_error=True)
+            elif tool is None or name not in allowed:
                 output = ToolOutput(f"tool '{name}' is not available for this task",
                                     is_error=True)
-            elif problems := validate_args(tool.input_schema, args):
+            elif not unparseable and (problems := validate_args(tool.input_schema, args)):
                 output = ToolOutput("invalid arguments: " + "; ".join(problems), is_error=True)
             elif (denied := self._authority_problem(ctx.task, tool)) is not None:
                 output = ToolOutput(f"not authorized: {denied}", is_error=True)
             else:
-                if tool.side_effect in ctx.task.approval_required:
-                    decision = await self.approver(ApprovalRequest(
-                        ctx.task.task_id, call_id, name, tool.side_effect, dict(args),
-                        self.principal))
-                    self.project.ledger.append("work.approval", ctx.activity.activity_id, {
-                        "call_id": call_id, "tool": name, "side_effect": tool.side_effect.value,
-                        "arguments_digest": _digest(args), "approved": decision.approved,
-                        "approver": decision.approver, "reason": decision.reason})
-                if decision is not None and not decision.approved:
-                    output = ToolOutput(f"approval denied by {decision.approver}: "
-                                        f"{decision.reason}", is_error=True)
-                else:
-                    try:
-                        output = await tool.run(ctx, args)
-                    except (SandboxError, FrameworkError, OSError, ValueError) as exc:
-                        output = ToolOutput(f"{type(exc).__name__}: {exc}", is_error=True)
+                output = await self._guarded(ctx, tool, call_id, record_args, digest,
+                                             unparseable, evidence)
         self.project.ledger.append("work.tool_call", ctx.activity.activity_id, {
             "call_id": call_id, "tool": name,
             "side_effect": tool.side_effect.value if tool else None,
-            "arguments_digest": _digest(args), "ok": not output.is_error,
-            "duration_s": round(time.monotonic() - started, 3), "data": output.data})
+            "arguments_digest": digest, "ok": not output.is_error,
+            "duration_s": round(time.monotonic() - started, 3), "data": output.data,
+            **evidence})
         return ToolOutcome(call_id, output.content, output.is_error)
+
+    def _policy(self, task: WorkTask) -> CommandPolicy:
+        return self.command_policy.merged(task.command_policy)
+
+    async def _guarded(self, ctx: WorkContext, tool: WorkTool, call_id: str,
+                       args: dict[str, Any], digest: str, unparseable: bool,
+                       evidence: dict[str, Any]) -> ToolOutput:
+        task = ctx.task
+        argv = None if unparseable else tool.command(args)
+        cmd = self._policy(task).evaluate(argv) if argv else None
+        if cmd is not None:
+            evidence["command_policy"] = cmd.to_dict()
+            if cmd.decision is CommandDecision.FORBIDDEN:
+                return ToolOutput(f"forbidden by command policy: {cmd.justification}",
+                                  is_error=True)
+        risk, assessments = assess(CallView(tool.name, tool.side_effect, args, unparseable,
+                                            cmd), self.analyzers)
+        evidence["risk"] = risk.value
+        evidence["risk_assessments"] = [a.to_dict() for a in assessments]
+        reasons: list[str] = []
+        if tool.side_effect in task.approval_required:
+            reasons.append(f"side effect '{tool.side_effect.value}' requires approval")
+        if unparseable:
+            reasons.append("arguments could not be parsed")
+        if cmd is not None and cmd.decision is CommandDecision.PROMPT:
+            reasons.append(f"command policy asks: {cmd.justification}")
+        if ConfirmRisky(task.confirm_risk).should_confirm(risk):
+            reasons.append(f"risk {risk.value}")
+        if not reasons:
+            return await self._execute(ctx, tool, args)
+        immune = tool.side_effect in BYPASS_IMMUNE_EFFECTS or unparseable or \
+            risk in (Risk.HIGH, Risk.UNKNOWN) or \
+            (cmd is not None and cmd.decision is CommandDecision.PROMPT)
+        gate: ApprovalGate = ctx.gate
+        ctx.seen_calls.add(call_id)  # an approval decision covers this call id once
+        request = ApprovalRequest(task.task_id, call_id, tool.name, tool.side_effect,
+                                  dict(args), self.principal, digest, tuple(reasons), risk,
+                                  immune)
+        with tracing.span("approval"):
+            resolution = await gate.resolve(request)
+        self.project.ledger.append("work.approval", ctx.activity.activity_id, {
+            "call_id": call_id, "tool": tool.name, "side_effect": tool.side_effect.value,
+            "arguments_digest": digest, "approved": resolution.approved,
+            "approver": resolution.approver, "reason": resolution.reason,
+            "reasons": reasons, "risk": risk.value, "bypass_immune": immune,
+            "mode": gate.mode.value, "steps": [st.to_dict() for st in resolution.steps],
+            "edited": resolution.edited_arguments is not None})
+        if not resolution.approved:
+            return ToolOutput(f"approval denied by {resolution.approver}: {resolution.reason}",
+                              is_error=True)
+        if resolution.edited_arguments is None:
+            if unparseable:
+                return ToolOutput("arguments could not be parsed; nothing ran", is_error=True)
+            return await self._execute(ctx, tool, args)
+        edited = resolution.edited_arguments
+        if problems := validate_args(tool.input_schema, edited):
+            return ToolOutput("edited arguments are invalid: " + "; ".join(problems),
+                              is_error=True)
+        edited_argv = tool.command(edited)
+        if edited_argv and self._policy(task).evaluate(edited_argv).decision is \
+                CommandDecision.FORBIDDEN:
+            return ToolOutput("edited command is forbidden by command policy", is_error=True)
+        evidence["executed_arguments_digest"] = _digest(edited)
+        out = await self._execute(ctx, tool, edited)
+        out.content = (f"[approver edited the call; executed with arguments "
+                       f"{json.dumps(edited)}]\n{out.content}")
+        return out
+
+    async def _execute(self, ctx: WorkContext, tool: WorkTool,
+                       args: dict[str, Any]) -> ToolOutput:
+        try:
+            return await tool.run(ctx, args)
+        except (SandboxError, FrameworkError, OSError, ValueError) as exc:
+            return ToolOutput(f"{type(exc).__name__}: {exc}", is_error=True)
 
     def _authority_problem(self, task: WorkTask, tool: WorkTool) -> str | None:
         if self.authority is None or self.delegation_id is None:
