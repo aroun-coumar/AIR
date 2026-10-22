@@ -21,6 +21,8 @@ from ..robot import Robot
 from .authority import AuthorityService
 from .resources import ResourceManager
 
+__requirements__ = ("REQ12", "REQ13", "REQ17")
+
 
 @dataclass
 class AdmissionContext:

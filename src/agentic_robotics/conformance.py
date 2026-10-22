@@ -20,6 +20,8 @@ from .plugins import ExecutionContext
 from .robot import Robot
 from .skills import SkillRegistry
 
+__requirements__ = ("REQ03", "REQ18")
+
 
 @dataclass
 class CheckOutcome:

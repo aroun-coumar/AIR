@@ -24,6 +24,8 @@ from typing import Any, ClassVar, TypeVar, Union, get_args, get_origin
 
 from .errors import IncompatibleSchemaVersion, SchemaError
 
+__requirements__ = ("REQ01", "REQ18")
+
 SCHEMA_KEY = "$schema"
 SCHEMA_NAMESPACE = "ar"
 

@@ -11,6 +11,8 @@ from enum import StrEnum
 
 from ..core.schema import Contract, contract
 
+__requirements__ = ("REQ01", "REQ06", "REQ09")
+
 
 class Occupancy(StrEnum):
     UNKNOWN = "unknown"

@@ -12,6 +12,8 @@ from enum import StrEnum
 
 from ..core.schema import Contract, contract
 
+__requirements__ = ("REQ01", "REQ13")
+
 
 class ProfileStatus(StrEnum):
     AVAILABLE = "available"

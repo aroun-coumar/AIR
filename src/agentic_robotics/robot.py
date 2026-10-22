@@ -10,6 +10,8 @@ from .contracts.manifest import ComponentManifest
 from .contracts.observation import Observation
 from .plugins import RobotAdapter, create_adapter
 
+__requirements__ = ("REQ05",)
+
 
 class Robot:
     def __init__(self, manifest: ComponentManifest, adapter: RobotAdapter) -> None:

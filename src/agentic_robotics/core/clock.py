@@ -12,6 +12,8 @@ from dataclasses import dataclass
 from enum import StrEnum
 from typing import Protocol, runtime_checkable
 
+__requirements__ = ("REQ01", "REQ12")
+
 
 class SyncState(StrEnum):
     LOCKED = "locked"

@@ -6,6 +6,9 @@ from agentic_robotics import AuthorityService, Delegation, ManualClock, Resource
 from agentic_robotics.contracts import Occupancy, ReservationState
 from agentic_robotics.core import AuthorityError, ResourceConflict
 
+pytestmark = pytest.mark.req("REQ17", "G12")
+ownership = pytest.mark.req("G06", "REQ09", "REQ06")
+
 
 def service() -> tuple[ManualClock, AuthorityService]:
     clock = ManualClock()
@@ -65,6 +68,7 @@ def test_expiry_is_enforced() -> None:
         auth.check("lead", "agent:lead", "r1", "any")
 
 
+@ownership
 def test_fencing_tokens_increase_and_supersede() -> None:
     rm = ResourceManager(ManualClock())
     a = rm.reserve("station", "agent:a")
@@ -78,6 +82,7 @@ def test_fencing_tokens_increase_and_supersede() -> None:
     assert rm.validate_fence("station", b.fencing_token, "agent:a") == "not_reservation_holder"
 
 
+@ownership
 def test_logical_release_does_not_imply_physical_vacancy() -> None:
     rm = ResourceManager(ManualClock())
     r = rm.reserve("station", "agent:a")
@@ -87,6 +92,7 @@ def test_logical_release_does_not_imply_physical_vacancy() -> None:
     assert rm.occupancy("station") is Occupancy.OCCUPIED
 
 
+@ownership
 def test_lease_expiry_frees_logical_ownership() -> None:
     clock = ManualClock()
     rm = ResourceManager(clock)

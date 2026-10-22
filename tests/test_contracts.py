@@ -33,6 +33,8 @@ from agentic_robotics.integrations.fake import fake_skill_set
 
 EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
 
+pytestmark = pytest.mark.req("REQ01", "F02")
+
 
 def obs(signal: str, value: object, t: float = 0.0, **kw: object) -> Observation:
     return Observation(source="s", signal=signal, value=value, clock_domain="sim",

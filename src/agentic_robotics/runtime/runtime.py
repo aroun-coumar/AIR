@@ -33,6 +33,7 @@ from ..core.errors import (
     UnsupportedOperation,
 )
 from ..plugins import AdapterReport, ExecutionContext, InterruptReport
+from ..provenance import tracing
 from ..robot import Robot
 from ..skills import SkillRegistry
 from .admission import DEFAULT_CHECKS, DISPATCH_CHECKS, AdmissionCheck, AdmissionContext
@@ -40,6 +41,8 @@ from .authority import AuthorityService
 from .resources import ResourceManager
 from .state import check_transition
 from .trace import Trace
+
+__requirements__ = ("REQ05", "REQ07", "REQ12", "REQ14", "REQ17")
 
 S = CommandState
 
@@ -57,6 +60,7 @@ class CommandHandle:
         self.cancel_requested = False
         self.queued = False
         self.inflight = False
+        self.trace_id: str | None = None
         self.interrupt_report: InterruptReport | None = None
         self._runtime = runtime
         self._done = asyncio.Event()
@@ -98,6 +102,7 @@ class Runtime:
         resources: ResourceManager | None = None,
         checks: Sequence[AdmissionCheck] = DEFAULT_CHECKS,
         trace: Trace | None = None,
+        debug: bool = False,
     ) -> None:
         self.clock = clock or MonotonicClock()
         self.skills = skills
@@ -105,6 +110,18 @@ class Runtime:
         self.resources = resources or ResourceManager(self.clock)
         self.checks = tuple(checks)
         self.trace = trace or Trace(self.clock)
+        self.debug = debug
+        self.authority.on_grant(lambda d: self.trace.record(
+            "authority_granted", d.delegation_id, grantor=d.grantor, grantee=d.grantee,
+            robots=d.robots, skills=d.skills, parent_id=d.parent_id,
+            revision=self.authority.revision))
+        self.authority.on_revocation(lambda ids: self.trace.record(
+            "authority_revoked", ",".join(sorted(ids)), delegations=sorted(ids),
+            revision=self.authority.revision))
+        self.resources.on_change(lambda r: self.trace.record(
+            f"reservation_{r.state.value}", r.resource, reservation_id=r.reservation_id,
+            holder=r.holder, fencing_token=r.fencing_token,
+            physical_occupancy=r.physical_occupancy.value))
         self._robots: dict[str, Robot] = {}
         self._handles: dict[str, CommandHandle] = {}
         self._active: dict[str, CommandHandle] = {}
@@ -159,6 +176,12 @@ class Runtime:
         return self._handles[command_id]
 
     def submit(self, command: Command) -> CommandHandle:
+        """Submit a command. Each command gets its own span; a ``command.trace_id``
+        received from another participant joins that trace."""
+        with tracing.span(f"command:{command.skill_id}", trace_id=command.trace_id):
+            return self._submit(command)
+
+    def _submit(self, command: Command) -> CommandHandle:
         existing = self._handles.get(command.command_id)
         if existing is not None:
             if existing.command.same_request(command):
@@ -169,6 +192,8 @@ class Runtime:
                                     command_id=command.command_id)
 
         handle = CommandHandle(command, self)
+        ctx = tracing.current()
+        handle.trace_id = ctx.trace_id if ctx else None
         self._handles[command.command_id] = handle
         self.trace.record("submitted", command.command_id, robot_id=command.robot_id,
                           skill_id=command.skill_id, issued_by=command.issued_by,
@@ -207,9 +232,32 @@ class Runtime:
             authority=self.authority, resources=self.resources,
             capability=robot.capability_report(), observations=robot.observe(),
         )
-        for check in checks:
-            check(ctx)
+        try:
+            for check in checks:
+                check(ctx)
+        except AdmissionRejected:
+            if self.debug:
+                self._snapshot(ctx)
+            raise
         return skill
+
+    def _snapshot(self, ctx: AdmissionContext) -> None:
+        """Debug mode: record exactly what admission saw when it rejected a command."""
+        now = self.clock.now()
+        self.trace.record(
+            "admission_snapshot", ctx.command.command_id,
+            clock=self.clock.status().sync_state.value,
+            capability_revision=ctx.capability.capability_revision,
+            capability_age_s=round(ctx.capability.age(now), 4),
+            profiles={p.name: {"status": p.status.value,
+                               "limiting_factors": list(p.limiting_factors)}
+                      for p in ctx.capability.profiles},
+            observations={k: {"value": o.value, "age_s": round(o.age(now), 4),
+                              "quality": o.quality.value}
+                          for k, o in ctx.observations.items()},
+            authority_revision=self.authority.revision,
+            max_input_age_s=ctx.skill.execution.max_input_age_s,
+        )
 
     def _reject(self, handle: CommandHandle, rejection: AdmissionRejected) -> None:
         handle.rejection = rejection

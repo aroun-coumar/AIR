@@ -9,6 +9,8 @@ from ..core.errors import SchemaError
 from ..core.schema import Contract, contract
 from ..core.units import dimension_of
 
+__requirements__ = ("REQ01", "REQ12")
+
 
 class Quality(StrEnum):
     GOOD = "good"

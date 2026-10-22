@@ -10,6 +10,8 @@ from ..core.clock import SyncState
 from ..core.errors import SchemaError
 from ..core.schema import Contract, contract
 
+__requirements__ = ("REQ01", "REQ07", "REQ12")
+
 
 class QueuePolicy(StrEnum):
     REJECT_IF_BUSY = "reject_if_busy"
@@ -75,8 +77,10 @@ _TERMINAL = {CommandState.REJECTED, CommandState.VERIFIED, CommandState.FAILED,
              CommandState.CANCELLED}
 
 
-@contract("command", version="1.0")
+@contract("command", version="1.1")
 class Command(Contract):
+    """1.1 adds ``trace_id`` for causal tracing across participants (compatible)."""
+
     command_id: str
     robot_id: str
     skill_id: str
@@ -88,6 +92,7 @@ class Command(Contract):
     fencing: dict[str, int] = field(default_factory=dict)
     task_id: str | None = None
     plan_id: str | None = None
+    trace_id: str | None = None
 
     def same_request(self, other: Command) -> bool:
         """True when ``other`` is a retransmission of this command (for deduplication)."""

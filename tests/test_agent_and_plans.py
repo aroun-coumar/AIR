@@ -14,6 +14,10 @@ from .conftest import AGENT, Env
 
 MakeEnv = Callable[..., Env]
 
+pytestmark = pytest.mark.req("REQ05", "REQ07")
+context_reuse = pytest.mark.req("REQ08", "G08")
+ownership = pytest.mark.req("G06", "REQ09")
+
 
 def plan_json(*steps: dict) -> str:
     return json.dumps({"rationale": "test", "steps": list(steps)})
@@ -62,6 +66,7 @@ async def test_agent_rejects_non_json(make_env: MakeEnv) -> None:
         await agent(env, "sure! I'll dock first").plan("g", [env.robot])
 
 
+@context_reuse
 async def test_tools_offered_to_model_are_limited_to_supported_skills(make_env: MakeEnv) -> None:
     env = make_env(camera=False)
     model = ScriptedModel([plan_json(DOCK)])
@@ -70,6 +75,7 @@ async def test_tools_offered_to_model_are_limited_to_supported_skills(make_env: 
     assert offered == {"navigate_to", "dock_at"}
 
 
+@context_reuse
 async def test_plan_reuse_avoids_repeat_model_calls_until_capability_changes(
         make_env: MakeEnv) -> None:
     env = make_env()
@@ -83,6 +89,7 @@ async def test_plan_reuse_avoids_repeat_model_calls_until_capability_changes(
     assert a.stats.model_calls == 2
 
 
+@context_reuse
 async def test_model_call_budget_is_enforced(make_env: MakeEnv) -> None:
     env = make_env()
     a = agent(env, plan_json(DOCK), budget=AgentBudget(max_model_calls=1), reuse_plans=False)
@@ -91,6 +98,7 @@ async def test_model_call_budget_is_enforced(make_env: MakeEnv) -> None:
         await a.plan("dock", [env.robot])
 
 
+@ownership
 async def test_plan_executes_with_fencing_and_releases_after_verification(
         make_env: MakeEnv) -> None:
     env = make_env()
@@ -114,6 +122,7 @@ async def test_plan_stops_on_failure(make_env: MakeEnv) -> None:
     assert result.steps["t2"].reason == "capability_unavailable"
 
 
+@ownership
 async def test_unresolved_step_keeps_its_reservation(make_env: MakeEnv) -> None:
     env = make_env()
     env.adapter.inject("lose_link_after_motion")
@@ -126,6 +135,7 @@ async def test_unresolved_step_keeps_its_reservation(make_env: MakeEnv) -> None:
     assert env.runtime.resources.holder("station_a") is not None
 
 
+@ownership
 async def test_plan_blocked_by_resource_held_elsewhere(make_env: MakeEnv) -> None:
     env = make_env()
     env.runtime.resources.reserve("station_a", "agent:other")

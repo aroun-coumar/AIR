@@ -15,6 +15,8 @@ from typing import Any
 from ..contracts.observation import Quality
 from ..robot import Robot
 
+__requirements__ = ("REQ08",)
+
 
 class ContextBuilder:
     def __init__(self, stale_after_s: float = 2.0) -> None:

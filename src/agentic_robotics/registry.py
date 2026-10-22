@@ -20,6 +20,8 @@ from .core.errors import SchemaError
 from .core.ids import is_valid_id
 from .core.schema import SCHEMA_KEY, Contract, load_any
 
+__requirements__ = ("REQ10", "REQ18")
+
 
 @dataclass(frozen=True)
 class AssetRef:

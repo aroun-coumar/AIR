@@ -14,6 +14,8 @@ from ..core.clock import Clock
 from ..core.errors import ResourceConflict
 from ..core.ids import new_id
 
+__requirements__ = ("REQ06", "REQ09")
+
 
 class ResourceManager:
     def __init__(self, clock: Clock) -> None:
@@ -22,9 +24,9 @@ class ResourceManager:
         self._current: dict[str, ResourceReservation] = {}
         self._occupancy: dict[str, Occupancy] = {}
         self._by_id: dict[str, ResourceReservation] = {}
-        self._listeners: list[Callable[[ResourceReservation], None]] = []
+        self._listeners: list[Callable[[ResourceReservation], object]] = []
 
-    def on_change(self, listener: Callable[[ResourceReservation], None]) -> None:
+    def on_change(self, listener: Callable[[ResourceReservation], object]) -> None:
         self._listeners.append(listener)
 
     def reserve(self, resource: str, holder: str, lease_s: float | None = None,

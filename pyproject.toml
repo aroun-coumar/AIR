@@ -26,7 +26,12 @@ dependencies = []
 dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6", "mypy>=1.11"]
 
 [project.scripts]
+air = "agentic_robotics.cli:main"
 agentic-robotics = "agentic_robotics.cli:main"
+
+# Requirement evidence from test runs; inert unless --air-evidence is passed.
+[project.entry-points.pytest11]
+air = "agentic_robotics.testing.pytest_plugin"
 
 # Third-party adapters register themselves here; see agentic_robotics.plugins.
 [project.entry-points."agentic_robotics.adapters"]

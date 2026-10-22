@@ -14,7 +14,9 @@ from ..contracts.authority import Delegation
 from ..core.clock import Clock
 from ..core.errors import AuthorityError
 
-RevocationListener = Callable[[frozenset[str]], None]
+__requirements__ = ("REQ17",)
+
+RevocationListener = Callable[[frozenset[str]], object]
 
 
 class AuthorityService:
@@ -26,6 +28,7 @@ class AuthorityService:
         self._changed_at: dict[str, int] = {}
         self._revision = 0
         self._listeners: list[RevocationListener] = []
+        self._grant_listeners: list[Callable[[Delegation], object]] = []
 
     @property
     def revision(self) -> int:
@@ -33,6 +36,9 @@ class AuthorityService:
 
     def on_revocation(self, listener: RevocationListener) -> None:
         self._listeners.append(listener)
+
+    def on_grant(self, listener: Callable[[Delegation], object]) -> None:
+        self._grant_listeners.append(listener)
 
     # -- grant / revoke ------------------------------------------------------------
     def grant(self, delegation: Delegation) -> Delegation:
@@ -57,6 +63,8 @@ class AuthorityService:
         self._revision += 1
         self._delegations[d.delegation_id] = d
         self._changed_at[d.delegation_id] = self._revision
+        for listener in list(self._grant_listeners):
+            listener(d)
         return d
 
     def revoke(self, delegation_id: str, reason: str = "") -> frozenset[str]:

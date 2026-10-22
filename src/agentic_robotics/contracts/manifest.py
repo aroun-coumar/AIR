@@ -9,6 +9,8 @@ from ..core.errors import SchemaError
 from ..core.ids import is_valid_id
 from ..core.schema import Contract, contract
 
+__requirements__ = ("REQ01", "REQ03", "REQ16")
+
 
 @dataclass(frozen=True)
 class InterfaceSpec:

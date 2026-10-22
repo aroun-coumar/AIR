@@ -31,6 +31,41 @@ async with runtime:
 | **Tool** | `agentic-robotics` CLI: validate documents, list schemas and adapters, run adapter conformance, use the registry, run the quickstart. | `.cli`, `.conformance` |
 | **Platform** | Content-addressed, immutable asset registry for manifests, skills, plans and policies. Works on a local directory today; a hosted registry or workbench implements the same `AssetRegistry` interface. | `.registry` |
 
+## Traceability, provenance and maintenance for every project
+
+Every project built on AIR gets a provenance store (`air init --baseline`). Every
+research, development, simulation, experiment, evaluation, release, deployment,
+maintenance, calibration and incident activity is recorded together with its inputs,
+outputs, environment and requirement links.
+
+```python
+from agentic_robotics.provenance import Project
+
+project = Project.open(".", create=True)
+with project.activity("simulation", "handoff under 200 ms delay",
+                      requirements=["REQ12"], params={"seed": 7}) as act:
+    scenario = act.use("scenarios/handoff.json", kind="scenario")
+    ...                                            # run the simulation
+    act.generate("results/run-17.json", kind="report", derived_from=[scenario])
+    act.metric("success_rate", 0.97)
+
+runtime.trace.add_sink(project.runtime_sink())     # runtime evidence -> same ledger
+```
+
+| Capability | How |
+|---|---|
+| Tamper-evident ledger | `.air/ledger.jsonl` is hash-chained; `air ledger verify` detects edits, deletions and reordering |
+| Causal tracing | trace and span ids link agent decision → plan → command → verification; `Command.trace_id` crosses boundaries |
+| Lineage | `air lineage <file-or-entity>` (where it came from), `air impact <entity>` (what depends on it) |
+| Maintenance | `air maintenance record --robot … --component … --replace OLD=NEW --check test=pass`: replaced components keep their lineage, invalidated calibration is recorded |
+| Experiments | `Project.record_experiment(ExperimentRecord(...))`: hypothesis, backend and version, seed, settings, results, acceptance |
+| Debugging | `air trace show`, `air trace explain <command-id>` (why rejected or unresolved, and what to do next); `Runtime(debug=True)` snapshots what admission saw |
+| Requirements | `__requirements__` in code + `@pytest.mark.req(...)` in tests + `pytest --air-evidence` → `air requirements matrix --check` fails when a claimed status lacks evidence |
+| Context feeder | `air context --out docs/CONTEXT.md` regenerates a briefing (modules, contracts, requirement status, decisions, recent activity, ledger state); see also `CLAUDE.md` and `docs/` |
+
+This repository uses all of this on itself. Its `.air/` ledger records its own
+decisions, development and test runs.
+
 ## Getting started
 
 The project uses an isolated Python 3.12 environment managed by [uv](https://docs.astral.sh/uv/).

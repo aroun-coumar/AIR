@@ -11,6 +11,8 @@ from dataclasses import dataclass
 
 from .errors import FrameError, UnitError
 
+__requirements__ = ("REQ01",)
+
 # unit -> (dimension, scale to the SI base unit of that dimension)
 _UNITS: dict[str, tuple[str, float]] = {
     "1": ("dimensionless", 1.0),

@@ -28,6 +28,8 @@ from ..core.errors import UnsupportedOperation
 from ..core.ids import new_id
 from ..plugins import AdapterReport, ExecutionContext, InterruptReport, RobotAdapter
 
+__requirements__ = ("REQ03", "REQ13")
+
 
 def fake_skill_set() -> SkillSet:
     text = resources.files(__package__).joinpath("fake_skills.json").read_text("utf-8")

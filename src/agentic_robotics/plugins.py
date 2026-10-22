@@ -22,6 +22,8 @@ from .contracts.skill import SkillSpec
 from .core.clock import Clock
 from .core.errors import PluginError
 
+__requirements__ = ("REQ01", "REQ03", "REQ18")
+
 ENTRY_POINT_GROUP = "agentic_robotics.adapters"
 
 

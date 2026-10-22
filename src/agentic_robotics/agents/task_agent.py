@@ -6,6 +6,7 @@ here against the skill contracts and robot support, and again by runtime admissi
 
 from __future__ import annotations
 
+import hashlib
 import json
 from collections.abc import Sequence
 from dataclasses import dataclass
@@ -15,10 +16,14 @@ from ..contracts.skill import TaskPlan, TaskSpec
 from ..core.clock import Clock
 from ..core.errors import PlanError
 from ..core.ids import new_id
+from ..provenance import tracing
 from ..robot import Robot
+from ..runtime.trace import Trace
 from ..skills import SkillRegistry
 from .context import ContextBuilder
 from .model import ModelProvider, ModelRequest
+
+__requirements__ = ("REQ05", "REQ07", "REQ08")
 
 INSTRUCTIONS = (
     "You plan tasks for robots. Use only the listed tools. Respond with JSON only: "
@@ -44,7 +49,9 @@ class AgentStats:
 class TaskAgent:
     def __init__(self, model: ModelProvider, skills: SkillRegistry, clock: Clock, *,
                  name: str = "agent:task", budget: AgentBudget | None = None,
-                 context: ContextBuilder | None = None, reuse_plans: bool = True) -> None:
+                 context: ContextBuilder | None = None, reuse_plans: bool = True,
+                 trace: Trace | None = None) -> None:
+        self.trace = trace
         self.model = model
         self.skills = skills
         self.clock = clock
@@ -56,13 +63,40 @@ class TaskAgent:
         self._plan_cache: dict[str, TaskPlan] = {}
 
     async def plan(self, goal: str, robots: Sequence[Robot]) -> TaskPlan:
+        """Propose a plan. Every decision, accepted or not, is recorded as an
+        ``agent_decision`` trace event that opens the trace its plan's commands join."""
+        with tracing.span(f"decision:{self.name}") as ctx:
+            record: dict[str, Any] = {"agent": self.name, "model": self.model.name,
+                                      "goal": goal}
+            try:
+                plan = await self._plan(goal, robots, record)
+            except PlanError as exc:
+                self._record(record, outcome="rejected", error=exc.to_dict())
+                raise
+            plan = plan.evolve(trace_id=ctx.trace_id)
+            self._record(record, outcome="proposed", plan_id=plan.plan_id,
+                         steps=[f"{s.robot_id}:{s.skill_id}" for s in plan.steps],
+                         rationale=plan.rationale)
+            return plan
+
+    def _record(self, record: dict[str, Any], **extra: Any) -> None:
+        if self.trace is not None:
+            self.trace.record("agent_decision", self.name, **record, **extra)
+
+    async def _plan(self, goal: str, robots: Sequence[Robot],
+                    record: dict[str, Any]) -> TaskPlan:
         if not robots:
             raise PlanError("no robots supplied to plan for")
         fingerprint = self.context.fingerprint(goal, robots)
+        record["fingerprint"] = fingerprint
+        record["capability_revisions"] = {
+            r.robot_id: r.capability_report().capability_revision for r in robots}
         if self.reuse_plans and fingerprint in self._plan_cache:
             self.stats.cache_hits += 1
+            record["cache_hit"] = True
             cached = self._plan_cache[fingerprint]
             return cached.evolve(plan_id=new_id("plan"))
+        record["cache_hit"] = False
 
         if self.stats.model_calls >= self.budget.max_model_calls:
             raise PlanError("model-call budget exhausted", budget=self.budget.max_model_calls)
@@ -83,7 +117,10 @@ class TaskAgent:
                                tools=self.skills.tool_descriptions(all_supported))
         self.stats.model_calls += 1
         self.stats.context_chars += size
+        record.update(context_chars=size, context_digest=_digest(context),
+                      tools=[t["skill_id"] for t in request.tools])
         response = await self.model.complete(request)
+        record.update(response_digest=_digest(response.text), usage=response.usage)
         plan = self._parse(goal, response.text, {r.robot_id: r for r in robots})
         self._plan_cache[fingerprint] = plan
         return plan
@@ -132,6 +169,11 @@ class TaskAgent:
         return TaskPlan(plan_id=new_id("plan"), goal=goal, steps=tuple(steps),
                         produced_by=f"{self.name}/{self.model.name}",
                         rationale=str(data.get("rationale", "")))
+
+
+def _digest(value: Any) -> str:
+    text = value if isinstance(value, str) else json.dumps(value, sort_keys=True, default=str)
+    return "sha256:" + hashlib.sha256(text.encode("utf-8")).hexdigest()
 
 
 def _strip_fences(text: str) -> str:

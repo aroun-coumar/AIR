@@ -23,7 +23,13 @@ from .conftest import manifest
 ROOT = Path(__file__).resolve().parents[1]
 EXAMPLES = ROOT / "examples"
 
+pytestmark = pytest.mark.req("REQ18", "REQ01")
+reuse = pytest.mark.req("G01")
+conformance = pytest.mark.req("F06", "REQ03")
+integrity = pytest.mark.req("REQ10", "G15")
 
+
+@reuse
 def test_minimal_import_has_no_heavy_dependencies() -> None:
     code = ("import sys, agentic_robotics; heavy = {'numpy','torch','rclpy','langchain'}; "
             "print(sorted(heavy & set(sys.modules)))")
@@ -38,6 +44,7 @@ def test_fake_adapter_is_discovered_through_entry_points() -> None:
     assert adapter_class("fake") is FakeRobotAdapter
 
 
+@conformance
 async def test_fake_adapter_passes_conformance() -> None:
     robot = Robot.from_manifest(manifest())
     robot.adapter.bind_clock(MonotonicClock())
@@ -45,6 +52,7 @@ async def test_fake_adapter_passes_conformance() -> None:
     assert report.passed, report.summary()
 
 
+@conformance
 async def test_custom_adapter_guide_passes_conformance() -> None:
     sys.path.insert(0, str(EXAMPLES))
     try:
@@ -68,12 +76,14 @@ def test_cli_validate(capsys: pytest.CaptureFixture[str], tmp_path: Path) -> Non
     assert "missing required field" in capsys.readouterr().out
 
 
+@conformance
 def test_cli_conformance(capsys: pytest.CaptureFixture[str]) -> None:
     rc = cli(["conformance", str(EXAMPLES / "robots" / "carrier.manifest.json"),
               "--skills", str(EXAMPLES / "skills" / "manifest.json")])
     assert rc == 0, capsys.readouterr().out
 
 
+@reuse
 def test_cli_quickstart(capsys: pytest.CaptureFixture[str]) -> None:
     assert cli(["quickstart"]) == 0
     out = capsys.readouterr().out
@@ -81,6 +91,7 @@ def test_cli_quickstart(capsys: pytest.CaptureFixture[str]) -> None:
     assert "rejected: authority_revoked" in out
 
 
+@integrity
 def test_registry_publish_fetch_and_immutability(tmp_path: Path) -> None:
     reg = LocalRegistry(tmp_path)
     skills = fake_skill_set()
@@ -95,6 +106,7 @@ def test_registry_publish_fetch_and_immutability(tmp_path: Path) -> None:
     assert reg.versions("fake-skills") == ["1.0.0", "1.2.0", "1.10.0"]
 
 
+@integrity
 def test_registry_detects_tampering(tmp_path: Path) -> None:
     reg = LocalRegistry(tmp_path)
     reg.publish("policy", "1", Delegation(delegation_id="d", grantor="a", grantee="b"))

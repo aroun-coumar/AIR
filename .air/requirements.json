@@ -1,0 +1,859 @@
+{
+  "$schema": "ar.requirement_set/1.0",
+  "meta": {
+    "source": "Agentic Robotics Framework - Requirements and architecture baseline v0.1 (21 October 2026)",
+    "access_scope": "project",
+    "revision": 1,
+    "derived_from": []
+  },
+  "name": "agentic-robotics-baseline-0.1",
+  "requirements": [
+    {
+      "req_id": "REQ01",
+      "title": "Reusable tool, framework, library and optional platform embedded by downstream developers",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Public SDK and extension contracts",
+      "status": "verified",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ02",
+      "title": "End-to-end research, development, simulation, evaluation and implementation support",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Engineering and evaluation",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ03",
+      "title": "Coverage across the 19 hardware, software, infrastructure and environment domains",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Domain adapters and system model",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ04",
+      "title": "Agentic optimization and configuration down to hardware",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Engineering agents and optimization",
+      "status": "planned",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ05",
+      "title": "Agentic intelligence within individual robotic systems",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Agents, skills and local runtime",
+      "status": "verified",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ06",
+      "title": "Multiple software agents within a robot and coordination among physical robots",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Agent composition and team coordination",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ07",
+      "title": "Intelligent conversation leading to executable commitments and verified outcomes",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Interaction and commitment protocols",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ08",
+      "title": "Shared memory and context reuse to reduce repeated model input and reasoning",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Memory and context selection",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ09",
+      "title": "Fast task decomposition, allocation, prioritization, dispatch and selective acknowledgement",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Scheduler and coordination",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ10",
+      "title": "Accountable agreement and task records, with blockchain-like mechanisms where appropriate",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Pluggable ledger and audit interfaces",
+      "status": "verified",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ11",
+      "title": "Guided and anticipatory transfer of learning with context enrichment",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Knowledge qualification and handoff",
+      "status": "planned",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ12",
+      "title": "Real-time inference, execution and synchronization of robots and features",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Execution contracts and local runtime",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ13",
+      "title": "Hardware bottleneck awareness and appropriate adaptation",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Resource and capability supervision",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ14",
+      "title": "Detection, investigation, learning and handling of unfamiliar failures",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Incidents, diagnosis and recovery",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ15",
+      "title": "Robot and team monitoring linked to mission consequences",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Observability and operator interfaces",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ16",
+      "title": "Maintenance and component lifecycle management",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Operations and asset lifecycle",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ17",
+      "title": "Human intervention, override, bounded delegation, takeover and handback",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Authority and command arbitration",
+      "status": "in_progress",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "REQ18",
+      "title": "Developer experience comparable to established AI libraries and ecosystems",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Packaging, documentation, plugins and asset registry",
+      "status": "verified",
+      "traces_to": [],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "F01",
+      "title": "Requirements and evidence traceability from requirement to operational outcome",
+      "kind": "foundation",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ02",
+        "REQ10"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "F02",
+      "title": "Common semantics: identities, schema versions, units, frames, clock domains, errors",
+      "kind": "foundation",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ01"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "F03",
+      "title": "Model and calibration validity",
+      "kind": "foundation",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ02"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "F04",
+      "title": "Configuration and release lifecycle",
+      "kind": "foundation",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ02",
+        "REQ16"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "F05",
+      "title": "Reproducible experiments",
+      "kind": "foundation",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ02"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "F06",
+      "title": "Plugin conformance",
+      "kind": "foundation",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ18"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "F07",
+      "title": "Data and knowledge governance",
+      "kind": "foundation",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ10"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "F08",
+      "title": "Deployment and failure topology",
+      "kind": "foundation",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ12"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "F09",
+      "title": "Platform self-observation",
+      "kind": "foundation",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ15"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "F10",
+      "title": "Developer ecosystem",
+      "kind": "foundation",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ18"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G01",
+      "title": "Developer reuse",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "verified",
+      "traces_to": [
+        "REQ01",
+        "REQ18"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G02",
+      "title": "Heterogeneous integration",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03",
+        "REQ05",
+        "REQ06"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G03",
+      "title": "Engineering traceability",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ02",
+        "REQ04"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G04",
+      "title": "Constrained optimization",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ04"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G05",
+      "title": "Timing and freshness",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ12",
+        "REQ13"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G06",
+      "title": "Ownership under failure",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ06",
+        "REQ09",
+        "REQ10"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G07",
+      "title": "Typed commitments",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ07",
+        "REQ09"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G08",
+      "title": "Context efficiency",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ08"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G09",
+      "title": "Qualified handoff",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ11"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G10",
+      "title": "Hardware adaptation",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ13"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G11",
+      "title": "Unfamiliar failure",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ14",
+        "REQ15"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G12",
+      "title": "Human control",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ17"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G13",
+      "title": "Maintenance readiness",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ16"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G14",
+      "title": "Deployment resilience",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ05",
+        "REQ06",
+        "REQ12",
+        "REQ15"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "G15",
+      "title": "Authorization and integrity",
+      "kind": "gate",
+      "text": "",
+      "owner": "",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ03",
+        "REQ17"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D01",
+      "title": "Mechanical and mechatronics",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D02",
+      "title": "Power and energy",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D03",
+      "title": "Electronics and PCB",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D04",
+      "title": "EMC and thermal",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D05",
+      "title": "Sensors and perception hardware",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D06",
+      "title": "Peripherals",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D07",
+      "title": "Networks and fieldbus",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D08",
+      "title": "Firmware",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D09",
+      "title": "Drivers",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D10",
+      "title": "OS, BSP and board bring-up",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D11",
+      "title": "Middleware",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D12",
+      "title": "Control",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D13",
+      "title": "Autonomy and applications",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D14",
+      "title": "Functional safety",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D15",
+      "title": "Cybersecurity",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D16",
+      "title": "IoT devices and edge",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D17",
+      "title": "Cloud and fleet backend",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D18",
+      "title": "HMI and external interfaces",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "D19",
+      "title": "Environment and world",
+      "kind": "domain",
+      "text": "",
+      "owner": "",
+      "status": "planned",
+      "traces_to": [
+        "REQ03"
+      ],
+      "verification": [
+        "test"
+      ]
+    }
+  ]
+}

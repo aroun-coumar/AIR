@@ -8,6 +8,8 @@ from enum import StrEnum
 from ..core.errors import SchemaError
 from ..core.schema import Contract, contract
 
+__requirements__ = ("REQ01", "REQ17")
+
 ANY = "*"
 
 

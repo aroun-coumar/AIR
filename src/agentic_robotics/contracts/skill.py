@@ -20,6 +20,8 @@ from ..core.units import dimension_of
 from .execution import ConditionResult, ExecutionContract
 from .observation import Observation, Quality
 
+__requirements__ = ("REQ01", "REQ05")
+
 ARG_REF = "$args."
 
 
@@ -228,13 +230,16 @@ class TaskSpec:
     rationale: str = ""
 
 
-@contract("task_plan", version="1.0")
+@contract("task_plan", version="1.1")
 class TaskPlan(Contract):
+    """1.1 adds ``trace_id``: the trace of the decision that produced the plan."""
+
     plan_id: str
     goal: str
     steps: tuple[TaskSpec, ...]
     produced_by: str = "unspecified"
     rationale: str = ""
+    trace_id: str | None = None
 
     def __post_init__(self) -> None:
         ids = [s.task_id for s in self.steps]

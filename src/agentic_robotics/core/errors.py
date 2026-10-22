@@ -9,6 +9,8 @@ from __future__ import annotations
 
 from typing import Any
 
+__requirements__ = ("REQ01",)
+
 
 class FrameworkError(Exception):
     """Base class for all framework errors."""

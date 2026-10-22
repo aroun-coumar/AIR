@@ -19,6 +19,8 @@ from .robot import Robot
 from .runtime import PlanExecutor, Runtime
 from .skills import SkillRegistry
 
+__requirements__ = ("REQ18",)
+
 MANIFEST = ComponentManifest(
     robot_id="carrier-1",
     name="Quickstart carrier",

@@ -9,6 +9,8 @@ from typing import Any
 from .contracts.skill import SkillSet, SkillSpec
 from .core.errors import SchemaError, UnsupportedOperation
 
+__requirements__ = ("REQ05", "REQ18")
+
 
 class SkillRegistry:
     def __init__(self, skills: Iterable[SkillSpec] = ()) -> None:

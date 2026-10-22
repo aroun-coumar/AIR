@@ -16,7 +16,10 @@ from ..contracts.resources import ResourceReservation
 from ..contracts.skill import TaskPlan, TaskSpec
 from ..core.errors import OutcomeNotVerified, ResourceConflict
 from ..core.ids import new_id
+from ..provenance import tracing
 from .runtime import Runtime
+
+__requirements__ = ("REQ09", "REQ06", "REQ07")
 
 
 class PlanState(StrEnum):
@@ -44,6 +47,7 @@ class PlanHandle:
     def __init__(self, plan: TaskPlan, task: asyncio.Task[PlanResult]) -> None:
         self.plan = plan
         self._task = task
+        self.trace_id: str | None = None
 
     async def wait(self, timeout: float | None = None) -> PlanResult:
         return await asyncio.wait_for(asyncio.shield(self._task), timeout)
@@ -63,9 +67,14 @@ class PlanExecutor:
 
     def submit(self, plan: TaskPlan, *, principal: str, delegation_id: str,
                lease_s: float | None = None) -> PlanHandle:
-        task = asyncio.get_running_loop().create_task(
-            self._execute(plan, principal, delegation_id, lease_s))
-        return PlanHandle(plan, task)
+        # The plan's span (joining the agent decision's trace when the plan carries one)
+        # is inherited by every command the plan issues.
+        with tracing.span(f"plan:{plan.plan_id}", trace_id=plan.trace_id) as ctx:
+            task = asyncio.get_running_loop().create_task(
+                self._execute(plan, principal, delegation_id, lease_s))
+        handle = PlanHandle(plan, task)
+        handle.trace_id = ctx.trace_id
+        return handle
 
     async def _execute(self, plan: TaskPlan, principal: str, delegation_id: str,
                        lease_s: float | None) -> PlanResult:

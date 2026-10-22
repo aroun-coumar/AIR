@@ -1,4 +1,4 @@
-"""``agentic-robotics`` command-line tool."""
+"""``air`` / ``agentic-robotics`` command-line tool."""
 
 from __future__ import annotations
 
@@ -11,6 +11,8 @@ from pathlib import Path
 from . import __version__
 from .core.errors import FrameworkError
 from .core.schema import load_any, registered_contracts
+
+__requirements__ = ("REQ18",)
 
 
 def _validate(args: argparse.Namespace) -> int:
@@ -68,8 +70,8 @@ def _registry(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    p = argparse.ArgumentParser(prog="agentic-robotics",
-                                description="Agentic Robotics Framework tools")
+    p = argparse.ArgumentParser(prog=Path(sys.argv[0]).stem if sys.argv[0] else "air",
+                                description="AIR: Agentic Robotics Framework tools")
     p.add_argument("--version", action="version", version=__version__)
     sub = p.add_subparsers(dest="command", required=True)
 
@@ -97,6 +99,9 @@ def build_parser() -> argparse.ArgumentParser:
     rp.add_argument("file")
     rs.add_parser("list")
     r.set_defaults(fn=_registry)
+
+    from .provenance.cli import add_commands
+    add_commands(sub)
     return p
 
 

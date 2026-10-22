@@ -5,6 +5,8 @@ from __future__ import annotations
 from ..contracts.execution import CommandState as S
 from ..core.errors import InvalidTransition
 
+__requirements__ = ("REQ07",)
+
 TRANSITIONS: dict[S, frozenset[S]] = {
     S.SUBMITTED: frozenset({S.ACCEPTED, S.REJECTED}),
     S.ACCEPTED: frozenset({S.EXECUTING, S.CANCELLED, S.REJECTED}),

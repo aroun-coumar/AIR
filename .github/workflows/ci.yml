@@ -1,0 +1,46 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11", "3.12"]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: astral-sh/setup-uv@v6
+      - name: Create environment
+        run: |
+          uv venv --python ${{ matrix.python }} .venv
+          uv pip install --python .venv -e ".[dev]"
+      - name: Lint and type-check
+        shell: bash
+        run: |
+          BIN=.venv/bin; [ -d .venv/Scripts ] && BIN=.venv/Scripts
+          $BIN/ruff check src tests examples
+          $BIN/mypy
+      - name: Tests with requirement evidence
+        shell: bash
+        run: |
+          BIN=.venv/bin; [ -d .venv/Scripts ] && BIN=.venv/Scripts
+          $BIN/python -m pytest -q --air-evidence .air/test-evidence.json
+      - name: Traceability and ledger integrity
+        shell: bash
+        run: |
+          BIN=.venv/bin; [ -d .venv/Scripts ] && BIN=.venv/Scripts
+          $BIN/air ledger verify
+          $BIN/air requirements matrix --check --out traceability.md
+      - uses: actions/upload-artifact@v4
+        if: always() && matrix.os == 'ubuntu-latest' && matrix.python == '3.12'
+        with:
+          name: traceability
+          path: |
+            traceability.md
+            .air/test-evidence.json
