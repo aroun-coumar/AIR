@@ -376,6 +376,14 @@ use only public protocols, and nothing in the core imports an integration. See
 | Domain briefing (D01–D19) for agents and people | `air hardware brief D02 D14` |
 | Pin a datasheet to a component | `air hardware attach robot.manifest.json wheel-left sheet.pdf` |
 | Export as W3C WoT Thing Model or JSON-LD | `air hardware export sensor.imu.mems_6axis` |
+| Check a learned policy's sidecar against a robot slot's load gate | `air policy check walk.policy.json --model walk.onnx --requires slot.json` |
+| Publish a policy (sidecar + model bytes) to the registry | `air policy publish walk.policy.json walk.onnx` |
+| Trial-then-confirm a release (reverts unless confirmed) | `air release stage rel.json --robot … --slot … --state s.json` · `air release boot …` · `air release confirm --check health=pass …` |
+| TUF targets metadata over registry assets | `air release targets --root .ar-registry` |
+| Check an asset card for gaps | `air release card walk.card.json --strict` |
+| Validate or diff typed parameter sets | `air params validate schema.json set.json` · `air params diff schema.json old.json new.json` |
+| Convert an episode to RLDS-like or LeRobot-like JSON | `air dataset convert ep.json --to lerobot` |
+| Write a versioned conformance report | `air conformance <manifest.json> --skills <skills.json> --out report.json` |
 
 ## Status and roadmap
 
@@ -409,6 +417,7 @@ src/agentic_robotics/
 ├── work/          sandboxes · work contracts · guarded tools · work agent · proposals
 ├── provenance/    tracing · ledger · project · traceability · explain · context pack · sources
 ├── hardware/      device catalog: 100 robot classes · 648 device types · 122 protocols · manifest checks
+├── releases/      policy slots (load gate, two-step start) · trial-then-confirm activation · TUF metadata
 ├── integrations/  fake carrier and arm (reference adapters)
 └── testing/       pytest evidence plugin
 schemas/           published JSON Schemas for every contract

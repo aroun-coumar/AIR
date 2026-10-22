@@ -13,6 +13,12 @@ its head, which arrives with ledger checkpoints.)
 
 Publishing, installing, qualifying and activating are distinct steps. Fetching an asset
 never executes code and never authorizes physical operation.
+
+Opaque binary assets (policy model files, firmware images) live in a content-addressed
+blob store (``_blobs/sha256/<hex>``) next to their JSON sidecar: a policy is published as
+its ``ar.policy_manifest`` plus the model bytes whose digest the manifest names, and a
+fetch re-hashes the bytes (ADR 0016). Trust in *who* published is a separate layer: TUF
+metadata over these assets (:mod:`agentic_robotics.releases.tuf`).
 """
 
 from __future__ import annotations
@@ -24,6 +30,7 @@ from dataclasses import dataclass
 from pathlib import Path
 from typing import Any, Protocol
 
+from .contracts.policy import PolicyManifest
 from .core.errors import SchemaError
 from .core.ids import is_valid_id
 from .core.schema import SCHEMA_KEY, Contract, load_any
@@ -36,6 +43,7 @@ __all__ = ["AssetRef", "AssetRegistry", "LocalRegistry", "document_digest", "is_
 __requirements__ = ("REQ10", "REQ18", "G15")
 
 PUBLISH_LOG = "publish-log.jsonl"
+BLOB_DIR = "_blobs"
 LOCK_FILE = "air.lock"
 
 
@@ -151,6 +159,49 @@ class LocalRegistry:
         for path in sorted(self.root.glob("*/*.json")):
             out.append(AssetRef(**json.loads(path.read_text("utf-8"))["ref"]))
         return out
+
+    # -- blobs and policies --------------------------------------------------------------
+    def put_blob(self, data: bytes) -> str:
+        """Store opaque bytes by SHA-256 and return ``sha256:<hex>`` (idempotent)."""
+        digest = "sha256:" + hashlib.sha256(data).hexdigest()
+        path = self._blob_path(digest)
+        if not path.exists():
+            path.parent.mkdir(parents=True, exist_ok=True)
+            path.write_bytes(data)
+            self.log.append("blob.stored", digest, {"length": len(data)})
+        return digest
+
+    def get_blob(self, digest: str) -> bytes:
+        path = self._blob_path(digest)
+        if not path.exists() or not self.log.query(kind="blob.stored", subject=digest):
+            raise SchemaError("blob not found", digest=digest)
+        data = path.read_bytes()
+        if "sha256:" + hashlib.sha256(data).hexdigest() != digest:
+            raise SchemaError("blob integrity check failed", digest=digest)
+        return data
+
+    def publish_policy(self, manifest: PolicyManifest, model: bytes) -> AssetRef:
+        """Publish a policy sidecar and its model bytes; the digests must agree."""
+        if "sha256:" + hashlib.sha256(model).hexdigest() != manifest.model_digest:
+            raise SchemaError("model bytes do not match the manifest digest",
+                              policy_id=manifest.policy_id)
+        self.put_blob(model)
+        return self.publish(manifest.policy_id, manifest.version, manifest)
+
+    def fetch_policy(self, name: str, version: str | None = None, *,
+                     digest: str | None = None) -> tuple[PolicyManifest, bytes]:
+        doc = self.fetch(name, version, digest=digest)
+        if not isinstance(doc, PolicyManifest):
+            raise SchemaError("asset is not a policy manifest", name=name,
+                              schema=doc.schema_id())
+        return doc, self.get_blob(doc.model_digest)
+
+    def _blob_path(self, digest: str) -> Path:
+        algo, _, hexd = digest.partition(":")
+        if algo != "sha256" or len(hexd) != 64 or any(c not in "0123456789abcdef"
+                                                       for c in hexd):
+            raise SchemaError("invalid blob digest", digest=digest)
+        return self.root / BLOB_DIR / "sha256" / hexd
 
     # -- lockfile ------------------------------------------------------------------------
     def lock(self, refs: Sequence[str], path: str | Path = LOCK_FILE) -> dict[str, str]:

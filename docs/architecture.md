@@ -147,3 +147,38 @@ evidence spine ties everything together.
 `provenance` depend on `contracts`/`core`; `runtime` and `agents` use `provenance.tracing`.
 `hardware` depends on `contracts` and `core`. `integrations` depend only on public
 protocols (`plugins`, `contracts`). Nothing in the core imports an integration.
+
+## Policies, releases and engineering-domain contracts
+
+```
+ model bytes (opaque) + ar.policy_manifest sidecar ──► LocalRegistry.publish_policy (blob + doc)
+                                                         │  TUF targets/snapshot/timestamp/root
+                                                         ▼  (threshold-signed; director per robot)
+ PolicySlot.load ── digest ✓ · PolicyRequirements ✓ · origin authority ✓ ──► LOADED (old kept on failure)
+        arm(op) ──► start(token) ──► infer: check_observation → runner → check_action
+                                        └─► ActionChunk(provenance, max_age_s) ──► accept (stale/foreign refused)
+        stop() ──► declared exit mode (hold | damp)
+
+ ActivationManager: stage (security counter ≥ stored) ─► boot ─► TRIAL ─► confirm(observed checks)
+                                                                   └─► reboot / deadline ─► revert
+```
+
+- `ar.policy_manifest/1.0` advertises everything needed before admission (model API,
+  features and dims, robot model, joint order, gains, observation scale/clip/history,
+  action scale and bounds, prediction vs execution steps, action interval, inference
+  backend, origin, exit mode, mandatory staleness bound); `identity()` hashes all of it
+  with the model digest.
+- `ar.release/1.0` and `ar.release_activation/1.0` implement trial-then-confirm with a
+  monotonic security counter; `releases.tuf` implements the TUF client order with
+  rollback and freeze checks; HMAC signing is stdlib, Ed25519 is the `[signing]` extra.
+- `ar.parameter_schema/1.0` and `ar.parameter_set/1.0`: typed parameter metadata with
+  units from the core unit table, validation and diff (reboot and calibration flags).
+- `ar.episode/1.0` keeps truncation distinct from termination and converts losslessly to
+  RLDS-like and LeRobot-like dicts; `ar.training_run/1.0` records git state and NaN checks.
+- `ar.action_space/1.0` and `ar.unified_action/1.0`: one named-slot action vector with
+  units and masks.
+- `ar.asset_card/1.0` (claims, never authority) and `ar.conformance_report/1.0`
+  (`air conformance --out`; `passed` must agree with the outcomes).
+- `releases` depends on `contracts`, `core` and `provenance`; it calls the runtime's authority
+  service only through its `check()` method; nothing in `runtime` depends on it. See
+  [ADR 0016](decisions/0016-policies-releases-contracts.md).

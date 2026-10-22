@@ -1,0 +1,138 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.release/1.0.json",
+  "title": "ar.release/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.release/1\\.\\d+|https?://.+/ar\\.release/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "release_id": {
+      "type": "string"
+    },
+    "name": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "security_counter": {
+      "type": "integer"
+    },
+    "targets": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ReleaseTarget"
+      }
+    },
+    "confirm_checks": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "confirm_within_s": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "notes": {
+      "type": "string",
+      "default": ""
+    },
+    "created_at": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    }
+  },
+  "required": [
+    "release_id",
+    "name",
+    "version",
+    "security_counter",
+    "targets",
+    "confirm_checks"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "ReleaseTarget": {
+      "type": "object",
+      "properties": {
+        "path": {
+          "type": "string"
+        },
+        "digest": {
+          "type": "string"
+        },
+        "length": {
+          "type": "integer"
+        },
+        "slot": {
+          "type": "string",
+          "default": ""
+        }
+      },
+      "required": [
+        "path",
+        "digest",
+        "length"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

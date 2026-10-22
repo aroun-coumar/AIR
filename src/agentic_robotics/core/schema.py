@@ -147,6 +147,10 @@ BUILTIN_CONTRACT_MODULES = (
     "agentic_robotics.hardware.domains",
     "agentic_robotics.triage.contracts",
     "agentic_robotics.triage.policy",
+    "agentic_robotics.contracts.policy",
+    "agentic_robotics.contracts.parameters",
+    "agentic_robotics.contracts.dataset",
+    "agentic_robotics.contracts.release",
 )
 CONTRACT_ENTRY_POINT_GROUP = "agentic_robotics.contracts"
 _loaded_all = False
