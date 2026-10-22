@@ -8,10 +8,11 @@ version = "0.1.0.dev0"
 description = "A reusable framework for building agentic robotic systems: typed execution contracts, runtime admission, authority, and evidence."
 readme = "README.md"
 requires-python = ">=3.11"
-license = { text = "Apache-2.0" }
+license = { text = "AGPL-3.0-or-later" }
 authors = [{ name = "Agentic Robotics Framework maintainers" }]
 classifiers = [
     "Development Status :: 2 - Pre-Alpha",
+    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
     "Programming Language :: Python :: 3",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",

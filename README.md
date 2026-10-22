@@ -1,6 +1,6 @@
-# Agentic Robotics Framework
+# AIR: Agentic Robotics Framework
 
-A reusable library, framework, tool and platform for building agentic robotic products,
+*Artificial Intelligent Robotics.* A reusable library, framework, tool and platform for building agentic robotic products,
 built from the *Requirements and architecture baseline v0.1* (21 October 2026).
 
 Product teams import the parts they need, bring their own robots, models and
@@ -101,3 +101,7 @@ Checks:
 
 Package names and APIs follow the baseline's proposals and stay experimental (`0.x`) until
 they pass their acceptance gates.
+
+## License
+
+GNU Affero General Public License v3.0. See [LICENSE](LICENSE).
