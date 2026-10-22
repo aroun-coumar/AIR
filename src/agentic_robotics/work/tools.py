@@ -45,6 +45,8 @@ class WorkContext:
     runtime: Runtime | None = None
     robot_delegation_id: str | None = None
     proposals: list[Proposal] = field(default_factory=list)
+    seen_calls: set[str] = field(default_factory=set)
+    gate: Any = None   # the run's ApprovalGate (set by the agent)
 
 
 class WorkTool(abc.ABC):
@@ -55,6 +57,10 @@ class WorkTool(abc.ABC):
 
     @abc.abstractmethod
     async def run(self, ctx: WorkContext, args: dict[str, Any]) -> ToolOutput: ...
+
+    def command(self, args: Mapping[str, Any]) -> list[str] | None:
+        """The argv this call would execute, for command-policy evaluation (if any)."""
+        return None
 
 
 def obj(properties: dict[str, Any], required: Iterable[str] = ()) -> dict[str, Any]:
@@ -140,14 +146,26 @@ class RunCommand(WorkTool):
     input_schema = obj({"argv": {"type": "array", "items": STR},
                         "timeout_s": {"type": "number"}}, ["argv"])
 
+    def command(self, args: Mapping[str, Any]) -> list[str] | None:
+        argv = args.get("argv")
+        return [str(a) for a in argv] if isinstance(argv, list) else None
+
     async def run(self, ctx: WorkContext, args: dict[str, Any]) -> ToolOutput:
         result = await ctx.sandbox.run(list(args["argv"]), args.get("timeout_s"))
-        body = {"exit_code": result.exit_code, "timed_out": result.timed_out,
-                "duration_s": result.duration_s, "truncated": result.truncated,
-                "stdout": _clip(result.stdout, 8000), "stderr": _clip(result.stderr, 4000)}
+        body: dict[str, Any] = {
+            "exit_code": result.exit_code, "timed_out": result.timed_out,
+            "duration_s": result.duration_s, "truncated": result.truncated,
+            "stdout": _clip(result.stdout, 8000), "stderr": _clip(result.stderr, 4000)}
+        if result.violations:
+            body["egress_denied"] = [f"{v['host']}:{v['port']} ({v['reason']})"
+                                     for v in result.violations]
         return ToolOutput(json.dumps(body), is_error=not result.ok,
                           data={"exit_code": result.exit_code, "timed_out": result.timed_out,
-                                "unenforced": result.unenforced})
+                                "unenforced": result.unenforced,
+                                "not_applied": result.not_applied,
+                                "violations": result.violations,
+                                "egress": len(result.egress),
+                                "placement": result.placement.value})
 
 
 class RunScenario(WorkTool):
