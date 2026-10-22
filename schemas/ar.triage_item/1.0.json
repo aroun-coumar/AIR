@@ -1,0 +1,274 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.triage_item/1.0.json",
+  "title": "ar.triage_item/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.triage_item/1\\.\\d+|https?://.+/ar\\.triage_item/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "item_id": {
+      "type": "string"
+    },
+    "fingerprint": {
+      "type": "string"
+    },
+    "kind": {
+      "type": "string"
+    },
+    "source": {
+      "type": "string"
+    },
+    "subject": {
+      "type": "string"
+    },
+    "title": {
+      "type": "string"
+    },
+    "severity": {
+      "enum": [
+        "safety",
+        "integrity",
+        "mission",
+        "quality",
+        "hygiene"
+      ]
+    },
+    "priority": {
+      "enum": [
+        "P1",
+        "P2",
+        "P3",
+        "P4"
+      ]
+    },
+    "state": {
+      "enum": [
+        "new",
+        "triaged",
+        "assigned",
+        "in_progress",
+        "escalated",
+        "snoozed",
+        "resolved",
+        "dismissed",
+        "regressed"
+      ],
+      "default": "new"
+    },
+    "rule": {
+      "type": "string",
+      "default": "default"
+    },
+    "owner": {
+      "type": "string",
+      "default": "role:operator"
+    },
+    "assignee": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "escalation": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "escalation_level": {
+      "type": "integer",
+      "default": 0
+    },
+    "labels": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "robot_id": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "first_seen": {
+      "type": "number",
+      "default": 0.0
+    },
+    "last_seen": {
+      "type": "number",
+      "default": 0.0
+    },
+    "count": {
+      "type": "integer",
+      "default": 1
+    },
+    "ack_due": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "resolve_due": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "resolve_escalated": {
+      "type": "boolean",
+      "default": false
+    },
+    "suppressed_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "resolution": {
+      "type": "string",
+      "default": ""
+    },
+    "grouping_version": {
+      "type": "integer",
+      "default": 0
+    },
+    "missing_group_labels": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "content_hash": {
+      "type": "string",
+      "default": ""
+    },
+    "priority_locked": {
+      "type": "boolean",
+      "default": false
+    },
+    "snooze_until": {
+      "anyOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "wake_after_count": {
+      "anyOf": [
+        {
+          "type": "integer"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "stale": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "required": [
+    "item_id",
+    "fingerprint",
+    "kind",
+    "source",
+    "subject",
+    "title",
+    "severity",
+    "priority"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

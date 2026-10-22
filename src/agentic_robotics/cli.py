@@ -136,9 +136,11 @@ def build_parser() -> argparse.ArgumentParser:
     r.set_defaults(fn=_registry)
 
     from .provenance.cli import add_commands
+    from .triage.cli import add_commands as add_triage_commands
     from .work.cli import add_commands as add_work_commands
     add_commands(sub)
     add_work_commands(sub)
+    add_triage_commands(sub)
     return p
 
 

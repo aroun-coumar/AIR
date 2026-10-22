@@ -496,7 +496,9 @@ class Runtime:
             capability_revision=cap_rev, started_at=handle.started_at,
             finished_at=self.clock.now(),
         )
-        self.trace.record(state.value, cmd.command_id, reason=reason)
+        self.trace.record(state.value, cmd.command_id, reason=reason, robot_id=cmd.robot_id,
+                          skill_id=cmd.skill_id,
+                          stopped_confirmed=(effects or {}).get("stopped_confirmed"))
         if handle.inflight:
             handle.inflight = False
             self._inflight[cmd.robot_id] -= 1

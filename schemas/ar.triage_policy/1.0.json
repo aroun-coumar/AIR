@@ -1,0 +1,231 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.triage_policy/1.0.json",
+  "title": "ar.triage_policy/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.triage_policy/1\\.\\d+|https?://.+/ar\\.triage_policy/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "rules": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/TriageRule"
+      },
+      "default": []
+    },
+    "inhibitions": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Inhibition"
+      },
+      "default": []
+    },
+    "default": {
+      "$ref": "#/$defs/TriageRule"
+    },
+    "max_silence_s": {
+      "type": "number",
+      "default": 604800.0
+    },
+    "max_snooze_s": {
+      "type": "number",
+      "default": 2592000.0
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Inhibition": {
+      "type": "object",
+      "description": "While an open item matches ``source``, items matching ``target`` with the same values for ``equal`` labels are suppressed (never protected-severity targets).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "source": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Matcher"
+          }
+        },
+        "target": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Matcher"
+          }
+        },
+        "equal": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "name",
+        "source",
+        "target"
+      ],
+      "additionalProperties": false
+    },
+    "Matcher": {
+      "type": "object",
+      "description": "``name op value`` over a signal's labels (plus kind, source, subject, robot_id).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        },
+        "op": {
+          "type": "string",
+          "default": "="
+        }
+      },
+      "required": [
+        "name",
+        "value"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "TriageRule": {
+      "type": "object",
+      "description": "First matching rule wins (kinds are globs; all matchers must hold).",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "severity": {
+          "enum": [
+            "safety",
+            "integrity",
+            "mission",
+            "quality",
+            "hygiene"
+          ]
+        },
+        "priority": {
+          "enum": [
+            "P1",
+            "P2",
+            "P3",
+            "P4"
+          ]
+        },
+        "kinds": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "*"
+          ]
+        },
+        "matchers": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/Matcher"
+          },
+          "default": []
+        },
+        "owner": {
+          "type": "string",
+          "default": "role:operator"
+        },
+        "escalation": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        },
+        "ack_within_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "resolve_within_s": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "group_by": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": [
+            "kind",
+            "subject"
+          ]
+        },
+        "auto_resolve": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "name",
+        "severity",
+        "priority"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

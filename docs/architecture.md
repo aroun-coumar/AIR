@@ -88,6 +88,27 @@ evidence spine ties everything together.
   ledger on the activity's trace.
 - See [ADR 0008](decisions/0008-agentic-engineering-work.md).
 
+## Triage: one queue for everything AIR finds wrong
+
+```
+ runtime trace (unresolved, failed, unconfirmed stop, adapter/interrupt errors)  --live-->
+ resource manager (lease expired while occupied)                                 --live-->
+ work ledger (pending proposals, denied approvals, sandbox/model refusals)        --sweep->
+ checks (ledger integrity, requirements matrix, source catalog), calibration      --sweep->
+                                                                                       |
+                         rule: severity (impact) + priority (urgency) + owner + deadlines
+                         fingerprint: duplicates fold into one item (count, evidence)
+                                                                                       v
+   new -> triaged -> assigned -> in_progress -> resolved | dismissed
+     \-- escalated (deadline passed, next owner)     resolved --(seen again)--> regressed
+```
+
+- Silences and inhibitions never hide safety or integrity items. Agents cannot resolve
+  or dismiss them, and resolving a safety item needs an evidence reference.
+- Every change is a `triage.*` ledger entry; the book is rebuilt by replay.
+- `air triage sweep|list|show|ack|assign|start|resolve|dismiss|reopen|silence|rules`.
+- See [ADR 0009](decisions/0009-triage.md).
+
 ## Package dependency rule
 
 `core` depends on nothing. `contracts` depend on `core`. `runtime`, `agents` and

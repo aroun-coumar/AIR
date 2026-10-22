@@ -284,7 +284,8 @@ class Project:
                                     "activity_id": act.activity_id})
             for item in record.calibration_invalidated:
                 self.ledger.append("calibration.invalidated", item,
-                                   {"activity_id": act.activity_id})
+                                   {"activity_id": act.activity_id,
+                                    "robot_id": record.robot_id, "reason": record.reason})
             act.generate(record.to_json().encode(), kind="maintenance_record",
                          name=record.record_id, store=True)
             for f in record.findings:

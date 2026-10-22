@@ -196,6 +196,7 @@ def build_context_pack(root: str | Path = ".", *, package: str | None = None,
                 out.append(f"- {dt.datetime.fromtimestamp(a.started_at, dt.UTC):%Y-%m-%d} "
                            f"{a.kind.value}: {a.title} ({a.status.value}){reqs_s}")
             out.append("")
+        out += _triage_section(project)
         report = project.ledger.verify()
         out += ["## Ledger", "",
                 f"- entries: {report.entries}, integrity: "
@@ -206,3 +207,24 @@ def build_context_pack(root: str | Path = ".", *, package: str | None = None,
     if log:
         out += ["## Recent commits", "", log, ""]
     return "\n".join(out)
+
+
+def _triage_section(project: Project, limit: int = 15) -> list[str]:
+    """Open triage items, most severe first (read only: no sweep is run here)."""
+    from ..triage import TriageBook
+
+    book = TriageBook(project)
+    items = book.items()
+    if not items:
+        return []
+    now = book.now()
+    out = ["## Open triage", "",
+           f"{len(items)} open item(s); run `air triage sweep` to refresh and "
+           "`air triage list` for details.", ""]
+    for i in items[:limit]:
+        due = " **overdue**" if i.overdue(now) else ""
+        out.append(f"- `{i.item_id}` {i.severity.value}/{i.priority.value} "
+                   f"{i.state.value}, {i.assignee or i.owner}: {i.title} (x{i.count}){due}")
+    if len(items) > limit:
+        out.append(f"- ... and {len(items) - limit} more")
+    return [*out, ""]

@@ -341,6 +341,8 @@ use only public protocols, and nothing in the core imports an integration. See
 | Requirements matrix (fails on missing evidence) | `air requirements matrix --check` |
 | Briefing for people and agents | `air context --out docs/CONTEXT.md` |
 | Run agent work in a sandbox | `air work run task.json [--approve robot]` |
+| See everything that needs a decision, most severe first | `air triage sweep` then `air triage list --overdue` |
+| Acknowledge, assign or close an item | `air triage ack <id> --by …`, `air triage resolve <id> --by … --reason … --evidence ledger:<seq>` |
 | List declared models | `air models` |
 | Query a catalog of studied open-source projects | `air sources list --priority P0 -v` |
 
