@@ -1,0 +1,72 @@
+{
+  "$schema": "ar.skill_set/1.0",
+  "meta": { "source": "agentic_robotics.integrations.fake", "revision": 1 },
+  "skills": [
+    {
+      "skill_id": "navigate_to",
+      "version": "1.0.0",
+      "description": "Drive the mobile base to a point in the map frame.",
+      "inputs": [
+        { "name": "x", "type": "number", "unit": "m", "minimum": -50, "maximum": 50 },
+        { "name": "y", "type": "number", "unit": "m", "minimum": -50, "maximum": 50 }
+      ],
+      "required_capabilities": ["mobility"],
+      "preconditions": [
+        { "signal": "base.estop", "op": "eq", "value": false, "description": "emergency stop released" },
+        { "signal": "battery.charge", "op": "ge", "value": 10, "description": "battery at least 10%" }
+      ],
+      "postconditions": [
+        { "signal": "base.pose", "field": "x", "op": "approx", "value": "$args.x", "tolerance": 0.05 },
+        { "signal": "base.pose", "field": "y", "op": "approx", "value": "$args.y", "tolerance": 0.05 }
+      ],
+      "side_effects": ["moves_base"],
+      "interruption": "cancel",
+      "execution": { "deadline_s": 5.0, "max_input_age_s": 1.0 },
+      "expected_evidence": ["base.pose"]
+    },
+    {
+      "skill_id": "dock_at",
+      "version": "1.0.0",
+      "description": "Drive to a named station and dock. Requires exclusive use of the station.",
+      "inputs": [{ "name": "station", "type": "string" }],
+      "required_capabilities": ["mobility"],
+      "preconditions": [
+        { "signal": "base.estop", "op": "eq", "value": false, "description": "emergency stop released" }
+      ],
+      "postconditions": [
+        { "signal": "base.docked_at", "op": "eq", "value": "$args.station", "description": "docked at requested station" }
+      ],
+      "exclusive_resources": ["$args.station"],
+      "side_effects": ["moves_base", "occupies_station"],
+      "interruption": "cancel",
+      "execution": { "deadline_s": 5.0, "max_input_age_s": 1.0 },
+      "expected_evidence": ["base.pose", "base.docked_at"]
+    },
+    {
+      "skill_id": "capture_image",
+      "version": "1.0.0",
+      "description": "Capture one camera image and store it as an artifact.",
+      "required_capabilities": ["imaging"],
+      "postconditions": [
+        { "signal": "camera.last_image", "op": "present", "description": "new image captured" }
+      ],
+      "side_effects": ["writes_artifact"],
+      "interruption": "cancel",
+      "execution": { "deadline_s": 2.0, "max_input_age_s": 1.0 },
+      "expected_evidence": ["camera.last_image"]
+    },
+    {
+      "skill_id": "calibrate_camera",
+      "version": "1.0.0",
+      "description": "Run intrinsic camera calibration. Cannot be interrupted once started.",
+      "required_capabilities": ["imaging"],
+      "postconditions": [
+        { "signal": "camera.calibration", "field": "valid", "op": "eq", "value": true }
+      ],
+      "side_effects": ["changes_calibration"],
+      "interruption": "none",
+      "execution": { "deadline_s": 3.0, "max_input_age_s": 1.0 },
+      "expected_evidence": ["camera.calibration"]
+    }
+  ]
+}

@@ -1,0 +1,54 @@
+[build-system]
+requires = ["hatchling>=1.25"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agentic-robotics"
+version = "0.1.0.dev0"
+description = "A reusable framework for building agentic robotic systems: typed execution contracts, runtime admission, authority, and evidence."
+readme = "README.md"
+requires-python = ">=3.11"
+license = { text = "Apache-2.0" }
+authors = [{ name = "Agentic Robotics Framework maintainers" }]
+classifiers = [
+    "Development Status :: 2 - Pre-Alpha",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Typing :: Typed",
+]
+# The minimal core has no third-party runtime dependencies (baseline section 5).
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6", "mypy>=1.11"]
+
+[project.scripts]
+agentic-robotics = "agentic_robotics.cli:main"
+
+# Third-party adapters register themselves here; see agentic_robotics.plugins.
+[project.entry-points."agentic_robotics.adapters"]
+fake = "agentic_robotics.integrations.fake:FakeRobotAdapter"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/agentic_robotics"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+asyncio_mode = "auto"
+asyncio_default_fixture_loop_scope = "function"
+
+[tool.ruff]
+line-length = 100
+target-version = "py311"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["RUF012"]
+
+[tool.mypy]
+python_version = "3.11"
+strict = true
+files = ["src"]

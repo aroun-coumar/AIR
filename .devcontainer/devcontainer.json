@@ -1,0 +1,12 @@
+{
+  "name": "agentic-robotics",
+  "build": { "dockerfile": "../Dockerfile", "context": ".." },
+  "workspaceFolder": "/workspace",
+  "postCreateCommand": "uv pip install --python /opt/venv/bin/python -e '.[dev]'",
+  "customizations": {
+    "vscode": {
+      "extensions": ["ms-python.python", "charliermarsh.ruff"],
+      "settings": { "python.defaultInterpreterPath": "/opt/venv/bin/python" }
+    }
+  }
+}

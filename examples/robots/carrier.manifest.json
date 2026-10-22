@@ -1,0 +1,28 @@
+{
+  "$schema": "ar.component_manifest/1.0",
+  "meta": { "source": "examples", "revision": 1 },
+  "robot_id": "carrier-1",
+  "name": "Mobile carrier (simulated)",
+  "hardware_revision": "sim-A",
+  "description": "Reference mobile carrier with a camera, served by the fake adapter.",
+  "adapter": {
+    "kind": "fake",
+    "profile": "simulation",
+    "config": {
+      "start": { "x": 0.0, "y": 0.0 },
+      "speed_mps": 1.0,
+      "battery_pct": 80.0,
+      "stations": { "station_a": { "x": 2.0, "y": 1.0 }, "handoff": { "x": 4.0, "y": 0.0 } }
+    }
+  },
+  "components": [
+    { "component_id": "base", "kind": "differential_drive", "revision": "r2" },
+    { "component_id": "battery", "kind": "battery_pack", "revision": "r1", "parent": "base" },
+    {
+      "component_id": "camera", "kind": "rgb_camera", "revision": "r3", "parent": "base",
+      "interfaces": [{ "name": "usb0", "kind": "usb" }]
+    }
+  ],
+  "nominal_capabilities": ["mobility", "imaging"],
+  "frames": ["map", "base_link", "camera_optical"]
+}

@@ -1,0 +1,11 @@
+{
+  "$schema": "ar.delegation/1.0",
+  "delegation_id": "dlg_example_task_agent",
+  "grantor": "operator:root",
+  "grantee": "agent:task",
+  "robots": ["carrier-1"],
+  "skills": ["navigate_to", "dock_at", "capture_image"],
+  "operations": ["execute"],
+  "may_redelegate": false,
+  "reason": "Example: the task agent may move and photograph carrier-1, but not recalibrate it."
+}
