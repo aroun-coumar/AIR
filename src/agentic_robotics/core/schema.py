@@ -139,6 +139,9 @@ BUILTIN_CONTRACT_MODULES = (
     "agentic_robotics.contracts",
     "agentic_robotics.coordination.protocol",
     "agentic_robotics.provenance.model",
+    "agentic_robotics.work.contracts",
+    "agentic_robotics.work.sandbox",
+    "agentic_robotics.agents.providers.catalog",
 )
 CONTRACT_ENTRY_POINT_GROUP = "agentic_robotics.contracts"
 _loaded_all = False

@@ -188,6 +188,9 @@ class FakeRobotAdapter(RobotAdapter):
                                "stop requested" if confirmed else "stop could not be confirmed")
 
     # -- simulation ----------------------------------------------------------------
+    def hosted_models(self) -> list[dict[str, Any]]:
+        return [dict(m) for m in self.config.get("hosted_models", [])]
+
     def estimate_cost(self, skill_id: str, args: Mapping[str, Any]) -> float | None:
         if skill_id == "navigate_to":
             return math.hypot(float(args["x"]) - self.x, float(args["y"]) - self.y)

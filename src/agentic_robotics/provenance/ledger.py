@@ -167,15 +167,23 @@ class Ledger:
                     raise SchemaError("corrupt ledger line", path=str(path), line=n,
                                       error=str(exc)) from exc
 
+    def _refresh(self) -> None:
+        """Readers see entries other processes appended (the file only ever grows)."""
+        if self.path and self.path.exists() and self.path.stat().st_size != self._synced_size:
+            self._reload()
+
     @property
     def head(self) -> str:
+        self._refresh()
         return self._entries[-1].hash if self._entries else GENESIS
 
     def __len__(self) -> int:
+        self._refresh()
         return len(self._entries)
 
     def __iter__(self) -> Iterator[LedgerEntry]:
-        return iter(self._entries)
+        self._refresh()
+        return iter(list(self._entries))
 
     def on_append(self, listener: Callable[[LedgerEntry], None]) -> None:
         self._listeners.append(listener)
@@ -190,13 +198,12 @@ class Ledger:
         lock = (_file_lock(self.lock_path, self.lock_timeout_s) if self.lock_path
                 else contextlib.nullcontext())
         with lock:
-            if self.path and self.path.exists() and \
-                    self.path.stat().st_size != self._synced_size:
-                self._reload()
+            self._refresh()
             ts_ns = int(self.wall_clock_ns())
+            prev = self._entries[-1].hash if self._entries else GENESIS
             draft = LedgerEntry(seq=len(self._entries), ts=ts_ns / 1e9, kind=kind,
                                 subject=subject, data=payload, trace_id=trace_id,
-                                span_id=span_id, prev=self.head, v=CURRENT_VERSION,
+                                span_id=span_id, prev=prev, v=CURRENT_VERSION,
                                 ts_ns=ts_ns)
             entry = LedgerEntry(**{**draft.__dict__, "hash": draft.compute_hash()})
             if self.path:
@@ -234,6 +241,7 @@ class Ledger:
 
     def query(self, *, kind: str | None = None, subject: str | None = None,
               trace_id: str | None = None, prefix: str | None = None) -> list[LedgerEntry]:
+        self._refresh()
         out = []
         for e in self._entries:
             if kind is not None and e.kind != kind:

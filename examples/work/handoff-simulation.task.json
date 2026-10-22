@@ -1,0 +1,14 @@
+{
+  "$schema": "ar.work_task/1.0",
+  "meta": { "source": "examples", "revision": 1 },
+  "task_id": "sim-handoff-baseline",
+  "kind": "simulation",
+  "goal": "Run the reference carrier/arm handoff scenario, report whether every task verifies, and propose a short experiment report",
+  "requirements": ["REQ06", "REQ09"],
+  "deliverables": ["experiment_result proposal with the scenario output"],
+  "acceptance": ["all seven mission tasks verified", "the report states that results are simulation-only"],
+  "data_classification": "internal",
+  "budget": { "max_model_calls": 12, "max_tool_calls": 20, "max_wall_s": 600 },
+  "sandbox": { "allowed_commands": ["python"], "max_wall_s": 180 },
+  "models": { "allowed_locations": ["local_host", "edge", "cloud"], "allow_data_egress": true }
+}

@@ -854,6 +854,53 @@
       "verification": [
         "test"
       ]
+    },
+    {
+      "req_id": "AIR01",
+      "title": "Agents perform research, development, simulation, evaluation, maintenance and diagnosis work inside sandboxes, under budgets, authority and approval, with every step recorded",
+      "kind": "requirement",
+      "text": "Owner direction 2026-10-22: not just agentic robotics, but research, development, simulation and maintenance through agents (wherever required) using a sandbox or platform. Pluggable sandbox, local first.",
+      "owner": "Work agents and sandboxes",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ02",
+        "REQ04",
+        "REQ16"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "AIR02",
+      "title": "Provider-agnostic intelligence: local open models, closed APIs and robot-hosted models, selected by placement and data-egress policy",
+      "kind": "requirement",
+      "text": "Owner direction 2026-10-22: provider agnostic but built accordingly; local open models and closed APIs both accommodated; future robots may self-host intelligence.",
+      "owner": "Model layer",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ05",
+        "REQ08",
+        "REQ12"
+      ],
+      "verification": [
+        "test"
+      ]
+    },
+    {
+      "req_id": "AIR03",
+      "title": "Agent deliverables are proposals decided by a different authorized principal; agents never approve their own work or actuate robots outside runtime admission",
+      "kind": "requirement",
+      "text": "",
+      "owner": "Work agents and authority",
+      "status": "in_progress",
+      "traces_to": [
+        "REQ17",
+        "REQ10"
+      ],
+      "verification": [
+        "test"
+      ]
     }
   ]
 }

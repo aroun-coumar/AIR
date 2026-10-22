@@ -31,6 +31,48 @@ async with runtime:
 | **Tool** | `agentic-robotics` CLI: validate documents, list schemas and adapters, run adapter conformance, use the registry, run the quickstart. | `.cli`, `.conformance` |
 | **Platform** | Content-addressed, immutable asset registry for manifests, skills, plans and policies. Works on a local directory today; a hosted registry or workbench implements the same `AssetRegistry` interface. | `.registry` |
 
+## Agents doing the engineering work, in sandboxes
+
+AIR's agents are not only robot controllers. Work agents do **research, development,
+simulation, evaluation, maintenance and diagnosis** through sandboxed tools, and
+deliver *proposals* that an authorized person decides on. ([ADR 0008](docs/decisions/0008-agentic-engineering-work.md))
+
+```python
+from agentic_robotics.agents.providers import ModelRouter, OpenAICompatibleProvider, ModelProfile, Location
+from agentic_robotics.work import WorkAgent, WorkTask, WorkKind, DataClass
+
+router = ModelRouter()
+router.register(OpenAICompatibleProvider(ModelProfile(
+    name="workstation", provider="openai_compatible", model="qwen2.5:14b",
+    location=Location.LOCAL_HOST, data_leaves_device=False,
+    endpoint="http://localhost:11434/v1")))                       # Ollama on this machine
+
+result = await WorkAgent(project, router).run(WorkTask(
+    task_id="sim-1", kind=WorkKind.SIMULATION, requirements=("REQ06",),
+    goal="Run the handoff scenario and report whether every task verifies",
+    data_classification=DataClass.INTERNAL))
+for p in result.proposals:
+    print(p.kind, p.title)          # then: air work decide <id> approve --by engineer:sam
+```
+
+- **Any model, placed deliberately.**
+  - Local open models (Ollama, vLLM, llama.cpp, LM Studio) through the stdlib
+    OpenAI-compatible client.
+  - Claude through the official SDK (`pip install agentic-robotics[anthropic]`).
+  - Models a robot hosts itself (`RobotAdapter.hosted_models()`).
+  - A router picks by location and whether data may leave the device; `restricted`
+    work never goes to the cloud. Declare models in `.air/models.json` (`air models`).
+- **Sandboxes that tell the truth.** A local process sandbox now, Docker/Podman when
+  installed. Each declares what it enforces, and a policy can demand more (for example
+  network isolation), in which case the work is refused rather than run unsafely.
+- **Guarded tools.** Each tool declares its side effect; consequential ones (robot,
+  external, promote) need approval and are denied by default. Robot actions still go
+  through runtime admission.
+- **Recorded.** Each run is a provenance activity with its sandbox isolation, model
+  turns, tool calls, approvals, findings and proposals on one trace.
+- CLI: `air work run task.json [--approve robot]`, `air work proposals`,
+  `air work decide <id> approve|reject --by <principal>`.
+
 ## Traceability, provenance and maintenance for every project
 
 Every project built on AIR gets a provenance store (`air init --baseline`). Every

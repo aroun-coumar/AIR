@@ -1,0 +1,41 @@
+{
+  "$schema": "ar.model_catalog/1.0",
+  "meta": { "source": "examples", "revision": 1 },
+  "models": [
+    {
+      "name": "duck-a-onboard",
+      "provider": "openai_compatible",
+      "model": "qwen2.5:3b",
+      "location": "on_robot",
+      "robot_id": "duck-a",
+      "data_leaves_device": false,
+      "endpoint": "http://duck-a.local:11434/v1",
+      "supports_tools": true
+    },
+    {
+      "name": "workstation",
+      "provider": "openai_compatible",
+      "model": "qwen2.5:14b",
+      "location": "local_host",
+      "data_leaves_device": false,
+      "endpoint": "http://localhost:11434/v1"
+    },
+    {
+      "name": "lab-vllm",
+      "provider": "openai_compatible",
+      "model": "meta-llama/Llama-3.1-70B-Instruct",
+      "location": "edge",
+      "data_leaves_device": false,
+      "endpoint": "http://inference.lab.internal:8000/v1",
+      "api_key_env": "LAB_VLLM_KEY"
+    },
+    {
+      "name": "claude",
+      "provider": "anthropic",
+      "model": "claude-opus-5-5",
+      "location": "cloud",
+      "data_leaves_device": true,
+      "context_tokens": 1000000
+    }
+  ]
+}

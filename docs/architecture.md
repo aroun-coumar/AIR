@@ -62,6 +62,32 @@ evidence spine ties everything together.
 - `provenance.explain`: timelines and "why" explanations from traces or ledgers.
 - `provenance.context_pack`: generated briefing for people and agents.
 
+## Agentic engineering work (research, development, simulation, maintenance)
+
+```
+ WorkTask (kind, goal, requirements, inputs, budget, sandbox policy, model constraints,
+           data classification)
+     |
+     v
+ WorkAgent ── ModelRouter ──> on-robot model | local host (Ollama/vLLM) | edge | cloud API
+     |            (placement and egress policy; restricted data never leaves the device)
+     | tool call: allowlist -> args -> authority -> approval -> Sandbox -> ledger
+     v
+ Sandbox (process | container; declares what it enforces)
+     |
+     v
+ Proposals (report, patch, config, experiment result, maintenance plan, dataset)
+     |
+     v
+ decide(): a different, authorized principal approves or rejects (decision activity)
+```
+
+- Robot actions requested by work agents go through `Runtime.submit` (admission
+  applies) and need approval.
+- Every model turn, tool call, approval, finding and proposal is in the project
+  ledger on the activity's trace.
+- See [ADR 0008](decisions/0008-agentic-engineering-work.md).
+
 ## Package dependency rule
 
 `core` depends on nothing. `contracts` depend on `core`. `runtime`, `agents` and

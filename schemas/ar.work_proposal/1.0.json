@@ -1,0 +1,119 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.work_proposal/1.0.json",
+  "title": "ar.work_proposal/1.0",
+  "type": "object",
+  "description": "An agent's deliverable. Proposals are never applied by the agent itself; a principal with ``promote`` authority approves or rejects them.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.work_proposal/1\\.\\d+|https?://.+/ar\\.work_proposal/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "proposal_id": {
+      "type": "string"
+    },
+    "task_id": {
+      "type": "string"
+    },
+    "kind": {
+      "enum": [
+        "report",
+        "patch",
+        "config",
+        "experiment_result",
+        "maintenance_plan",
+        "dataset"
+      ]
+    },
+    "title": {
+      "type": "string"
+    },
+    "summary": {
+      "type": "string"
+    },
+    "artifacts": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "requirements": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "produced_by": {
+      "type": "string",
+      "default": ""
+    },
+    "status": {
+      "enum": [
+        "proposed",
+        "approved",
+        "rejected"
+      ],
+      "default": "proposed"
+    }
+  },
+  "required": [
+    "proposal_id",
+    "task_id",
+    "kind",
+    "title",
+    "summary"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

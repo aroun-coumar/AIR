@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.model_catalog/1.0.json",
+  "title": "ar.model_catalog/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.model_catalog/1\\.\\d+|https?://.+/ar\\.model_catalog/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "models": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/ModelProfile"
+      },
+      "default": []
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "ModelProfile": {
+      "type": "object",
+      "description": "Identity and placement of one model endpoint.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "provider": {
+          "type": "string"
+        },
+        "model": {
+          "type": "string"
+        },
+        "location": {
+          "enum": [
+            "cloud",
+            "edge",
+            "local_host",
+            "on_robot"
+          ]
+        },
+        "data_leaves_device": {
+          "type": "boolean"
+        },
+        "endpoint": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "robot_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "supports_tools": {
+          "type": "boolean",
+          "default": true
+        },
+        "context_tokens": {
+          "anyOf": [
+            {
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "max_output_tokens": {
+          "type": "integer",
+          "default": 16000
+        },
+        "api_key_env": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "options": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "name",
+        "provider",
+        "model",
+        "location",
+        "data_leaves_device"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

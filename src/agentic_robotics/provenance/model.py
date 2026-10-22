@@ -26,6 +26,7 @@ class ActivityKind(StrEnum):
     MAINTENANCE = "maintenance"
     CALIBRATION = "calibration"
     INCIDENT = "incident"
+    DIAGNOSIS = "diagnosis"
     LEARNING = "learning"
     DECISION = "decision"
 
@@ -53,7 +54,7 @@ class EntityRef(Contract):
     attributes: dict[str, Any] = field(default_factory=dict)
 
 
-@contract("activity", version="1.0")
+@contract("activity", version="1.1")
 class Activity(Contract):
     activity_id: str
     kind: ActivityKind
