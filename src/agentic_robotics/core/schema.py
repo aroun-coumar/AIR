@@ -93,7 +93,7 @@ class Contract:
         return cls.from_json(text)
 
     def save(self, path: str | Path) -> None:
-        Path(path).write_text(self.to_json(indent=2) + "\n", encoding="utf-8")
+        Path(path).write_text(self.to_json(indent=2) + "\n", encoding="utf-8", newline="\n")
 
     def evolve(self: C, **changes: Any) -> C:
         """Return a copy with ``changes`` applied (contracts are immutable)."""

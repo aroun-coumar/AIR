@@ -65,6 +65,11 @@ class ResourceManager:
         self._set(released)
         return released
 
+    def held_by(self, holder: str) -> list[ResourceReservation]:
+        for resource in list(self._current):
+            self._expire(resource)
+        return [r for r in self._current.values() if r.holder == holder]
+
     def holder(self, resource: str) -> ResourceReservation | None:
         self._expire(resource)
         return self._current.get(resource)

@@ -95,14 +95,15 @@ def check_preconditions(ctx: AdmissionContext) -> None:
     now = ctx.clock.now()
     max_age = ctx.skill.execution.max_input_age_s
     for cond in ctx.skill.preconditions:
-        obs = ctx.observations.get(cond.signal)
+        signal = cond.resolved_signal(ctx.command.args)
+        obs = ctx.observations.get(signal)
         if obs is not None and obs.age(now) > max_age:
             raise AdmissionRejected("stale_input", "input observation is too old",
-                                    signal=cond.signal, age_s=round(obs.age(now), 3),
+                                    signal=signal, age_s=round(obs.age(now), 3),
                                     max_age_s=max_age)
         if obs is not None and obs.quality is Quality.INVALID:
             raise AdmissionRejected("invalid_input", "input observation is invalid",
-                                    signal=cond.signal)
+                                    signal=signal)
         result = cond.evaluate(ctx.observations, ctx.command.args, now)
         if not result.satisfied:
             raise AdmissionRejected("precondition_failed", "precondition is not satisfied",

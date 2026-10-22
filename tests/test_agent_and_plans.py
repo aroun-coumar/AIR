@@ -72,7 +72,7 @@ async def test_tools_offered_to_model_are_limited_to_supported_skills(make_env: 
     model = ScriptedModel([plan_json(DOCK)])
     await TaskAgent(model, env.runtime.skills, env.runtime.clock).plan("g", [env.robot])
     offered = {t["skill_id"] for t in model.requests[0].tools}
-    assert offered == {"navigate_to", "dock_at"}
+    assert offered == {"navigate_to", "dock_at", "undock", "load_part", "unload_part"}
 
 
 @context_reuse

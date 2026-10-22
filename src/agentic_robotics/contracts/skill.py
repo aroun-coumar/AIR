@@ -55,10 +55,21 @@ class Condition:
     tolerance: float = 0.0
     description: str = ""
 
+    def resolved_signal(self, args: Mapping[str, Any]) -> str:
+        """Signal names may template arguments: ``"station.{station}.part"``."""
+        if "{" not in self.signal:
+            return self.signal
+        try:
+            return self.signal.format_map(dict(args))
+        except (KeyError, IndexError, ValueError) as exc:
+            raise SchemaError("condition signal references a missing argument",
+                              signal=self.signal, error=str(exc)) from exc
+
     def label(self, args: Mapping[str, Any] | None = None) -> str:
         if self.description:
             return self.description
-        target = self.signal + (f".{self.field}" if self.field else "")
+        sig = self.resolved_signal(args) if args is not None else self.signal
+        target = sig + (f".{self.field}" if self.field else "")
         expected = resolve_arg(self.value, args or {}) if self.op is not Op.PRESENT else ""
         return f"{target} {self.op.value} {expected}".strip()
 
@@ -66,7 +77,7 @@ class Condition:
         self, observations: Mapping[str, Observation], args: Mapping[str, Any], now: float
     ) -> ConditionResult:
         label = self.label(args)
-        obs = observations.get(self.signal)
+        obs = observations.get(self.resolved_signal(args))
         if obs is None:
             return ConditionResult(label, False, detail="no observation for signal")
         age = obs.age(now)

@@ -1,0 +1,21 @@
+{
+  "$schema": "ar.component_manifest/1.0",
+  "meta": { "source": "examples", "revision": 1 },
+  "robot_id": "arm-1",
+  "name": "Inspection manipulator (simulated)",
+  "hardware_revision": "sim-B",
+  "description": "Stationary manipulator beside the handoff station, served by the fake arm adapter.",
+  "adapter": {
+    "kind": "fake_arm",
+    "profile": "simulation",
+    "config": { "world": "reference-cell", "reach": ["handoff"] }
+  },
+  "components": [
+    { "component_id": "base", "kind": "fixed_mount", "revision": "r1" },
+    { "component_id": "joint3-gearbox", "kind": "harmonic_drive", "revision": "r2", "parent": "base" },
+    { "component_id": "gripper", "kind": "parallel_gripper", "revision": "r1", "parent": "base" },
+    { "component_id": "inspection-camera", "kind": "rgb_camera", "revision": "r1", "parent": "base" }
+  ],
+  "nominal_capabilities": ["manipulation", "inspection"],
+  "frames": ["cell", "arm_base", "tool0"]
+}

@@ -216,7 +216,7 @@ def cmd_requirements_matrix(args: argparse.Namespace) -> int:
     rows = build_matrix(reqs, code, evidence, counts)
     text = rows_to_json(rows) if args.format == "json" else render_markdown(rows, args.kind)
     if args.out:
-        Path(args.out).write_text(text, encoding="utf-8")
+        Path(args.out).write_text(text, encoding="utf-8", newline="\n")
         print(f"wrote {args.out}")
     else:
         print(text)
@@ -272,7 +272,7 @@ def cmd_context(args: argparse.Namespace) -> int:
     text = build_context_pack(args.project, package=args.package, evidence=args.evidence)
     if args.out:
         Path(args.out).parent.mkdir(parents=True, exist_ok=True)
-        Path(args.out).write_text(text, encoding="utf-8")
+        Path(args.out).write_text(text, encoding="utf-8", newline="\n")
         print(f"wrote {args.out}")
     else:
         print(text)

@@ -105,6 +105,11 @@ class RobotAdapter(abc.ABC):
     async def interrupt(self, command_id: str) -> InterruptReport:
         """Request that the active command stop. Report whether stopping is confirmed."""
 
+    def estimate_cost(self, skill_id: str, args: Mapping[str, Any]) -> float | None:
+        """Optional: relative cost of running ``skill_id`` now (used when bidding for team
+        tasks, e.g. travel distance or expected duration). ``None`` means no estimate."""
+        return None
+
 
 AdapterFactory = Callable[[ComponentManifest, Mapping[str, Any]], RobotAdapter]
 

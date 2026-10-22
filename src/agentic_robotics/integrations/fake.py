@@ -16,7 +16,7 @@ from __future__ import annotations
 
 import asyncio
 import math
-from collections.abc import Mapping
+from collections.abc import Callable, Mapping
 from importlib import resources
 from typing import Any
 
@@ -27,6 +27,7 @@ from ..contracts.skill import SkillSet
 from ..core.errors import UnsupportedOperation
 from ..core.ids import new_id
 from ..plugins import AdapterReport, ExecutionContext, InterruptReport, RobotAdapter
+from .world import FakeWorld
 
 __requirements__ = ("REQ03", "REQ13")
 
@@ -34,6 +35,17 @@ __requirements__ = ("REQ03", "REQ13")
 def fake_skill_set() -> SkillSet:
     text = resources.files(__package__).joinpath("fake_skills.json").read_text("utf-8")
     return SkillSet.from_json(text)
+
+
+def world_observations(world: FakeWorld,
+                       obs: Callable[[str, Any], Observation]) -> dict[str, Observation]:
+    """What any robot in the shared world can see: parts at stations and occupancy."""
+    out: dict[str, Observation] = {}
+    for station in world.station_part:
+        out[f"station.{station}.part"] = obs(f"station.{station}.part",
+                                             world.station_part[station])
+        out[f"occupancy.{station}"] = obs(f"occupancy.{station}", world.occupant[station])
+    return out
 
 
 class FakeRobotAdapter(RobotAdapter):
@@ -54,15 +66,20 @@ class FakeRobotAdapter(RobotAdapter):
         self.critical_battery = float(self.config.get("critical_battery_pct", 5.0))
         self.stations: dict[str, dict[str, float]] = dict(self.config.get("stations", {}))
         self.has_camera = bool(self.config.get("camera", True))
+        self.world = FakeWorld.get(str(self.config.get("world", f"private:{id(self)}")))
+        self.world.add_stations(self.stations)
+        for part, location in dict(self.config.get("parts", {})).items():
+            self.world.place_part(part, location)
         self.estop = False
-        self.docked_at: str | None = None
+        self.docked_at = ""
+        self.payload = ""
         self.last_image: dict[str, Any] | None = None
         self.calibration: dict[str, Any] = {"valid": False}
         self.faults: dict[str, Any] = {}
         self.executed: list[str] = []
         self._skills = frozenset(self.config.get("skills", [
-            "navigate_to", "dock_at", *(["capture_image", "calibrate_camera"]
-                                         if self.has_camera else [])]))
+            "navigate_to", "dock_at", "undock", "load_part", "unload_part",
+            *(["capture_image", "calibrate_camera"] if self.has_camera else [])]))
         self._active: str | None = None
         self._interrupt: set[str] = set()
         self._cap_revision = 0
@@ -120,12 +137,32 @@ class FakeRobotAdapter(RobotAdapter):
                     return AdapterReport(False, f"unknown station {station!r}",
                                          failure_reason="unknown_station")
                 s = self.stations[station]
-                report = await self._drive(ctx, float(s["x"]), float(s["y"]))
+                report = await self._drive(ctx, float(s["x"]), float(s["y"]),
+                                           finish=lambda: self._dock(station))
                 if report.completed:
-                    self.docked_at = station
                     report = AdapterReport(True, "docked", {**report.effects,
                                                             "docked_at": station})
                 return report
+            if cmd.skill_id == "undock":
+                await asyncio.sleep(self.tick)
+                self._undock()
+                return AdapterReport(True, "undocked", self._pose_effects())
+            if cmd.skill_id in ("load_part", "unload_part"):
+                station, part = str(cmd.args["station"]), str(cmd.args["part"])
+                await asyncio.sleep(self.tick * 3)
+                if self.docked_at != station:
+                    return AdapterReport(False, "not docked at station",
+                                         failure_reason="not_docked")
+                try:
+                    if cmd.skill_id == "load_part":
+                        self.world.move_part(part, station, self.robot_id)
+                        self.payload = part
+                    else:
+                        self.world.move_part(part, self.robot_id, station)
+                        self.payload = ""
+                except Exception as exc:
+                    return AdapterReport(False, str(exc), failure_reason="part_transfer")
+                return AdapterReport(True, f"{cmd.skill_id} {part}", {"payload": self.payload})
             if cmd.skill_id == "capture_image":
                 await asyncio.sleep(self.tick * 5)
                 if self.faults.get("camera_offline"):
@@ -151,9 +188,27 @@ class FakeRobotAdapter(RobotAdapter):
                                "stop requested" if confirmed else "stop could not be confirmed")
 
     # -- simulation ----------------------------------------------------------------
-    async def _drive(self, ctx: ExecutionContext, tx: float, ty: float) -> AdapterReport:
+    def estimate_cost(self, skill_id: str, args: Mapping[str, Any]) -> float | None:
+        if skill_id == "navigate_to":
+            return math.hypot(float(args["x"]) - self.x, float(args["y"]) - self.y)
+        if skill_id == "dock_at" and str(args.get("station")) in self.stations:
+            s = self.stations[str(args["station"])]
+            return math.hypot(float(s["x"]) - self.x, float(s["y"]) - self.y)
+        return 0.1
+
+    def _dock(self, station: str) -> None:
+        self.world.occupy(station, self.robot_id)
+        self.docked_at = station
+
+    def _undock(self) -> None:
+        if self.docked_at:
+            self.world.vacate(self.docked_at, self.robot_id)
+        self.docked_at = ""
+
+    async def _drive(self, ctx: ExecutionContext, tx: float, ty: float,
+                     finish: Callable[[], None] | None = None) -> AdapterReport:
         cmd = ctx.command
-        self.docked_at = None
+        self._undock()
         step = self.speed * self.sim_dt
         ticks = 0
         while True:
@@ -177,6 +232,8 @@ class FakeRobotAdapter(RobotAdapter):
         drift = float(self.faults.get("drift_m", 0.0))
         if drift:
             self.x += drift
+        if finish is not None:
+            finish()
         if self.faults.get("lose_link_after_motion"):
             raise ConnectionError("link to robot lost before result was received")
         return AdapterReport(True, "arrived", self._pose_effects())
@@ -225,7 +282,9 @@ class FakeRobotAdapter(RobotAdapter):
             "battery.charge": obs("battery.charge", round(self.battery, 2), unit="%"),
             "base.estop": obs("base.estop", self.estop),
             "base.docked_at": obs("base.docked_at", self.docked_at),
+            "payload.part": obs("payload.part", self.payload),
         }
+        out.update(world_observations(self.world, obs))
         if self.has_camera:
             out["camera.calibration"] = obs("camera.calibration", self.calibration)
             if self.last_image is not None:

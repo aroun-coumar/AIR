@@ -12,7 +12,9 @@
       "start": { "x": 0.0, "y": 0.0 },
       "speed_mps": 1.0,
       "battery_pct": 80.0,
-      "stations": { "station_a": { "x": 2.0, "y": 1.0 }, "handoff": { "x": 4.0, "y": 0.0 } }
+      "world": "reference-cell",
+      "stations": { "intake": { "x": 2.0, "y": 1.0 }, "handoff": { "x": 4.0, "y": 0.0 } },
+      "parts": { "part-7": "intake" }
     }
   },
   "components": [

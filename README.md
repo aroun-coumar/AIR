@@ -100,7 +100,7 @@ Checks:
 .venv/Scripts/mypy
 ```
 
-## What exists now: baseline stages 1 and 2
+## What exists now: baseline stages 1 to 3, plus the evidence spine
 
 **Stage 1: contracts and developer foundation**
 - Versioned contracts (`ar.<name>/<major.minor>`) with strict parsing: unknown fields, bad types and major-version mismatches are rejected.
@@ -116,20 +116,30 @@ Checks:
 - Task agent behind a `ModelProvider` interface. It gets scoped context, only the tools for skills the robot supports, and model-call and context budgets. Plans are reused until a capability revision changes, and invalid plans are rejected before admission.
 - Plan executor that reserves exclusive resources with fencing tokens and keeps a reservation held when an outcome is unresolved.
 
+**Stage 3: two-robot coordination** (`agentic_robotics.coordination`, [ADR 0006](docs/decisions/0006-team-coordination.md))
+- `Team` gives each robot its own robot-local runtime, sharing one authority domain, resource manager and causal trace. A `TeamCoordinator` drives a typed `CoordinationMessage` protocol over a `Transport`.
+- Per task: propose (only to participants that advertise the skill) → bids → pluggable `Allocator` → fenced, all-or-nothing reservations → readiness for this exact task revision → ledgered commitment → dispatch → verified result.
+- Reservations are released only when no pending task needs them **and** the holder no longer physically occupies the resource.
+- Reallocation bumps the task revision, and late replies for old revisions are ignored. Retransmitted commitments are deduplicated by deterministic command id.
+- Lost results or acknowledgements, and robot-side UNRESOLVED outcomes, are reconciled by querying the robot (observation), never by re-dispatching. `Team.resume()` continues after reconnection.
+- `LocalTransport` injects delay, loss, duplication and disconnection per link.
+- Reference scenario `air scenario handoff`: a carrier brings part-7 from intake to a shared handoff station, and an arm picks and inspects it (`examples/missions/inspect_part.json`).
+
 ### Gate traceability (baseline section 21)
+
+Generated with evidence: `air requirements matrix --kind gate`. Highlights:
 
 | Gate | Covered by |
 |---|---|
 | G01 Developer reuse | `test_minimal_import_has_no_heavy_dependencies`, quickstart |
 | G05 Timing and freshness (partial) | stale-input, clock-quality and deadline tests (no model or cloud round trip) |
-| G06 Ownership under failure (single robot) | fencing tests, `test_unresolved_step_keeps_its_reservation` |
-| G07 Typed commitments (single robot) | state-machine, duplicate and unresolved tests |
+| G06 Ownership under failure | single-robot fencing; two-robot contention, stale owner fenced at executor, disconnection, lost results |
+| G07 Typed commitments (partial) | revisions, duplicates, delay, lost acknowledgements; team-level cancellation is not done yet |
 | G12 Human control (partial) | revocation-before and revocation-during execution tests |
 | G15 Authorization and integrity (partial) | scope and principal rejection, registry tamper detection |
 
 ## Next stages
 
-3. Two-robot coordination: allocation, task protocol, reservations across participants, selective acknowledgements, reconciliation.
 4. Engineering and optimization loop: experiment interface, simulator and emulator adapters, release manifests.
 5. Operational lifecycle: hardware profiling, incidents, guided learning, maintenance, takeover and handback.
 6. Reusable ecosystem: a second materially different integration, hosted registry and workbench.

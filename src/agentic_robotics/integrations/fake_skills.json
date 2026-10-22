@@ -43,6 +43,90 @@
       "expected_evidence": ["base.pose", "base.docked_at"]
     },
     {
+      "skill_id": "undock",
+      "version": "1.0.0",
+      "description": "Leave the current station, physically freeing it.",
+      "required_capabilities": ["mobility"],
+      "postconditions": [
+        { "signal": "base.docked_at", "op": "eq", "value": "", "description": "no longer docked" }
+      ],
+      "side_effects": ["moves_base", "frees_station"],
+      "interruption": "cancel",
+      "execution": { "deadline_s": 2.0, "max_input_age_s": 1.0 }
+    },
+    {
+      "skill_id": "load_part",
+      "version": "1.0.0",
+      "description": "Take a part from the station the carrier is docked at.",
+      "inputs": [{ "name": "station", "type": "string" }, { "name": "part", "type": "string" }],
+      "required_capabilities": ["mobility"],
+      "preconditions": [
+        { "signal": "base.docked_at", "op": "eq", "value": "$args.station", "description": "docked at the station" },
+        { "signal": "station.{station}.part", "op": "eq", "value": "$args.part", "description": "part is at the station" }
+      ],
+      "postconditions": [
+        { "signal": "payload.part", "op": "eq", "value": "$args.part", "description": "part on the carrier" }
+      ],
+      "exclusive_resources": ["$args.station"],
+      "side_effects": ["moves_part"],
+      "interruption": "none",
+      "execution": { "deadline_s": 2.0, "max_input_age_s": 1.0 }
+    },
+    {
+      "skill_id": "unload_part",
+      "version": "1.0.0",
+      "description": "Place the carried part onto the station the carrier is docked at.",
+      "inputs": [{ "name": "station", "type": "string" }, { "name": "part", "type": "string" }],
+      "required_capabilities": ["mobility"],
+      "preconditions": [
+        { "signal": "base.docked_at", "op": "eq", "value": "$args.station", "description": "docked at the station" },
+        { "signal": "payload.part", "op": "eq", "value": "$args.part", "description": "carrying the part" }
+      ],
+      "postconditions": [
+        { "signal": "station.{station}.part", "op": "eq", "value": "$args.part", "description": "part placed at the station" },
+        { "signal": "payload.part", "op": "eq", "value": "", "description": "carrier empty" }
+      ],
+      "exclusive_resources": ["$args.station"],
+      "side_effects": ["moves_part"],
+      "interruption": "none",
+      "execution": { "deadline_s": 2.0, "max_input_age_s": 1.0 }
+    },
+    {
+      "skill_id": "pick_part",
+      "version": "1.0.0",
+      "description": "Manipulator picks a part from a reachable station.",
+      "inputs": [{ "name": "station", "type": "string" }, { "name": "part", "type": "string" }],
+      "required_capabilities": ["manipulation"],
+      "preconditions": [
+        { "signal": "station.{station}.part", "op": "eq", "value": "$args.part", "description": "part is at the station" },
+        { "signal": "occupancy.{station}", "op": "eq", "value": "", "description": "no robot physically at the station" }
+      ],
+      "postconditions": [
+        { "signal": "gripper.holding", "op": "eq", "value": "$args.part", "description": "part in gripper" }
+      ],
+      "exclusive_resources": ["$args.station"],
+      "side_effects": ["moves_part", "moves_arm"],
+      "interruption": "none",
+      "execution": { "deadline_s": 2.0, "max_input_age_s": 1.0 }
+    },
+    {
+      "skill_id": "inspect_part",
+      "version": "1.0.0",
+      "description": "Inspect the part held by the manipulator and record the result.",
+      "inputs": [{ "name": "part", "type": "string" }],
+      "required_capabilities": ["inspection"],
+      "preconditions": [
+        { "signal": "gripper.holding", "op": "eq", "value": "$args.part", "description": "holding the part" }
+      ],
+      "postconditions": [
+        { "signal": "inspection.last", "field": "part", "op": "eq", "value": "$args.part", "description": "inspection recorded for the part" }
+      ],
+      "side_effects": ["writes_artifact"],
+      "interruption": "none",
+      "execution": { "deadline_s": 2.0, "max_input_age_s": 1.0 },
+      "expected_evidence": ["inspection.last"]
+    },
+    {
       "skill_id": "capture_image",
       "version": "1.0.0",
       "description": "Capture one camera image and store it as an artifact.",

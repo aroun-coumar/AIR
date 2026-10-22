@@ -85,7 +85,7 @@ class EvidenceCollector:
                        "environment": capture_environment(self.root)},
                "tests": tests}
         self.path.parent.mkdir(parents=True, exist_ok=True)
-        self.path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8")
+        self.path.write_text(json.dumps(doc, indent=2) + "\n", encoding="utf-8", newline="\n")
         if self.record:
             self._record(doc)
 

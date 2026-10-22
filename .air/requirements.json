@@ -447,7 +447,7 @@
       "kind": "gate",
       "text": "",
       "owner": "",
-      "status": "in_progress",
+      "status": "verified",
       "traces_to": [
         "REQ06",
         "REQ09",

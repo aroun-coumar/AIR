@@ -103,14 +103,28 @@ class Runtime:
         checks: Sequence[AdmissionCheck] = DEFAULT_CHECKS,
         trace: Trace | None = None,
         debug: bool = False,
+        record_shared_events: bool = True,
     ) -> None:
+        """``record_shared_events``: trace authority and reservation changes. When several
+        robot-local runtimes share one authority domain and trace, enable it on one."""
         self.clock = clock or MonotonicClock()
         self.skills = skills
         self.authority = authority or AuthorityService(self.clock, root_principals)
         self.resources = resources or ResourceManager(self.clock)
         self.checks = tuple(checks)
-        self.trace = trace or Trace(self.clock)
+        self.trace = trace if trace is not None else Trace(self.clock)
         self.debug = debug
+        if record_shared_events:
+            self._trace_shared_events()
+        self._robots: dict[str, Robot] = {}
+        self._handles: dict[str, CommandHandle] = {}
+        self._active: dict[str, CommandHandle] = {}
+        self._locks: dict[str, asyncio.Lock] = {}
+        self._inflight: dict[str, int] = {}
+        self._background: set[asyncio.Task[ExecutionResult]] = set()
+        self.authority.on_revocation(self._on_revocation)
+
+    def _trace_shared_events(self) -> None:
         self.authority.on_grant(lambda d: self.trace.record(
             "authority_granted", d.delegation_id, grantor=d.grantor, grantee=d.grantee,
             robots=d.robots, skills=d.skills, parent_id=d.parent_id,
@@ -122,13 +136,6 @@ class Runtime:
             f"reservation_{r.state.value}", r.resource, reservation_id=r.reservation_id,
             holder=r.holder, fencing_token=r.fencing_token,
             physical_occupancy=r.physical_occupancy.value))
-        self._robots: dict[str, Robot] = {}
-        self._handles: dict[str, CommandHandle] = {}
-        self._active: dict[str, CommandHandle] = {}
-        self._locks: dict[str, asyncio.Lock] = {}
-        self._inflight: dict[str, int] = {}
-        self._background: set[asyncio.Task[ExecutionResult]] = set()
-        self.authority.on_revocation(self._on_revocation)
 
     # -- robots and lifecycle --------------------------------------------------------
     def register(self, robot: Robot) -> Robot:
@@ -174,6 +181,12 @@ class Runtime:
     # -- submission ----------------------------------------------------------------
     def handle(self, command_id: str) -> CommandHandle:
         return self._handles[command_id]
+
+    def find(self, command_id: str) -> CommandHandle | None:
+        return self._handles.get(command_id)
+
+    def busy(self, robot_id: str) -> bool:
+        return self._inflight.get(robot_id, 0) > 0
 
     def submit(self, command: Command) -> CommandHandle:
         """Submit a command. Each command gets its own span; a ``command.trace_id``
@@ -353,7 +366,7 @@ class Runtime:
         results: list[ConditionResult] = []
         inconclusive = False
         for cond in skill.postconditions:
-            obs = observations.get(cond.signal)
+            obs = observations.get(cond.resolved_signal(cmd.args))
             if obs is None or (handle.started_at is not None
                                and obs.acquired_at < handle.started_at):
                 inconclusive = True

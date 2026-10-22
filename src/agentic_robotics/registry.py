@@ -68,7 +68,7 @@ class LocalRegistry:
                               name=name, version=version)
         path.parent.mkdir(parents=True, exist_ok=True)
         path.write_text(json.dumps({"ref": ref.__dict__, "digest": ref.digest, "document": doc},
-                                   indent=2) + "\n", encoding="utf-8")
+                                   indent=2) + "\n", encoding="utf-8", newline="\n")
         return ref
 
     def fetch(self, name: str, version: str | None = None) -> Contract:

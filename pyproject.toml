@@ -36,6 +36,7 @@ air = "agentic_robotics.testing.pytest_plugin"
 # Third-party adapters register themselves here; see agentic_robotics.plugins.
 [project.entry-points."agentic_robotics.adapters"]
 fake = "agentic_robotics.integrations.fake:FakeRobotAdapter"
+fake_arm = "agentic_robotics.integrations.fake_arm:FakeArmAdapter"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentic_robotics"]

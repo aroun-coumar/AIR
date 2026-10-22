@@ -1,0 +1,22 @@
+{
+  "$schema": "ar.mission/1.0",
+  "meta": { "source": "examples", "revision": 1 },
+  "mission_id": "inspect-part-7",
+  "goal": "Bring part-7 from intake to the handoff station and inspect it",
+  "tasks": [
+    { "task_id": "dock_intake", "skill_id": "dock_at", "args": { "station": "intake" },
+      "description": "carrier drives to the intake station" },
+    { "task_id": "load", "skill_id": "load_part", "args": { "station": "intake", "part": "part-7" },
+      "depends_on": ["dock_intake"], "colocated_with": "dock_intake" },
+    { "task_id": "dock_handoff", "skill_id": "dock_at", "args": { "station": "handoff" },
+      "depends_on": ["load"], "colocated_with": "dock_intake" },
+    { "task_id": "unload", "skill_id": "unload_part", "args": { "station": "handoff", "part": "part-7" },
+      "depends_on": ["dock_handoff"], "colocated_with": "dock_intake" },
+    { "task_id": "clear", "skill_id": "undock", "depends_on": ["unload"],
+      "colocated_with": "dock_intake", "description": "carrier physically frees the station" },
+    { "task_id": "pick", "skill_id": "pick_part", "args": { "station": "handoff", "part": "part-7" },
+      "depends_on": ["clear"] },
+    { "task_id": "inspect", "skill_id": "inspect_part", "args": { "part": "part-7" },
+      "depends_on": ["pick"], "colocated_with": "pick" }
+  ]
+}

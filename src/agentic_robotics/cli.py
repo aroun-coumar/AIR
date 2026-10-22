@@ -57,6 +57,14 @@ def _quickstart(_: argparse.Namespace) -> int:
     return 0 if asyncio.run(run()) else 1
 
 
+def _scenario(args: argparse.Namespace) -> int:
+    from .provenance.project import Project
+    from .scenarios import run_handoff
+
+    project = Project.open(args.project) if args.record else None
+    return 0 if asyncio.run(run_handoff(project=project)).verified else 1
+
+
 def _registry(args: argparse.Namespace) -> int:
     from .registry import LocalRegistry
     reg = LocalRegistry(args.root)
@@ -89,6 +97,13 @@ def build_parser() -> argparse.ArgumentParser:
 
     sub.add_parser("quickstart", help="run the fake-device quickstart").set_defaults(
         fn=_quickstart)
+
+    sc = sub.add_parser("scenario", help="run a reference scenario")
+    sc.add_argument("name", choices=["handoff"])
+    sc.add_argument("--record", action="store_true",
+                    help="record evidence into the AIR project ledger")
+    sc.add_argument("--project", default=".")
+    sc.set_defaults(fn=_scenario)
 
     r = sub.add_parser("registry", help="local asset registry")
     r.add_argument("--root", default=".ar-registry")
