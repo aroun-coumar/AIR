@@ -1,0 +1,189 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.episode/1.0.json",
+  "title": "ar.episode/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.episode/1\\.\\d+|https?://.+/ar\\.episode/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "metadata": {
+      "$ref": "#/$defs/EpisodeMetadata"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/Step"
+      }
+    }
+  },
+  "required": [
+    "metadata",
+    "steps"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "EpisodeMetadata": {
+      "type": "object",
+      "properties": {
+        "episode_id": {
+          "type": "string"
+        },
+        "agent_id": {
+          "type": "string",
+          "default": ""
+        },
+        "environment_config": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "task": {
+          "type": "string",
+          "default": ""
+        },
+        "robot_type": {
+          "type": "string",
+          "default": ""
+        },
+        "fps": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "experiment_id": {
+          "type": "string",
+          "default": ""
+        },
+        "invalid": {
+          "type": "boolean",
+          "default": false
+        },
+        "extra": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "episode_id"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "Step": {
+      "type": "object",
+      "properties": {
+        "observation": {
+          "type": "object",
+          "additionalProperties": {}
+        },
+        "action": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "default": []
+        },
+        "reward": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "discount": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "is_first": {
+          "type": "boolean",
+          "default": false
+        },
+        "is_last": {
+          "type": "boolean",
+          "default": false
+        },
+        "is_terminal": {
+          "type": "boolean",
+          "default": false
+        },
+        "timestamp": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "metadata": {
+          "type": "object",
+          "additionalProperties": {}
+        }
+      },
+      "required": [
+        "observation"
+      ],
+      "additionalProperties": false
+    }
+  }
+}

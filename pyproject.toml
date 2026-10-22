@@ -27,6 +27,8 @@ dependencies = []
 anthropic = ["anthropic>=2.1"]
 # Optuna as a sampler for engineering.search (AIR stays the system of record).
 optuna = ["optuna>=3.6"]
+# Ed25519 signatures for release metadata (releases.signing). HMAC needs nothing.
+signing = ["cryptography>=42"]
 dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6", "mypy>=1.11", "jsonschema>=4.23",
        "anthropic>=2.1"]
 

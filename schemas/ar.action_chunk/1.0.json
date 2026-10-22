@@ -1,0 +1,125 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.action_chunk/1.0.json",
+  "title": "ar.action_chunk/1.0",
+  "type": "object",
+  "description": "A block of actions produced by one inference, with provenance and a staleness bound.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.action_chunk/1\\.\\d+|https?://.+/ar\\.action_chunk/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "actions": {
+      "type": "array",
+      "items": {
+        "type": "array",
+        "items": {
+          "type": "number"
+        }
+      }
+    },
+    "provenance": {
+      "$ref": "#/$defs/ActionProvenance"
+    },
+    "created_at": {
+      "type": "number"
+    },
+    "max_age_s": {
+      "type": "number"
+    },
+    "execution_steps": {
+      "type": "integer"
+    }
+  },
+  "required": [
+    "actions",
+    "provenance",
+    "created_at",
+    "max_age_s",
+    "execution_steps"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "ActionProvenance": {
+      "type": "object",
+      "description": "Where an action chunk came from. Chunks without it are refused.",
+      "properties": {
+        "request_id": {
+          "type": "string"
+        },
+        "generation": {
+          "type": "integer"
+        },
+        "session_id": {
+          "type": "string"
+        },
+        "artifact": {
+          "type": "string"
+        },
+        "observation_id": {
+          "type": "string",
+          "default": ""
+        },
+        "capture_time": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        }
+      },
+      "required": [
+        "request_id",
+        "generation",
+        "session_id",
+        "artifact"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

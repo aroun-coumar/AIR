@@ -152,6 +152,10 @@ BUILTIN_CONTRACT_MODULES = (
     "agentic_robotics.engineering.golden",
     "agentic_robotics.engineering.search",
     "agentic_robotics.engineering.evaluation",
+    "agentic_robotics.contracts.policy",
+    "agentic_robotics.contracts.parameters",
+    "agentic_robotics.contracts.dataset",
+    "agentic_robotics.contracts.release",
 )
 CONTRACT_ENTRY_POINT_GROUP = "agentic_robotics.contracts"
 _loaded_all = False

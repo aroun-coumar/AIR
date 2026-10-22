@@ -64,6 +64,11 @@ def _conformance(args: argparse.Namespace) -> int:
     robot = Robot.from_manifest(args.manifest)
     report = asyncio.run(check_adapter(robot, skills))
     print(report.summary())
+    if args.out:
+        from .provenance.project import file_digest
+        report.to_record(manifest_digest=file_digest(Path(args.manifest)),
+                         skills_digest=file_digest(Path(args.skills))).save(args.out)
+        print(f"wrote {args.out} (ar.conformance_report)")
     return 0 if report.passed else 1
 
 
@@ -113,6 +118,7 @@ def build_parser() -> argparse.ArgumentParser:
     c = sub.add_parser("conformance", help="run the adapter conformance suite")
     c.add_argument("manifest", help="robot ComponentManifest JSON")
     c.add_argument("--skills", required=True, help="SkillSet JSON")
+    c.add_argument("--out", help="also write an ar.conformance_report JSON document")
     c.set_defaults(fn=_conformance)
 
     sub.add_parser("quickstart", help="run the fake-device quickstart").set_defaults(
@@ -138,6 +144,7 @@ def build_parser() -> argparse.ArgumentParser:
     from .engineering.cli import add_commands as add_experiment_commands
     from .hardware.cli import add_commands as add_hardware_commands
     from .provenance.cli import add_commands
+    from .releases.cli import add_commands as add_release_commands
     from .triage.cli import add_commands as add_triage_commands
     from .work.cli import add_commands as add_work_commands
     add_commands(sub)
@@ -145,6 +152,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_triage_commands(sub)
     add_hardware_commands(sub)
     add_experiment_commands(sub)
+    add_release_commands(sub)
     return p
 
 

@@ -1,0 +1,285 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.policy_manifest/1.0.json",
+  "title": "ar.policy_manifest/1.0",
+  "type": "object",
+  "description": "The JSON sidecar of a learned policy: identity, capabilities and load gates.",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.policy_manifest/1\\.\\d+|https?://.+/ar\\.policy_manifest/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "policy_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "model_digest": {
+      "type": "string"
+    },
+    "model_api": {
+      "type": "string"
+    },
+    "model_format": {
+      "type": "string"
+    },
+    "inference_backend": {
+      "type": "string"
+    },
+    "robot_model": {
+      "type": "string"
+    },
+    "observation_features": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/FeatureSpec"
+      }
+    },
+    "action_feature": {
+      "$ref": "#/$defs/FeatureSpec"
+    },
+    "prediction_steps": {
+      "type": "integer"
+    },
+    "execution_steps": {
+      "type": "integer"
+    },
+    "action_interval_s": {
+      "type": "number"
+    },
+    "max_action_age_s": {
+      "type": "number"
+    },
+    "exit_mode": {
+      "enum": [
+        "hold",
+        "damp"
+      ]
+    },
+    "origin": {
+      "enum": [
+        "official",
+        "community",
+        "local"
+      ]
+    },
+    "joint_order": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "kp": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "default": []
+    },
+    "kd": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "default": []
+    },
+    "observation": {
+      "$ref": "#/$defs/ObservationProcessing"
+    },
+    "action_scale": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "default": []
+    },
+    "action_low": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "default": []
+    },
+    "action_high": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "default": []
+    },
+    "default_joint_positions": {
+      "type": "array",
+      "items": {
+        "type": "number"
+      },
+      "default": []
+    },
+    "source": {
+      "type": "string",
+      "default": ""
+    },
+    "training_run": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "derived_from": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "default": []
+    },
+    "description": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "policy_id",
+    "version",
+    "model_digest",
+    "model_api",
+    "model_format",
+    "inference_backend",
+    "robot_model",
+    "observation_features",
+    "action_feature",
+    "prediction_steps",
+    "execution_steps",
+    "action_interval_s",
+    "max_action_age_s",
+    "exit_mode",
+    "origin"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "FeatureSpec": {
+      "type": "object",
+      "description": "One named observation or action feature. Order of ``names`` is significant.",
+      "properties": {
+        "name": {
+          "type": "string"
+        },
+        "shape": {
+          "type": "array",
+          "items": {
+            "type": "integer"
+          }
+        },
+        "dtype": {
+          "type": "string",
+          "default": "float32"
+        },
+        "unit": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "names": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "required": [
+        "name",
+        "shape"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    },
+    "ObservationProcessing": {
+      "type": "object",
+      "description": "How raw observations are normalized before inference (part of identity).",
+      "properties": {
+        "scale": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "default": []
+        },
+        "offset": {
+          "type": "array",
+          "items": {
+            "type": "number"
+          },
+          "default": []
+        },
+        "clip": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "history": {
+          "type": "integer",
+          "default": 1
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

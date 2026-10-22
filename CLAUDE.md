@@ -59,6 +59,8 @@ All five must pass before committing. Versioning and deprecation rules:
   `hardware/data/`, extended per project in `.air/hardware/`) and manifest checks
 - `engineering/`: experiment backends, time policy, seeds, reproducibility probe, golden runs,
   search and release selection, evaluation validity, `air experiment`
+- `releases/`: policy slots (load gate, origin authority, two-step start, stale-chunk
+  refusal), trial-then-confirm release activation, TUF-style signed metadata, signing
 - `integrations/`: reference adapters (fake devices) behind the public adapter protocol
 - `testing/`: pytest evidence plugin
 - `plugins.py`, `conformance.py`, `registry.py`, `cli.py`: extension, conformance, assets, tool

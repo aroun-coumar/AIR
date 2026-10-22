@@ -5,22 +5,35 @@ framework contract before declaring a support profile::
 
     report = await check_adapter(robot, skills)
     assert report.passed, report.summary()
+    report.to_record().save("conformance.json")   # ar.conformance_report/1.0
+
+The record names the suite, AIR and contract versions it was produced with, and its
+``passed`` flag is checked against the outcomes, so a badge can only be issued from it.
 """
 
 from __future__ import annotations
 
+import time
 from dataclasses import dataclass, field
 
 from .contracts.capability import CapabilityReport
 from .contracts.execution import Command
+from .contracts.manifest import ComponentManifest
 from .contracts.observation import Observation
+from .contracts.release import ConformanceCheck, ConformanceReportRecord
+from .contracts.skill import SkillSet
 from .core.clock import Clock, MonotonicClock
 from .core.errors import FrameworkError, UnsupportedOperation
 from .plugins import ExecutionContext
 from .robot import Robot
 from .skills import SkillRegistry
 
-__requirements__ = ("REQ03", "REQ18")
+__requirements__ = ("REQ03", "REQ18", "F06")
+
+#: Bump when checks are added, removed or change meaning.
+SUITE_VERSION = "1.0"
+#: Contracts whose behaviour the suite exercises.
+_CHECKED_CONTRACTS = (CapabilityReport, Observation, Command, ComponentManifest, SkillSet)
 
 
 @dataclass
@@ -47,6 +60,21 @@ class ConformanceReport:
                          + (f": {o.detail}" if o.detail else ""))
         lines.append("result: " + ("PASS" if self.passed else "FAIL"))
         return "\n".join(lines)
+
+    def to_record(self, *, manifest_digest: str | None = None,
+                  skills_digest: str | None = None,
+                  generated_at: float | None = None) -> ConformanceReportRecord:
+        """The versioned ``ar.conformance_report/1.0`` document for this run."""
+        from . import __version__
+
+        return ConformanceReportRecord(
+            robot_id=self.robot_id, adapter_kind=self.adapter_kind,
+            suite_version=SUITE_VERSION, air_version=__version__, passed=self.passed,
+            outcomes=tuple(ConformanceCheck(o.name, o.passed, o.detail)
+                           for o in self.outcomes),
+            contract_versions={c.SCHEMA: c.VERSION for c in _CHECKED_CONTRACTS},
+            manifest_digest=manifest_digest, skills_digest=skills_digest,
+            generated_at=time.time() if generated_at is None else generated_at)
 
 
 async def check_adapter(robot: Robot, skills: SkillRegistry,
