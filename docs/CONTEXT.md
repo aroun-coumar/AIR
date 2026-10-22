@@ -1,6 +1,6 @@
 # Context pack: agentic-robotics
 
-Generated 2026-10-22 07:18 UTC at commit `0678a14` by `air context`. Do not edit by hand; regenerate it.
+Generated 2026-10-22 07:44 UTC at commit `8a6be8f` by `air context`. Do not edit by hand; regenerate it.
 
 ## Project
 
@@ -143,6 +143,7 @@ Open (not yet claimed verified):
 
 ## Recent recorded activities
 
+- 2026-10-22 research: Open-source landscape survey: what AIR should adopt (6 areas incl. Microduck) (succeeded) [REQ01, REQ02, REQ06, REQ10, REQ14, REQ17, REQ18]
 - 2026-10-22 evaluation: automated test run (succeeded) [F01, F02, F05, F06, G01, G05, G06, G07, G08, G10, G12, G13, G14, G15, REQ01, REQ02, REQ03, REQ05, REQ06, REQ07, REQ08, REQ09, REQ10, REQ12, REQ13, REQ14, REQ15, REQ16, REQ17, REQ18]
 - 2026-10-22 development: Stage 3: two-robot coordination, fake arm, shared world, handoff scenario (succeeded) [REQ06, REQ07, REQ09, REQ10, REQ14]
 - 2026-10-22 decision: Team coordination design (ADR 0006) (succeeded) [REQ06, REQ07, REQ09, REQ10]
@@ -157,11 +158,12 @@ Open (not yet claimed verified):
 
 ## Ledger
 
-- entries: 216, integrity: OK
-- head: `f15f57fc906148f4`
+- entries: 233, integrity: OK
+- head: `032d9e42ba4f8cb2`
 
 ## Recent commits
 
+- `8a6be8f` Add stage 3: two-robot coordination and handoff scenario (2026-10-22)
 - `0678a14` Add evidence spine: provenance, traceability, debugging, context feeder (2026-10-22)
 - `f9ef7f5` Merge GitHub initial commit (README, AGPL-3.0 license) (2026-10-22)
 - `837c91b` Initial commit (2026-10-22)
