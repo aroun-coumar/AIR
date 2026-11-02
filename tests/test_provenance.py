@@ -365,6 +365,6 @@ def test_cli_end_to_end(tmp_path: Path, capsys: pytest.CaptureFixture[str]) -> N
 @pytest.mark.req("REQ08", "REQ18")
 def test_context_pack_for_this_repository() -> None:
     text = build_context_pack(ROOT)
-    assert "# Context pack: agentic-robotics" in text
+    assert "# Context pack: airobotics" in text
     assert "## Package map" in text and "runtime/runtime.py" in text
     assert "`command/1.2`" in text

@@ -30,7 +30,7 @@ of truth, and no export or anchor is on the append path.
      (type `0x01`). Ed25519 *verification* is a small pure-Python RFC 8032 verifier
      (no secrets, so constant time is not needed) and passes the RFC 8032 vector and the
      C2SP signed-note example; Ed25519 *signing* needs the new extra
-     `agentic-robotics[signing]` (`cryptography`) and fails with a clear message without
+     `airobotics[signing]` (`cryptography`) and fails with a clear message without
      it. Keys are never written into the project (`air ledger keygen` warns).
    - `create_checkpoint` refuses to write a checkpoint that is not a consistent
      extension of the latest stored one (C2SP: never sign two inconsistent

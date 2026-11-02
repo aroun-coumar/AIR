@@ -1,4 +1,4 @@
-"""Claude via the official Anthropic SDK (optional extra: ``agentic-robotics[anthropic]``).
+"""Claude via the official Anthropic SDK (optional extra: ``airobotics[anthropic]``).
 
 The SDK is imported lazily, so the core stays dependency-free. Credentials resolve the
 SDK's usual way (``ANTHROPIC_API_KEY``, ``ANTHROPIC_AUTH_TOKEN`` or an ``ant auth login``
@@ -61,7 +61,7 @@ class AnthropicProvider:
                 import anthropic
             except ImportError as exc:
                 raise ModelRequestError(
-                    "the anthropic SDK is not installed; install agentic-robotics[anthropic]",
+                    "the anthropic SDK is not installed; install airobotics[anthropic]",
                     profile=profile.name) from exc
             kwargs: dict[str, Any] = {"max_retries": max_retries, "timeout": timeout_s}
             if profile.endpoint:

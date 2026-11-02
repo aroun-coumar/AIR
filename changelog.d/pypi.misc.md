@@ -1,0 +1,1 @@
+Published on PyPI as `airobotics` (import `agentic_robotics`, CLI `air` or `airobotics`): PEP 639 license metadata, project links, a PyPI-specific README, a curated sdist, and a tag-triggered release workflow using trusted publishing to TestPyPI then PyPI.

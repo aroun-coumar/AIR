@@ -1,11 +1,11 @@
-# Context pack: agentic-robotics
+# Context pack: airobotics
 
-Generated 2026-11-02 06:05 UTC at commit `907235c` by `air context`. Do not edit by hand; regenerate it.
+Generated 2026-11-02 06:21 UTC at commit `e6ddbff` by `air context`. Do not edit by hand; regenerate it.
 
 ## Project
 
-- **Version:** 0.1.0.dev0
-- **Description:** A reusable framework for building agentic robotic systems: typed execution contracts, runtime admission, authority, and evidence.
+- **Version:** ?
+- **Description:** AIR: the runtime between the model and the motors. Verified robot execution, multi-robot coordination, provable evidence and agent-run engineering work, with a dependency-free core.
 - **Python:** >=3.11
 - **Runtime dependencies:** none
 
@@ -59,7 +59,7 @@ Open (not yet claimed verified):
 - `src/agentic_robotics/agents/context.py`: Context selection for agent decisions (baseline section 12). [REQ08]
 - `src/agentic_robotics/agents/model.py`: Model-provider interface (baseline sections 5 and 8). [REQ05]
 - `src/agentic_robotics/agents/providers/__init__.py`: Provider-agnostic model layer: local open models, closed APIs, and robot-hosted models.
-- `src/agentic_robotics/agents/providers/anthropic_provider.py`: Claude via the official Anthropic SDK (optional extra: ``agentic-robotics[anthropic]``). [AIR02, REQ05]
+- `src/agentic_robotics/agents/providers/anthropic_provider.py`: Claude via the official Anthropic SDK (optional extra: ``airobotics[anthropic]``). [AIR02, REQ05]
 - `src/agentic_robotics/agents/providers/base.py`: Provider-neutral model layer: where a model runs, what it can do, and a multi-turn [AIR02, REQ05, REQ08, REQ12]
 - `src/agentic_robotics/agents/providers/catalog.py`: Model catalog: a project's declared models and where they run (``.air/models.json``). [AIR02, REQ18, F07]
 - `src/agentic_robotics/agents/providers/openai_compat.py`: OpenAI-compatible chat-completions client (stdlib only). [AIR02, REQ05, REQ12]
@@ -341,6 +341,7 @@ Open (not yet claimed verified):
 
 ## Recent recorded activities
 
+- 2026-11-02 release: prepare PyPI distribution airobotics 0.1.0a1 (succeeded) [REQ18, G01, F07]
 - 2026-11-02 development: package library: interfaces, packages, services, skill promotion (succeeded) [REQ05, REQ11, REQ16, REQ18, G02, G15]
 - 2026-10-22 development: research backlog: cross-group alignment (succeeded) [REQ07, REQ09, REQ17, G07]
 - 2026-10-22 development: research backlog: ecosystem bridges, MCP server and repo hygiene (succeeded) [G02, REQ03, REQ05, REQ18]
@@ -355,7 +356,6 @@ Open (not yet claimed verified):
 - 2026-10-22 development: hardware catalog: robot classes, device types, protocols (succeeded) [REQ03, REQ13, REQ16, D05, D07, D14, D16]
 - 2026-10-22 development: triage review fixes: full fingerprints, content hash, severity rise, priority lock, snooze, stale, silence limits (succeeded) [REQ14, REQ15, REQ17, G11, G12]
 - 2026-10-22 development: triage: one queue for everything AIR finds wrong (ADR 0009) (succeeded) [REQ14, REQ15, REQ17, G11, G12]
-- 2026-10-22 development: ar.source_catalog/1.0 contract and air sources CLI (succeeded) [REQ16, REQ18]
 
 ## Open triage
 
@@ -367,11 +367,12 @@ Open (not yet claimed verified):
 
 ## Ledger
 
-- entries: 806, integrity: OK
-- head: `bf927cb140476478`
+- entries: 817, integrity: OK
+- head: `ed0d34f2626ef4fe`
 
 ## Recent commits
 
+- `e6ddbff` Add package library: interfaces, packages, compatibility, services, skill promotion (2026-11-02)
 - `907235c` Update README to cover the whole platform (2026-10-22)
 - `dc14725` Ignore agent worktrees (2026-10-22)
 - `c1e7a25` Remove duplicate integrations lines left by the merge (2026-10-22)
@@ -381,4 +382,3 @@ Open (not yet claimed verified):
 - `591f02f` Align coordination with runtime commitment semantics (2026-10-22)
 - `8f2841c` Merge group 7: coordination liveness and resources (2026-10-22)
 - `fa8bf2f` Merge group 6: enforcing sandboxes and tool policy (2026-10-22)
-- `4b7631c` Tidy optional-dependency comments after merge (2026-10-22)

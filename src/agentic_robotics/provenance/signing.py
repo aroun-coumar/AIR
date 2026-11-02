@@ -9,7 +9,7 @@ Three kinds, all behind one small interface:
   a C2SP note signature it uses the private-use type byte ``0xff`` followed by
   ``air-hmac-sha256``; other C2SP verifiers will (correctly) ignore it as an unknown key.
 * **Ed25519** (C2SP signature type ``0x01``, RFC 8032): signing needs the optional
-  ``cryptography`` package (``pip install agentic-robotics[signing]``). *Verifying*
+  ``cryptography`` package (``pip install airobotics[signing]``). *Verifying*
   works without it: a small RFC 8032 verifier is included, since verification touches no
   secret and so needs no constant-time arithmetic.
 
@@ -167,7 +167,7 @@ class Ed25519Signer:
         except ImportError as exc:
             raise SigningUnavailable(
                 "Ed25519 signing needs the optional 'cryptography' package: "
-                "pip install agentic-robotics[signing] (or sign with an HMAC key, or "
+                "pip install airobotics[signing] (or sign with an HMAC key, or "
                 "leave the checkpoint unsigned and rely on git as the anchor)") from exc
         self.name = _check_name(name)
         self._key = ed25519.Ed25519PrivateKey.from_private_bytes(seed)

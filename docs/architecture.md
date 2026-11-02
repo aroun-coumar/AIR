@@ -273,7 +273,7 @@ protocols (`plugins`, `contracts`). Nothing in the core imports an integration.
 - The chain detects edits inside the log; a committed checkpoint also detects a
   truncated tail or a consistent rewrite. A checkpoint is never written over a ledger
   that is inconsistent with the previous one.
-- Ed25519 verification is pure stdlib; Ed25519 signing needs `agentic-robotics[signing]`.
+- Ed25519 verification is pure stdlib; Ed25519 signing needs `airobotics[signing]`.
   HMAC proves "someone with the project key", not a person. Rekor anchoring is designed
   (`merkle.Anchor`) but not enabled.
 - Exports leave out parameters, prompts, goals, tool arguments and outputs.

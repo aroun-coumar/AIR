@@ -6,7 +6,7 @@ This document declares the quality level of the `agentic-robotics` package (impo
 most concrete public checklist for robotics software quality.
 
 **Target: Quality Level 2. Current status: Quality Level 4 (pre-release).** The package is
-at `0.1.0.dev0`, so it cannot claim Level 1 or 2 version stability yet. Each requirement
+at `0.1.0a1` (first alpha on PyPI as `airobotics`), so it cannot claim Level 1 or 2 version stability yet. Each requirement
 below states honestly whether it is met today. Updated 2026-10-22.
 
 Legend: **met**, **partial**, **not met**.
@@ -16,7 +16,7 @@ Legend: **met**, **partial**, **not met**.
 | Requirement | Status | Evidence |
 |---|---|---|
 | 1.i A version policy | met | SemVer for the distribution, per-contract versions; [docs/policy/versioning.md](docs/policy/versioning.md) |
-| 1.ii A stable version (>= 1.0.0) | **not met** | `0.1.0.dev0`, classifier "Pre-Alpha" |
+| 1.ii A stable version (>= 1.0.0) | **not met** | `0.1.0a1`, classifier "Alpha" |
 | 1.iii A strictly declared public API | partial | `agentic_robotics.__all__`, contracts and published JSON Schemas under `schemas/`; integrations are optional and pre-1.0 |
 | 1.iv API stability policy | met | versioning policy, `AIRDeprecationWarning`, `@deprecated`/`@experimental` |
 | 1.v ABI stability policy | met (n/a) | pure Python; the wire/ABI surface is the JSON Schemas, checked by `air schema check` (minor is a superset) |

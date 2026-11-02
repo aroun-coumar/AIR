@@ -26,7 +26,7 @@ def _import_optuna() -> Any:
     try:
         import optuna  # type: ignore[import-not-found, unused-ignore]
     except ImportError as exc:
-        raise PluginError("Optuna is not installed; install agentic-robotics[optuna]"
+        raise PluginError("Optuna is not installed; install airobotics[optuna]"
                           ) from exc
     return optuna
 

@@ -41,7 +41,7 @@ from .robot import Robot
 from .runtime import AuthorityService, PlanExecutor, ResourceManager, Runtime, Trace
 from .skills import SkillRegistry
 
-__version__ = "0.1.0.dev0"
+__version__ = "0.1.0a1"
 
 __all__ = [
     "AdapterReport",

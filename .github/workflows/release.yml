@@ -1,0 +1,75 @@
+# Publish airobotics to TestPyPI, then PyPI, when a version tag is pushed.
+#
+# Trusted publishing (OIDC): no API token or password is stored anywhere. PyPI trusts
+# this workflow file in this repository, in the named environment, and issues a
+# short-lived upload credential per run; uploads carry signed provenance attestations.
+# One-time setup on pypi.org and test.pypi.org: see RELEASING.md.
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
+      - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e # v6.8.0
+      - name: Tag matches the package version
+        run: |
+          version=$(sed -n 's/^__version__ = "\(.*\)"/\1/p' src/agentic_robotics/__init__.py)
+          test "v${version}" = "${GITHUB_REF_NAME}" || {
+            echo "tag ${GITHUB_REF_NAME} does not match __version__ ${version}"; exit 1; }
+      - name: Build sdist and wheel
+        run: uv build -o dist
+      - name: Check metadata strictly
+        run: uvx twine check --strict dist/*
+      - name: Install the wheel alone and smoke-test it
+        run: |
+          uv venv --python 3.12 /tmp/fresh
+          uv pip install --python /tmp/fresh dist/*.whl
+          /tmp/fresh/bin/python -c "import agentic_robotics; print(agentic_robotics.__version__)"
+          /tmp/fresh/bin/air quickstart
+          /tmp/fresh/bin/air doctor
+          test "$(uv pip list --python /tmp/fresh | tail -n +3 | wc -l)" = "1"  # no runtime deps
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: dist
+          path: dist/
+          if-no-files-found: error
+
+  testpypi:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: testpypi
+      url: https://test.pypi.org/project/airobotics/
+    permissions:
+      id-token: write   # OIDC token for trusted publishing; nothing else
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
+        with:
+          repository-url: https://test.pypi.org/legacy/
+
+  pypi:
+    needs: testpypi
+    runs-on: ubuntu-latest
+    environment:
+      name: pypi        # add required reviewers to this environment to approve each release
+      url: https://pypi.org/project/airobotics/
+    permissions:
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          name: dist
+          path: dist/
+      - uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3

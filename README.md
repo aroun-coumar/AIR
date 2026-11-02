@@ -247,8 +247,20 @@ the runtime needs a catalog entry. See the [hardware catalog](docs/hardware-cata
 
 ## Quickstart
 
-AIR uses an isolated Python environment managed by [uv](https://docs.astral.sh/uv/).
-Nothing is installed system-wide.
+Install from PyPI (the package is `airobotics`; you import `agentic_robotics`, and the
+CLI is `air`, also available as `airobotics`):
+
+```bash
+pip install --pre airobotics
+```
+
+```bash
+air quickstart
+```
+
+`--pre` is needed until the first stable release, because only alpha versions exist so
+far. To work on AIR itself, use an isolated environment managed by
+[uv](https://docs.astral.sh/uv/). Nothing is installed system-wide.
 
 ```bash
 uv venv --python 3.12 .venv

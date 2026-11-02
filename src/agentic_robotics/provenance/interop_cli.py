@@ -29,7 +29,7 @@ def _key_args(p: argparse.ArgumentParser, verify: bool = False) -> None:
                        help="Ed25519 verifier key name+keyid+base64 (repeatable)")
     else:
         p.add_argument("--ed25519-key", metavar="FILE",
-                       help="Ed25519 seed (64 hex digits); needs agentic-robotics[signing]")
+                       help="Ed25519 seed (64 hex digits); needs airobotics[signing]")
     p.add_argument("--key-name", help="key name (default: the checkpoint origin)")
 
 

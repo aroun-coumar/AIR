@@ -1,22 +1,34 @@
 [build-system]
-requires = ["hatchling>=1.25"]
+# 1.27 is the first hatchling with PEP 639 license expressions.
+requires = ["hatchling>=1.27"]
 build-backend = "hatchling.build"
 
 [project]
-name = "agentic-robotics"
-version = "0.1.0.dev0"
-description = "A reusable framework for building agentic robotic systems: typed execution contracts, runtime admission, authority, and evidence."
-readme = "README.md"
+# Distribution name on PyPI (`pip install airobotics`); the import name stays
+# `agentic_robotics` and the CLI stays `air` (alias `airobotics`).
+name = "airobotics"
+dynamic = ["version"]
+description = "AIR: the runtime between the model and the motors. Verified robot execution, multi-robot coordination, provable evidence and agent-run engineering work, with a dependency-free core."
+readme = "README.pypi.md"
 requires-python = ">=3.11"
-license = { text = "AGPL-3.0-or-later" }
-authors = [{ name = "Agentic Robotics Framework maintainers" }]
+license = "AGPL-3.0-or-later"
+license-files = ["LICENSE"]
+authors = [{ name = "AIR maintainers" }]
+maintainers = [{ name = "aroun-coumar" }]
+keywords = ["robotics", "agents", "llm", "multi-robot", "fleet", "provenance", "safety",
+            "verification", "ros2", "vda5050", "mcp", "digital-twin"]
 classifiers = [
-    "Development Status :: 2 - Pre-Alpha",
-    "License :: OSI Approved :: GNU Affero General Public License v3 or later (AGPLv3+)",
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Science/Research",
+    "Intended Audience :: Manufacturing",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Software Development :: Libraries :: Application Frameworks",
     "Typing :: Typed",
 ]
 # The minimal core has no third-party runtime dependencies (baseline section 5).
@@ -40,8 +52,17 @@ lerobot = ["lerobot>=0.6"]
 dev = ["pytest>=8", "pytest-asyncio>=0.24", "ruff>=0.6", "mypy>=1.11", "jsonschema>=4.23",
        "anthropic>=2.1"]
 
+[project.urls]
+Homepage = "https://github.com/aroun-coumar/AIR"
+Repository = "https://github.com/aroun-coumar/AIR"
+Documentation = "https://github.com/aroun-coumar/AIR#readme"
+Issues = "https://github.com/aroun-coumar/AIR/issues"
+Changelog = "https://github.com/aroun-coumar/AIR/tree/main/changelog.d"
+
 [project.scripts]
 air = "agentic_robotics.cli:main"
+# Alias: another PyPI project (`air`, a web framework) may also install an `air` command.
+airobotics = "agentic_robotics.cli:main"
 agentic-robotics = "agentic_robotics.cli:main"
 
 # Requirement evidence from test runs; inert unless --air-evidence is passed.
@@ -53,8 +74,19 @@ air = "agentic_robotics.testing.pytest_plugin"
 fake = "agentic_robotics.integrations.fake:FakeRobotAdapter"
 fake_arm = "agentic_robotics.integrations.fake_arm:FakeArmAdapter"
 
+[tool.hatch.version]
+path = "src/agentic_robotics/__init__.py"
+
 [tool.hatch.build.targets.wheel]
 packages = ["src/agentic_robotics"]
+
+# The source distribution is what downstream packagers rebuild from: code, tests,
+# examples, schemas and public docs; never the project's own ledger or CI config.
+[tool.hatch.build.targets.sdist]
+include = ["/src", "/tests", "/examples", "/schemas", "/docs", "/changelog.d",
+           "/README.md", "/README.pypi.md", "/LICENSE", "/SECURITY.md",
+           "/QUALITY_DECLARATION.md", "/RELEASING.md", "/towncrier.toml"]
+exclude = ["/docs/research"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

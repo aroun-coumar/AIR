@@ -89,7 +89,7 @@ class PiperSdkLayer:  # pragma: no cover - needs piper_sdk, python-can and a CAN
             from piper_sdk import C_PiperInterface_V2  # type: ignore[import-not-found,import-untyped,unused-ignore]
         except ImportError as exc:
             raise UnsupportedOperation("piper_sdk is not installed (pip install "
-                                       "'agentic-robotics[piper]')", error=str(exc)) from exc
+                                       "'airobotics[piper]')", error=str(exc)) from exc
         self.can_name = can_name
         self._arm = C_PiperInterface_V2(can_name)
 

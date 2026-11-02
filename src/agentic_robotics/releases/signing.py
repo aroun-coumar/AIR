@@ -122,7 +122,7 @@ def _crypto(module: str) -> Any:
         return importlib.import_module(module)
     except ImportError as exc:  # pragma: no cover - depends on the environment
         raise SigningError("Ed25519 needs the optional extra: pip install "
-                           "'agentic-robotics[signing]'") from exc
+                           "'airobotics[signing]'") from exc
 
 
 def _ed25519() -> Any:
