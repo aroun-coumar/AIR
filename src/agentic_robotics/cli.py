@@ -150,6 +150,7 @@ def build_parser() -> argparse.ArgumentParser:
     from .engineering.cli import add_commands as add_experiment_commands
     from .hardware.cli import add_commands as add_hardware_commands
     from .health.cli import add_commands as add_operations_commands
+    from .library.cli import add_commands as add_library_commands
     from .mcp.cli import add_commands as add_mcp_commands
     from .provenance.cli import add_commands
     from .releases.cli import add_commands as add_release_commands
@@ -159,6 +160,7 @@ def build_parser() -> argparse.ArgumentParser:
     add_work_commands(sub)
     add_triage_commands(sub)
     add_hardware_commands(sub)
+    add_library_commands(sub)
     add_experiment_commands(sub)
     add_release_commands(sub)
     add_operations_commands(sub)

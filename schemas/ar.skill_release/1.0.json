@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://raw.githubusercontent.com/aroun-coumar/AIR/main/schemas/ar.skill_release/1.0.json",
+  "title": "ar.skill_release/1.0",
+  "type": "object",
+  "properties": {
+    "$schema": {
+      "type": "string",
+      "description": "Contract tag (ar.<name>/<major>.<minor>) or its schema URI",
+      "pattern": "^(?:ar\\.skill_release/1\\.\\d+|https?://.+/ar\\.skill_release/1\\.\\d+\\.json)$"
+    },
+    "meta": {
+      "$ref": "#/$defs/Meta"
+    },
+    "skill_id": {
+      "type": "string"
+    },
+    "version": {
+      "type": "string"
+    },
+    "package": {
+      "type": "string"
+    },
+    "package_version": {
+      "type": "string"
+    },
+    "package_digest": {
+      "type": "string"
+    },
+    "stage": {
+      "enum": [
+        "draft",
+        "candidate",
+        "validated_sim",
+        "validated_real",
+        "deprecated",
+        "revoked"
+      ],
+      "default": "draft"
+    },
+    "produced_by": {
+      "type": "string",
+      "default": "unspecified"
+    },
+    "parent": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "evidence": {
+      "type": "array",
+      "items": {
+        "$ref": "#/$defs/EvidenceRef"
+      },
+      "default": []
+    },
+    "promoted_by": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null
+    },
+    "reason": {
+      "type": "string",
+      "default": ""
+    }
+  },
+  "required": [
+    "skill_id",
+    "version",
+    "package",
+    "package_version",
+    "package_digest"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "EvidenceRef": {
+      "type": "object",
+      "description": "A project activity that evaluated this skill version, and what it showed.",
+      "properties": {
+        "activity_id": {
+          "type": "string"
+        },
+        "domain": {
+          "enum": [
+            "replay",
+            "simulation",
+            "hardware"
+          ]
+        },
+        "passed": {
+          "type": "boolean"
+        },
+        "metrics": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "number"
+          }
+        },
+        "held_out": {
+          "type": "boolean",
+          "default": false
+        }
+      },
+      "required": [
+        "activity_id",
+        "domain",
+        "passed"
+      ],
+      "additionalProperties": false
+    },
+    "Meta": {
+      "type": "object",
+      "description": "Provenance, access scope and revision carried by every contract (baseline section 6).",
+      "properties": {
+        "source": {
+          "type": "string",
+          "default": "unspecified"
+        },
+        "access_scope": {
+          "type": "string",
+          "default": "project"
+        },
+        "revision": {
+          "type": "integer",
+          "default": 1
+        },
+        "created_at": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "derived_from": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "default": []
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

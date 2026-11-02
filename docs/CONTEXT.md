@@ -1,6 +1,6 @@
 # Context pack: agentic-robotics
 
-Generated 2026-10-22 13:03 UTC at commit `a538297` by `air context`. Do not edit by hand; regenerate it.
+Generated 2026-11-02 06:05 UTC at commit `907235c` by `air context`. Do not edit by hand; regenerate it.
 
 ## Project
 
@@ -171,6 +171,13 @@ Open (not yet claimed verified):
 - `src/agentic_robotics/integrations/vda5050/fake_vehicle.py`: A fake VDA 5050 vehicle on the other side of an injected MQTT publisher (ADR 0019). [REQ03, REQ18]
 - `src/agentic_robotics/integrations/vda5050/messages.py`: VDA 5050 message builders and readers for v2 (2.1.0) and v3 (3.0.0). [REQ06, REQ09]
 - `src/agentic_robotics/integrations/world.py`: Shared fake world for multi-robot reference scenarios: stations, parts and who [REQ03, REQ06]
+- `src/agentic_robotics/library/__init__.py`: Package library: interface contracts, packages, compatibility checks, a service [REQ05]
+- `src/agentic_robotics/library/cli.py`: ``air pkg``, ``air interfaces`` and ``air skills``: packages, contracts, skill library. [REQ05, REQ18]
+- `src/agentic_robotics/library/compat.py`: Compatibility checks: package ↔ robot, package ↔ installed set, skill ↔ robot. [REQ05, REQ03, G02]
+- `src/agentic_robotics/library/contracts.py`: Contracts for the package library: interfaces, packages, deployments, skill releases. [REQ05, REQ03, REQ18, G02]
+- `src/agentic_robotics/library/interfaces.py`: Interface catalog: the typed APIs packages provide and require. [REQ05, REQ18]
+- `src/agentic_robotics/library/services.py`: Service registry: providers register the interfaces they implement; callers bind to [REQ05, REQ06, REQ15, G02]
+- `src/agentic_robotics/library/skills.py`: Skill library: versioned skills with stages, evidence-bound promotion, champions, [REQ05, REQ11, REQ16, G03, G15]
 - `src/agentic_robotics/maintenance/__init__.py`: Maintenance: prognostics feeding capability, readiness and triage (ADR 0015). [REQ16]
 - `src/agentic_robotics/maintenance/cli.py`: ``air prognose``: estimate time-to-event from a degradation series; list estimates. [REQ16, REQ18]
 - `src/agentic_robotics/maintenance/prognostics.py`: Prognostics: time-of-event estimates with uncertainty, gating capability on p5. [REQ16, G13]
@@ -263,6 +270,7 @@ Open (not yet claimed verified):
 - `conformance_report/1.0` (ConformanceReportRecord): robot_id, adapter_kind, suite_version, air_version, passed, outcomes, contract_versions, manifest_digest, skills_digest, generated_at
 - `coordination_message/1.1` (CoordinationMessage): message_id, conversation_id, task_id, task_revision, sender, recipients, kind, sent_at, causal_ref, expires_at, payload, evidence, trace_id, seq, update_id, hlc
 - `delegation/1.0` (Delegation): delegation_id, grantor, grantee, robots, skills, operations, parent_id, valid_from, valid_until, may_redelegate, limits, reason
+- `deployment/1.0` (Deployment): deployment_id, robot_id, packages, description
 - `device_catalog/1.0` (DeviceCatalog): name, device_types, robot_classes, protocols
 - `diagnosis_table/1.0` (DiagnosisTable): entries
 - `domain_library/1.0` (DomainLibrary): domains
@@ -276,10 +284,12 @@ Open (not yet claimed verified):
 - `health_report/1.0` (HealthReport): robot_id, observed_at, level, items, groups, other, critical
 - `human_intervention/1.0` (HumanIntervention): intervention_id, operator, kind, robots, state, revoked_delegations, command_owner, physically_confirmed, handback_conditions
 - `incident/1.0` (Incident): incident_id, robot_id, detected_at, detector, signal, summary, signature, novel, known_classes, component_id, state, occurrences, hypotheses, tests, recovery, handed_off_to, resolution, labels, evidence
+- `interface/1.0` (InterfaceContract): interface_id, version, kind, description, mode, effect, inputs, outputs, failure_kinds, model_callable, deprecated_by
 - `maintenance_record/1.0` (MaintenanceRecord): record_id, robot_id, components, reason, maintenance_type, operating_mode, procedure, performed_by, findings, replacements, calibration_invalidated, return_to_service_checks, exposure
 - `mission/1.0` (Mission): mission_id, goal, tasks
 - `model_catalog/1.0` (ModelCatalog): models
 - `observation/1.1` (Observation): source, signal, clock_domain, acquired_at, received_at, value, unit, frame, spatial, quality, uncertainty, artifact_ref, origin, association_quality, covariance, score
+- `package/1.0` (PackageManifest): name, version, kind, description, license, maintainers, provides, requires, depends, conflicts, hardware, host, skills, config, entrypoint, tags
 - `parameter_schema/1.0` (ParameterSchema): name, parameters, applies_to, description
 - `parameter_set/1.0` (ParameterSet): robot_id, values, schema_name, captured_at, source
 - `policy_manifest/1.0` (PolicyManifest): policy_id, version, model_digest, model_api, model_format, inference_backend, robot_model, observation_features, action_feature, prediction_steps, execution_steps, action_interval_s, max_action_age_s, exit_mode, origin, joint_order, kp, kd, observation, action_scale, action_low, action_high, default_joint_positions, source, training_run, derived_from, description
@@ -293,6 +303,7 @@ Open (not yet claimed verified):
 - `resource_reservation/1.2` (ResourceReservation): reservation_id, resource, holder, fencing_token, state, exclusive, lease_expires_at, physical_occupancy, last_confirmed_at, reconciliation_policy, loan, claim_id, mode
 - `sandbox_policy/1.1` (SandboxPolicy): network, allowed_commands, env_allowlist, max_wall_s, max_memory_mb, max_cpus, max_output_bytes, require_enforced, mode, egress, protected_paths, deny_read
 - `search_record/1.0` (SearchRecord): search_id, title, objectives, space, sampler, sampler_seed, sampler_version, constraints, scenarios, seeds, budget, max_trials, status, status_reason, trials, candidates, pareto, activity_id
+- `skill_release/1.0` (SkillRelease): skill_id, version, package, package_version, package_digest, stage, produced_by, parent, evidence, promoted_by, reason
 - `skill_set/1.1` (SkillSet): skills
 - `skill_spec/1.1` (SkillSpec): skill_id, version, description, inputs, required_capabilities, preconditions, postconditions, exclusive_resources, side_effects, interruption, execution, expected_evidence, on_uncertain_outcome, experimental, occupies, blocking, skip_if, requires_approval, approval_timeout_s, retriable_failures, workspace, max_relative_target
 - `source_catalog/1.0` (SourceCatalog): name, updated, sources
@@ -326,9 +337,11 @@ Open (not yet claimed verified):
 - [0017. Enforcing sandboxes and agent tool policy](docs/decisions/0017-enforcing-sandboxes.md): Accepted
 - [0018. Team cancellation, released prefix, liveness and scoped resource loans](docs/decisions/0018-coordination-liveness-resources.md): Accepted
 - [0019. Ecosystem bridges, the MCP server and repository hygiene](docs/decisions/0019-ecosystem-bridges.md): Accepted
+- [0020. Package library: interfaces, packages, compatibility, services, skill promotion](docs/decisions/0020-package-library.md): Accepted
 
 ## Recent recorded activities
 
+- 2026-11-02 development: package library: interfaces, packages, services, skill promotion (succeeded) [REQ05, REQ11, REQ16, REQ18, G02, G15]
 - 2026-10-22 development: research backlog: cross-group alignment (succeeded) [REQ07, REQ09, REQ17, G07]
 - 2026-10-22 development: research backlog: ecosystem bridges, MCP server and repo hygiene (succeeded) [G02, REQ03, REQ05, REQ18]
 - 2026-10-22 development: research backlog: coordination liveness and resources (succeeded) [REQ06, REQ09, G06, G07, G14]
@@ -343,7 +356,6 @@ Open (not yet claimed verified):
 - 2026-10-22 development: triage review fixes: full fingerprints, content hash, severity rise, priority lock, snooze, stale, silence limits (succeeded) [REQ14, REQ15, REQ17, G11, G12]
 - 2026-10-22 development: triage: one queue for everything AIR finds wrong (ADR 0009) (succeeded) [REQ14, REQ15, REQ17, G11, G12]
 - 2026-10-22 development: ar.source_catalog/1.0 contract and air sources CLI (succeeded) [REQ16, REQ18]
-- 2026-10-22 research: open-source source catalog: 343 projects in 8 areas (succeeded) [REQ16, REQ18, AIR01]
 
 ## Open triage
 
@@ -355,18 +367,18 @@ Open (not yet claimed verified):
 
 ## Ledger
 
-- entries: 775, integrity: OK
-- head: `e0447b6c38f293b8`
+- entries: 806, integrity: OK
+- head: `bf927cb140476478`
 
 ## Recent commits
 
+- `907235c` Update README to cover the whole platform (2026-10-22)
+- `dc14725` Ignore agent worktrees (2026-10-22)
+- `c1e7a25` Remove duplicate integrations lines left by the merge (2026-10-22)
+- `589e37a` Record the backlog implementation; first ledger checkpoint; docs (2026-10-22)
 - `a538297` Merge group 8: ecosystem bridges, MCP server, repo hygiene (2026-10-22)
 - `a6bb0c5` Add ecosystem bridges, MCP server and repo hygiene (ADR 0019) (2026-10-22)
 - `591f02f` Align coordination with runtime commitment semantics (2026-10-22)
 - `8f2841c` Merge group 7: coordination liveness and resources (2026-10-22)
 - `fa8bf2f` Merge group 6: enforcing sandboxes and tool policy (2026-10-22)
 - `4b7631c` Tidy optional-dependency comments after merge (2026-10-22)
-- `bc9b2f8` Merge group 1: runtime commitment semantics (2026-10-22)
-- `d4e9c79` Coordination: cancellation, released prefix, liveness, scoped resource loans (2026-10-22)
-- `10667a2` Merge group 2: provenance integrity and exports (2026-10-22)
-- `cabb191` Merge group 4: health, incidents, prognostics (2026-10-22)

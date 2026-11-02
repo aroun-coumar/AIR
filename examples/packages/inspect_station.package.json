@@ -1,0 +1,44 @@
+{
+  "$schema": "ar.package/1.0",
+  "name": "air/skill/inspect_station",
+  "version": "1.2.0",
+  "kind": "skill",
+  "description": "Walk to an inspection station and photograph the asset there.",
+  "license": "AGPL-3.0-or-later",
+  "maintainers": ["AIR examples"],
+  "requires": [
+    { "interface": "air/service/navigation/plan_path", "range": "^1.1",
+      "description": "uses max_length_m, added in 1.1" },
+    { "interface": "air/service/perception/detect_objects", "range": "^1.0", "optional": true,
+      "description": "flags the asset in the photo when a detector is installed" }
+  ],
+  "depends": [
+    { "package": "air/service/acme_nav", "range": ">=2.0,<3" }
+  ],
+  "hardware": {
+    "robot_classes": ["robot.legged.*", "robot.mobile.*"],
+    "devices": [
+      { "types": ["sensor.camera.*"], "min": 1, "description": "inspection photos" }
+    ],
+    "capabilities": ["inspection"]
+  },
+  "skills": [
+    {
+      "skill_id": "inspect_station",
+      "version": "1.2.0",
+      "description": "Go to the named station and capture an inspection image of its asset.",
+      "inputs": [
+        { "name": "station", "type": "string", "description": "station id from the site map" }
+      ],
+      "required_capabilities": ["mobility", "inspection"],
+      "postconditions": [
+        { "signal": "camera.last_image_station", "op": "eq", "value": "$args.station",
+          "description": "an image was captured at the requested station" }
+      ],
+      "exclusive_resources": ["$args.station"],
+      "interruption": "cancel",
+      "expected_evidence": ["image_ref", "pose_at_capture"]
+    }
+  ],
+  "tags": ["example", "inspection"]
+}

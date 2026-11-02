@@ -141,6 +141,28 @@ evidence spine ties everything together.
   [ADR 0010](decisions/0010-hardware-catalog.md) and
   [ADR 0011](decisions/0011-hardware-semantics-and-context.md).
 
+## Package library
+
+```
+ InterfaceContract (ar.interface): id · semver · kind · mode · effect · typed I/O
+        ^ provides (version)             ^ requires (range ^1.2)
+ PackageManifest (ar.package): provides · requires · depends/conflicts · hardware · host · skills
+        |                                   |
+        | check_package_on_robot            | check_installation
+        v                                   v
+ robot manifest + hardware catalog      the installed set (ranges, cycles, catalog versions)
+
+ ServiceRegistry: allow-listed providers -> catalog versions only -> route (prefer, local,
+   priority, newest) -> validate I/O -> fall back only for none/compute; physical refused
+ SkillLibrary: draft -> candidate -> validated_sim -> validated_real -> deprecated -> revoked
+   promotion: other principal · succeeded-activity evidence · held-out · hardware for real
+   resolve(skill, robot, mode) -> champion or newest fitting version -> runtime SkillRegistry
+```
+
+- Packages live in the content-addressed registry, and skill state in the project ledger
+  (`skill.*` entries).
+- See [ADR 0020](decisions/0020-package-library.md).
+
 ## Package dependency rule
 
 `core` depends on nothing. `contracts` depend on `core`. `runtime`, `agents` and

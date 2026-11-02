@@ -145,6 +145,7 @@ BUILTIN_CONTRACT_MODULES = (
     "agentic_robotics.provenance.sources",
     "agentic_robotics.hardware.catalog",
     "agentic_robotics.hardware.domains",
+    "agentic_robotics.library.contracts",
     "agentic_robotics.triage.contracts",
     "agentic_robotics.triage.policy",
     "agentic_robotics.engineering.backends",

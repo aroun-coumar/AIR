@@ -1,0 +1,639 @@
+{
+ "interfaces": [
+  {
+   "interface_id": "air/primitive/chassis/move",
+   "version": "1.0.0",
+   "kind": "primitive",
+   "description": "Command base velocity; reached only through a skill and runtime admission.",
+   "mode": "action",
+   "effect": "physical",
+   "inputs": [
+    {
+     "name": "linear_x",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "unit": "m/s"
+    },
+    {
+     "name": "angular_z",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "unit": "rad/s"
+    },
+    {
+     "name": "duration_s",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "unit": "s",
+     "minimum": 0
+    }
+   ],
+   "outputs": [],
+   "failure_kinds": [
+    "preempted",
+    "timeout",
+    "communication"
+   ],
+   "model_callable": false
+  },
+  {
+   "interface_id": "air/primitive/chassis/odometry",
+   "version": "1.0.0",
+   "kind": "primitive",
+   "description": "Read wheel odometry.",
+   "mode": "rpc",
+   "effect": "none",
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "pose",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "twist",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "stamp_s",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "unit": "s"
+    }
+   ],
+   "failure_kinds": [],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/primitive/camera/image",
+   "version": "1.0.0",
+   "kind": "primitive",
+   "description": "Latest camera frame reference.",
+   "mode": "stream",
+   "effect": "none",
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "image_ref",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "stamp_s",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "unit": "s"
+    },
+    {
+     "name": "frame",
+     "type": "string",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "failure_kinds": [],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/navigation/plan_path",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Plan a collision-free path between two poses in a map frame.",
+   "mode": "rpc",
+   "effect": "compute",
+   "inputs": [
+    {
+     "name": "start",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "goal",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "frame",
+     "type": "string",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "path",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "length_m",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "unit": "m"
+    }
+   ],
+   "failure_kinds": [
+    "start_state",
+    "goal",
+    "frame_transform",
+    "timeout"
+   ],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/navigation/plan_path",
+   "version": "1.1.0",
+   "kind": "service",
+   "description": "Plan a collision-free path; 1.1 adds an optional maximum length.",
+   "mode": "rpc",
+   "effect": "compute",
+   "inputs": [
+    {
+     "name": "start",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "goal",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "frame",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "max_length_m",
+     "type": "number",
+     "required": false,
+     "description": "",
+     "unit": "m",
+     "minimum": 0
+    }
+   ],
+   "outputs": [
+    {
+     "name": "path",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "length_m",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "unit": "m"
+    }
+   ],
+   "failure_kinds": [
+    "start_state",
+    "goal",
+    "frame_transform",
+    "timeout"
+   ],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/navigation/navigate",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Drive to a goal pose. Physical: exposed to agents only as a skill through admission.",
+   "mode": "action",
+   "effect": "physical",
+   "inputs": [
+    {
+     "name": "goal",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "frame",
+     "type": "string",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "reached",
+     "type": "boolean",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "final_pose",
+     "type": "object",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "failure_kinds": [
+    "goal",
+    "stale_state",
+    "preempted",
+    "timeout"
+   ],
+   "model_callable": false
+  },
+  {
+   "interface_id": "air/service/localization/pose",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Current pose estimate with covariance (uncertainty is mandatory).",
+   "mode": "rpc",
+   "effect": "none",
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "pose",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "covariance",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "frame",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "stamp_s",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "unit": "s"
+    }
+   ],
+   "failure_kinds": [
+    "stale_sensor"
+   ],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/mapping/get_map",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Current occupancy or semantic map.",
+   "mode": "rpc",
+   "effect": "none",
+   "inputs": [
+    {
+     "name": "layer",
+     "type": "string",
+     "required": false,
+     "description": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "map_ref",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "frame",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "revision",
+     "type": "integer",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "failure_kinds": [],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/mapping/annotate",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Add a semantic annotation to the map (changes software state).",
+   "mode": "rpc",
+   "effect": "state",
+   "inputs": [
+    {
+     "name": "label",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "pose",
+     "type": "object",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "revision",
+     "type": "integer",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "failure_kinds": [],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/perception/detect_objects",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Detect objects in an image; every hypothesis carries a score and a pose covariance.",
+   "mode": "rpc",
+   "effect": "compute",
+   "inputs": [
+    {
+     "name": "image_ref",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "classes",
+     "type": "object",
+     "required": false,
+     "description": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "detections",
+     "type": "object",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "failure_kinds": [
+    "stale_sensor",
+    "timeout"
+   ],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/manipulation/grasp_pose",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Estimate a grasp pose for a detected object.",
+   "mode": "rpc",
+   "effect": "compute",
+   "inputs": [
+    {
+     "name": "object_id",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "gripper",
+     "type": "string",
+     "required": false,
+     "description": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "pose",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "score",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "minimum": 0,
+     "maximum": 1
+    }
+   ],
+   "failure_kinds": [
+    "goal",
+    "timeout"
+   ],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/manipulation/plan_motion",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Plan an arm trajectory to a target (plan only; execution is a skill).",
+   "mode": "rpc",
+   "effect": "compute",
+   "inputs": [
+    {
+     "name": "target",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "group",
+     "type": "string",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "trajectory",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "approximate",
+     "type": "boolean",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "failure_kinds": [
+    "start_state",
+    "goal",
+    "timeout"
+   ],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/speech/transcribe",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Speech to text.",
+   "mode": "rpc",
+   "effect": "compute",
+   "inputs": [
+    {
+     "name": "audio_ref",
+     "type": "string",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "text",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "confidence",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "minimum": 0,
+     "maximum": 1
+    }
+   ],
+   "failure_kinds": [],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/speech/say",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Speak a sentence through the robot speaker.",
+   "mode": "rpc",
+   "effect": "state",
+   "inputs": [
+    {
+     "name": "text",
+     "type": "string",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "spoken",
+     "type": "boolean",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "failure_kinds": [],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/memory/remember",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Store a fact with its provenance.",
+   "mode": "rpc",
+   "effect": "state",
+   "inputs": [
+    {
+     "name": "fact",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "source",
+     "type": "string",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "outputs": [
+    {
+     "name": "memory_id",
+     "type": "string",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "failure_kinds": [],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/memory/recall",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Retrieve facts relevant to a query.",
+   "mode": "rpc",
+   "effect": "none",
+   "inputs": [
+    {
+     "name": "query",
+     "type": "string",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "limit",
+     "type": "integer",
+     "required": false,
+     "description": "",
+     "minimum": 1
+    }
+   ],
+   "outputs": [
+    {
+     "name": "facts",
+     "type": "object",
+     "required": true,
+     "description": ""
+    }
+   ],
+   "failure_kinds": [],
+   "model_callable": true
+  },
+  {
+   "interface_id": "air/service/health/vitals",
+   "version": "1.0.0",
+   "kind": "service",
+   "description": "Component health readings (temperatures, voltages, motor states).",
+   "mode": "rpc",
+   "effect": "none",
+   "inputs": [],
+   "outputs": [
+    {
+     "name": "readings",
+     "type": "object",
+     "required": true,
+     "description": ""
+    },
+    {
+     "name": "stamp_s",
+     "type": "number",
+     "required": true,
+     "description": "",
+     "unit": "s"
+    }
+   ],
+   "failure_kinds": [],
+   "model_callable": true
+  }
+ ]
+}

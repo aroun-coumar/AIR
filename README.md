@@ -511,6 +511,22 @@ protocols, and nothing in the core imports a bridge. See
 </details>
 
 <details>
+<summary><b>Packages, services and the skill library</b></summary>
+
+| Task | Command |
+|---|---|
+| Browse interface contracts (versions, effect, mode) | `air interfaces list` · `air interfaces show air/service/navigation/plan_path` |
+| Check packages together, and on a robot | `air pkg check nav.package.json skill.package.json --robot robot.manifest.json` |
+| Publish a package; its skills become drafts | `air pkg publish nav.package.json --by engineer:sam` |
+| Resolve and check a whole deployment on a robot | `air pkg deploy-check robot.deployment.json --robot robot.manifest.json` |
+| Promote a skill with evidence (a different person) | `air skills promote inspect_station@1.2.0 validated_real --by lead:kim --evidence <activity>:hardware:pass:held_out` |
+| Which version a robot would run, and why | `air skills resolve inspect_station --robot robot.manifest.json --mode real` |
+| Choose or roll back the version used per mode | `air skills champion <skill@ver> --mode real --by …` · `air skills rollback <skill> --mode real --to <skill@ver> --by … --reason …` |
+| Releases and lineage | `air skills releases` · `air skills lineage inspect_station` |
+
+</details>
+
+<details>
 <summary><b>Hardware catalog and context</b></summary>
 
 | Task | Command |
@@ -584,6 +600,7 @@ src/agentic_robotics/
 ├── provenance/    tracing · ledger · Merkle checkpoints · attestations · exports · traceability · context pack
 ├── triage/        contracts · policy (rules, silences, inhibitions) · book · collectors
 ├── hardware/      catalog (100 classes · 648 types · 122 protocols) · semantics · domain packs · task context
+├── library/       interfaces · packages (provides/requires) · compatibility · service registry · skill library
 ├── engineering/   experiment backends · seeds · reproducibility probe · golden runs · search · validity
 ├── releases/      policy slots · trial-then-confirm activation · TUF metadata · signing
 ├── health/        expected items · STALE · rollup · monitors · PSI · capability gate · readiness · diagnosis

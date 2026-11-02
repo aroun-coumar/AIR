@@ -1,0 +1,12 @@
+{
+  "$schema": "ar.deployment/1.0",
+  "deployment_id": "quad-1-inspection",
+  "robot_id": "quad-1",
+  "description": "The example quadruped running lidar navigation and the station inspection skill.",
+  "packages": [
+    { "package": "air/primitive/quad_chassis", "range": "^1.0" },
+    { "package": "air/service/acme_nav", "range": "^2.0",
+      "config": { "inflation_radius": 0.35, "max_speed": 1.2 } },
+    { "package": "air/skill/inspect_station", "range": "^1.2" }
+  ]
+}

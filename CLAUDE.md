@@ -69,6 +69,9 @@ All five must pass before committing. Versioning and deprecation rules:
   (microduck, unitree, piper, ros2, vda5050, openpi, lerobot, dora) behind the public
   adapter protocol, each with an injected transport and a fake peer
 - `mcp/`: MCP server exposing skills as proposals through `Runtime.submit`
+- `library/`: interface contracts, packages (provides/requires with semver ranges),
+  compatibility checks, the service registry, and the skill library (stages,
+  evidence-bound promotion, champions, rollback, resolution)
 - `testing/`: pytest evidence plugin
 - `plugins.py`, `conformance.py`, `registry.py`, `cli.py`: extension, conformance, assets, tool
 

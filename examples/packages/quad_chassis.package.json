@@ -1,0 +1,19 @@
+{
+  "$schema": "ar.package/1.0",
+  "name": "air/primitive/quad_chassis",
+  "version": "1.0.0",
+  "kind": "primitive",
+  "description": "Odometry from the quadruped's leg controller, as a primitive other packages bind to.",
+  "license": "AGPL-3.0-or-later",
+  "maintainers": ["AIR examples"],
+  "provides": [
+    { "interface": "air/primitive/chassis/odometry", "version": "1.0.0" }
+  ],
+  "hardware": {
+    "robot_classes": ["robot.legged.*", "robot.mobile.*"],
+    "devices": [
+      { "types": ["sensor.imu"], "min": 1, "description": "body IMU for odometry fusion" }
+    ]
+  },
+  "tags": ["example", "odometry"]
+}
